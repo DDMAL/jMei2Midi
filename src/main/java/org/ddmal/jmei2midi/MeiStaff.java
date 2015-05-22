@@ -6,6 +6,8 @@
 package org.ddmal.jmei2midi;
 
 import java.util.HashMap;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * MeiStaff will keep track of each staff element in an MEI document.
@@ -16,26 +18,68 @@ import java.util.HashMap;
 public class MeiStaff {
     private int n; //n attribute in mei document
     private int channel; //converted n attribute to fit in MIDI channels/tracks
+    
+    
     private String tempo; //given string tempo
-    private String label; //usually used for instrument name
     private int bpm; //converted tempo to beats per minute
+    
+    
     private int tick; //current tick count of this staff
     private int layerOffset; //included to account for multiple layers
                              //starting at the same time
                              //only need to use with 2 or more layers
-    private String quality; //major or minor
+    
+    
+    private String keymode; //major or minor
                             //only do once at the beginning
                             //dont keep updating throughout
     private String keysig; //mei keysig like "2s" or "4f" or "0"
     private HashMap<String,String> keysigMap; //current key / accidentals might need reference
                                               //this is used to check each note
-    private String meter; //need for things like mRest
     
+    private String label; //usually used for instrument name
+    
+    
+    private String meterCount; //need for things like mRest
+    private String meterUnit;
+    
+    /**
+     * Default MeiStaff Constructor.
+     * Should not be used because all values assumed.
+     * Only created to account for someone forgetting to input
+     * required attributes in scoreDef or staffDef.
+     */
+        public MeiStaff(int n) {
+        this.n = n;
+        this.computeChannel();
+        this.tempo = "Adagio";
+        this.label = "Piano";
+        this.computeBpm();
+        this.tick = 0;
+        this.keysig = "0";
+        this.keymode = "major";
+        this.computeKeysigMap();
+        this.meterCount = "4";
+        this.meterUnit = "4";
+    }
+    
+    /**
+     * General MeiStaff Constructor.
+     * @param n
+     * @param tempo
+     * @param label
+     * @param keysig
+     * @param keymode
+     * @param meterCount
+     * @param meterUnit
+     */
     public MeiStaff(int n, 
                     String tempo,  
                     String label,
                     String keysig, 
-                    String meter) {
+                    String keymode,
+                    String meterCount,
+                    String meterUnit) {
         this.n = n;
         this.computeChannel();
         this.tempo = tempo;
@@ -43,8 +87,10 @@ public class MeiStaff {
         this.computeBpm();
         this.tick = 0;
         this.keysig = keysig;
+        this.keymode = keymode.toLowerCase();
         this.computeKeysigMap();
-        this.meter = meter;
+        this.meterCount = meterCount;
+        this.meterUnit = meterUnit;
     }
 
     /**
@@ -61,6 +107,20 @@ public class MeiStaff {
         this.n = n;
         computeChannel();
     }
+
+    /**
+     * @return the label
+     */
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * @param label the label to set
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
     
     /**
      * Computes the appropriate MIDI channel given the MEI n attribute.
@@ -76,6 +136,21 @@ public class MeiStaff {
         else {
             this.channel = 15;
         }
+    }
+
+    /**
+     * @return the keymode
+     */
+    public String getKeymode() {
+        return keymode;
+    }
+
+    /**
+     * @param keymode the keymode to set
+     * Set to lowercase for consistency
+     */
+    public void setKeymode(String keymode) {
+        this.keymode = keymode.toLowerCase();
     }
     
     /**
@@ -113,17 +188,31 @@ public class MeiStaff {
     }
 
     /**
-     * @return the meter
+     * @return the meterCount
      */
-    public String getMeter() {
-        return meter;
+    public String getMeterCount() {
+        return meterCount;
     }
 
     /**
-     * @param meter the meter to set
+     * @param meterCount the meterCount to set
      */
-    public void setMeter(String meter) {
-        this.meter = meter;
+    public void setMeterCount(String meterCount) {
+        this.meterCount = meterCount;
+    }
+    
+        /**
+     * @return the meterUnit
+     */
+    public String getMeterUnit() {
+        return meterUnit;
+    }
+
+    /**
+     * @param meterUnit the meterUnit to set
+     */
+    public void setMeterUnit(String meterUnit) {
+        this.meterUnit = meterUnit;
     }
 
     /**
@@ -163,6 +252,7 @@ public class MeiStaff {
      * each note for any accidental in the given key.
      * HashMap holds key,value pair as the specified accidental in the key
      * signature also dependent on the current key.
+     * ***** Special case : C Major is null. *****
      * @param keysignature the value of the MEI key.sig 
      * @return 
      */
@@ -186,5 +276,47 @@ public class MeiStaff {
             }
             keysigMap = keysignature;
         }
+    }
+    
+     /**
+     * Compare this element to another object.
+     * @return 
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        MeiStaff rhs = (MeiStaff) obj;
+        return new EqualsBuilder()
+                .append(n, rhs.n)
+                .append(channel, rhs.channel)
+                .append(tempo, rhs.tempo)
+                .append(bpm, rhs.bpm)
+                .append(tick, rhs.tick)
+                .append(layerOffset, rhs.layerOffset)
+                .append(keymode, rhs.keymode)
+                .append(keysig, rhs.keysig)
+                .append(label, rhs.label)
+                .append(meterCount, rhs.meterCount)
+                .append(meterUnit, rhs.meterUnit)
+                .isEquals();
+    }
+
+    /**
+     * Overridden hashcode.
+     * @return 
+     */
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(n)
+                .toHashCode();
     }
 }

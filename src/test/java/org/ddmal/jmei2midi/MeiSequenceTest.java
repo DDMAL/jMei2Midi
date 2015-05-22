@@ -9,6 +9,7 @@ import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
@@ -76,6 +77,7 @@ public class MeiSequenceTest {
      * Will need to add tempo when process MeiHead is completed.
      * @throws javax.sound.midi.InvalidMidiDataException
      */
+    @Ignore
     @Test
     public void testProcessScoreDef() throws InvalidMidiDataException {
         //Test 1 : treble-clef-out
@@ -127,7 +129,28 @@ public class MeiSequenceTest {
     @Ignore
     @Test
     public void testProcessStaffDef() {
-
+        
+    }
+    
+    @Test
+    public void testCreateMeiStaff() throws InvalidMidiDataException {
+        //Test 1 : treble-clef-out
+        //No n attribute given in many of the mei-test-set files
+        String filename = "/Users/dinamix/Documents/mei/"
+                + "mei-test-set/MEI-files/clefs/treble-clef-out.mei";
+        MeiSequence trebleclefout;
+        try {
+            trebleclefout = new MeiSequence(filename);
+        }
+        catch(InvalidMidiDataException imde) {
+            throw new InvalidMidiDataException("createMeiStaff error");
+        }
+        MeiStaff actual = trebleclefout.getStaffs().get(1);
+        MeiStaff expected = new MeiStaff(1, "Adagio", "Piano", "0", "major", "4", "4");
+        HashMap<Integer,MeiStaff> expectedMap = new HashMap<>();
+        expectedMap.put(1, expected);
+        assertEquals(expected,actual);
+        assertEquals(expectedMap, trebleclefout.getStaffs());
     }
 
     /**

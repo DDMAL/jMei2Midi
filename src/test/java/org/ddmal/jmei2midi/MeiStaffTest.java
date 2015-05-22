@@ -44,17 +44,17 @@ public class MeiStaffTest {
      */
     @Test
     public void testComputeKey() {
-        MeiStaff CMajor = new MeiStaff(0, "", "", "0", "");
+        MeiStaff CMajor = new MeiStaff(0, "", "", "0", "","","");
         HashMap<String,String> expectCMajor = CMajor.getKeysigMap();
         assertNull(expectCMajor);
         
-        MeiStaff GMajor = new MeiStaff(0, "", "", "1s", "");
+        MeiStaff GMajor = new MeiStaff(0, "", "", "1s", "","","");
         HashMap<String,String> expectGMajor = GMajor.getKeysigMap();
         HashMap<String,String> actualGMajor = new HashMap<String,String>();
         actualGMajor.put("f", "f");
         assertEquals(actualGMajor,expectGMajor);
         
-        MeiStaff ASMinor = new MeiStaff(0, "", "", "7s", "");
+        MeiStaff ASMinor = new MeiStaff(0, "", "", "7s", "","","");
         HashMap<String,String> expectASMinor = ASMinor.getKeysigMap();
         HashMap<String,String> actualASMinor = new HashMap<String,String>();
         actualASMinor.put("f", "f");
@@ -73,7 +73,7 @@ public class MeiStaffTest {
         assertTrue(expectASMinor.containsValue("e"));
         assertTrue(expectASMinor.containsValue("b"));
         
-        MeiStaff AFMinor = new MeiStaff(0, "", "", "7f", "");
+        MeiStaff AFMinor = new MeiStaff(0, "", "", "7f", "","","");
         HashMap<String,String> expectAFMinor = AFMinor.getKeysigMap();
         HashMap<String,String> actualAFMinor = new HashMap<String,String>();
         actualAFMinor.put("b", "b");

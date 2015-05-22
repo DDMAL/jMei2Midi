@@ -25,7 +25,8 @@ public class MeiSequence {
     
     private Sequence sequence;
     
-    private List<MeiStaff> staffs;
+    private HashMap<Integer,MeiStaff> staffs; //staffs store in hashmap
+                                              //for easier access throughout
     
     private List<Track> tracks; //keep tracks in sequence for simpler reference
                                 //and for >16 staffs
@@ -57,10 +58,10 @@ public class MeiSequence {
         document = MeiXmlReader.loadFile(filename);
         
         //Instantiate tracks as ArrayList
-        tracks = new ArrayList<Track>();
+        tracks = new ArrayList<>();
         
         //Instantiate staffs as ArrayList
-        staffs = new ArrayList<MeiStaff>();
+        staffs = new HashMap<>();
         
         //Create new defaults array for default values
         //So far we need 5 values for:
@@ -89,15 +90,15 @@ public class MeiSequence {
     }
     
     /**
-     * RETURN LIST\<MEISTAFF\> STAFFS FOR TESTING PURPOSES
+     * RETURN HASHMAP\<MEISTAFF\> STAFFS FOR TESTING PURPOSES
      * @return 
      */
-    public List<MeiStaff> getStaffs() {
+    public HashMap<Integer,MeiStaff> getStaffs() {
         return this.staffs;
     }
 
     /**
-     * Converts given document to MIDI sequence object.
+     * Converts given MEI document to MIDI sequence object.
      * mei is the root element of any mei document.
      * mei children will be meiHead and music.
      * meiHead is for tempo and music is for notes and other changes.
@@ -123,10 +124,9 @@ public class MeiSequence {
      * then either processParent() or processElement() is called.
      * @param root 
      */
-    public void recursiveDFS(MeiElement root) {
+    private void recursiveDFS(MeiElement root) {
         processElement(root);
     }
-    
     
     /**
      * Each MEI element processed accordingly.
@@ -135,7 +135,7 @@ public class MeiSequence {
      */
     //COULD TEST WITH SWITCH STATEMENT FOR NEATNESS
     //would need to check if switch uses .equals() or == (probably .equals())
-    public void processElement(MeiElement element) {
+    private void processElement(MeiElement element) {
         //Get children of mdiv which will probably be <body>
         if(element.getName().equals("music")) {
             processParent(element);
@@ -212,7 +212,7 @@ public class MeiSequence {
      * processElement(child).
      * @param parent 
      */
-    public void processParent(MeiElement parent) {
+    private void processParent(MeiElement parent) {
         for(MeiElement child : parent.getChildren()) {
             processElement(child);
         }
@@ -223,50 +223,178 @@ public class MeiSequence {
      * These will be used for staffDef elements as default values.
      * @param scoreDef passed scoreDef tag
      */
-    public void processScoreDef(MeiElement scoreDef) {
+    private void processScoreDef(MeiElement scoreDef) {
         //Keep default key.sig and then use
         //staff def key.sig on other staffs
         String count = scoreDef.getAttribute("meter.count");
         String unit = scoreDef.getAttribute("meter.unit");
         String keysig = scoreDef.getAttribute("key.sig");
         String keymode = scoreDef.getAttribute("key.mode");
-        if(count != null) {
+        if(attributeExists(count)) {
             defaults[1] = count;
         }
-        if(unit != null) {
+        if(attributeExists(unit)) {
             defaults[2] = unit;
         }
-        if(keysig != null) {
+        if(attributeExists(keysig)) {
             defaults[3] = keysig;
         }
-        if(keymode != null) {
+        if(attributeExists(keymode)) {
             defaults[4] = keymode;
         }
         processParent(scoreDef);
     }
     
+    //START FROM HERE
+    //DO SEQUENTIAL CASES WITH DEFAULT BEING LAST CASE
     //Need to check n for 10 or greater than 16
     //Then check if n is in staff or else create new MeiStaff
     //And create new Track()
-    public void processStaffDef(MeiElement staffDef) {
-        MeiStaff thisStaff;
-        int n = 0;
+    private void processStaffDef(MeiElement staffDef) {
+        MeiStaff thisStaff;       
+        
+        //Set up necessary attributes
+        int n = 0; // n = 0 in case it does not exist
         String nString = staffDef.getAttribute("n");
-        if(nString != null) {
-            n = Integer.parseInt(nString);
-        }
-        if(staffs.size() > n-1) {
-            thisStaff = staffs.get(n);
-        }
+        String count = staffDef.getAttribute("meter.count");
+        String unit = staffDef.getAttribute("meter.unit");
         String label = staffDef.getAttribute("label");
         String keysig = staffDef.getAttribute("key.sig");
         String keymode = staffDef.getAttribute("key.mode");
-        if(label == null) {
-            label = "Piano";
+        
+        //CASE 1: N ATTRIBUTE DNE
+        //Check if n attribute exists
+        if(attributeExists(nString)) {
+            n = Integer.parseInt(nString);
         }
-        if(keysig == null) {
-            
+        /*If n does not exist, then assume we only have 1 staff and create it
+        //THIS SHOULD ONLY HAPPEN IF WE HAVE 1 STAFF
+        //AND EVEN THEN N SHOULD BE 1
+        //n = 0 if n attribute DNE
+        else {
+            thisStaff = createMeiStaff(n, count, unit, label, keysig, keymode);
+            staffs.put(n, thisStaff);
+        }*/
+        
+        //CASE 2: N ATTRIBUTE DOES EXIST
+        //If staff already created then check it
+        //and make appropriate changes
+        if(staffs.containsKey(n)){
+            thisStaff = staffs.get(n);
+            thisStaff = updateMeiStaff(thisStaff, count, 
+                                         unit, label, keysig, keymode);
+            staffs.replace(n, thisStaff);
         }
+        //If staff not created yet, then instantiate it
+        //and put it into HashMap<MeiStaff>
+        else {
+            thisStaff = createMeiStaff(n, count, unit, label, keysig, keymode);
+            staffs.put(n, thisStaff);
+        }
+        
+        //@TODO
+        //At the end we need to create or change MIDI tracks
+        //@TODO
+    }
+    
+    /**
+     * MeiStaff object populated with new values.
+     * When a staff already exists but a new staffDef is found with the
+     * same n attribute then the given attributes are changed accordingly.
+     * Since MeiStaff has already been created,
+     * we know that thisStaff will already either have
+     * old attributes or default attributes.
+     * @param thisStaff
+     * @param count
+     * @param unit
+     * @param label
+     * @param keysig
+     * @param keymode
+     * @return newly populated MeiStaff object
+     */
+    private MeiStaff updateMeiStaff(MeiStaff thisStaff,
+                                      String count,
+                                      String unit,
+                                      String label,
+                                      String keysig,
+                                      String keymode) {
+        if(attributeExists(count)) {
+            thisStaff.setMeterCount(count);
+        }
+        if(attributeExists(unit)) {
+            thisStaff.setMeterUnit(unit);
+        }
+        if(attributeExists(label)) {
+            thisStaff.setLabel(label);
+        }
+        if(attributeExists(keysig)) {
+            thisStaff.setKeysig(keysig);
+        }
+        if(attributeExists(keymode)) {
+            thisStaff.setKeymode(keymode);
+        }
+        return thisStaff;
+    }
+    
+    /**
+     * MeiStaff object created when n attribute is not given.
+     * This should not happen but maybe with only 1 staff
+     * the composer may assume that there is no n attribute.
+     * @param n
+     * @param count
+     * @param unit
+     * @param label
+     * @param keysig
+     * @param keymode
+     * @return new staff element with filled in values
+     */
+    private MeiStaff createMeiStaff(int n,
+                                    String count,
+                                    String unit,
+                                    String label,
+                                    String keysig,
+                                    String keymode) {
+        MeiStaff newStaff = new MeiStaff(n);
+        if(attributeExists(count)) {
+            newStaff.setMeterCount(count);
+        }
+        else {
+            newStaff.setMeterCount(defaults[1]);
+        }
+        if(attributeExists(unit)) {
+            newStaff.setMeterUnit(unit);
+        }
+        else {
+            newStaff.setMeterUnit(defaults[2]);
+        }
+        if(attributeExists(label)) {
+            newStaff.setLabel(label);
+        }
+        else {
+            newStaff.setLabel("Piano");
+        }
+        if(attributeExists(keysig)) {
+            newStaff.setKeysig(keysig);
+        }
+        else {
+            newStaff.setKeysig(defaults[3]);
+        }
+        if(attributeExists(keymode)) {
+            newStaff.setKeymode(keymode);
+        }
+        else {
+            newStaff.setKeymode(defaults[4]);
+        }
+        return newStaff;
+    }
+    
+    /**
+     * Helper method to standardize if an attribute exists within an element.
+     * @param attribute
+     * @return true if attribute exists
+     */
+    private boolean attributeExists(String attribute) {
+        return attribute != null;
     }
     
     public void processChord(MeiElement parent) {
