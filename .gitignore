@@ -1,7 +1,7 @@
 #General Files
 .project
 .classpath
-*/.DS_Store
+.DS_Store
 
 #My Test Files
 TestReflection
