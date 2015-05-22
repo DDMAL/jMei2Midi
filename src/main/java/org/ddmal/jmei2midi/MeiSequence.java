@@ -34,16 +34,16 @@ public class MeiSequence {
                                 //and will go into the list accordingly.
                                 //Account for channel 9 drums and >15 in 15
     
-    //Might need to use List<String> if each staff needs its own defaults
-    //Right now these are global defaults taken from scoreDef
+    //This will contain metdata and be related to mdivs and scoreDefs
     //If no other information is given then defaults will be used
-    private String[] defaults;  //this accounts for changes in <scoreDef>
-                                //that may or may not need to be global
-                                //defaults[0] for tempo
-                                //defaults[1] for meter.count
-                                //defaults[2] for meter.unit
-                                //defaults[3] for key.sig
-                                //defaults[4] for key.mode
+    private int currentMovement; //this will hold the current mdiv number
+    private HashMap<Integer,MeiWork> works; //this accounts for changes in <scoreDef>
+                                            //that may or may not need to be global
+                                            //defaults[0] for tempo
+                                            //defaults[1] for meter.count
+                                            //defaults[2] for meter.unit
+                                            //defaults[3] for key.sig
+                                            //defaults[4] for key.mode
                                
     private HashMap<String,String> xmlIds; //not necessary with DFS
     
@@ -66,7 +66,7 @@ public class MeiSequence {
         //Create new defaults array for default values
         //So far we need 5 values for:
         //tempo, meter.count, meter.unit, key.sig and key.mode
-        defaults = new String[5];
+        works = new HashMap<>();
         
         //Turn the document into a MIDI sequence
         //It is returned in the class sequence variable
@@ -85,8 +85,8 @@ public class MeiSequence {
      * RETURN STRING[] DEFAULTS FOR TESTING PURPOSES
      * @return 
      */
-    public String[] getDefaults() {
-        return this.defaults;
+    public HashMap<Integer,MeiWork> getWorks() {
+        return this.works;
     }
     
     /**
@@ -114,7 +114,7 @@ public class MeiSequence {
         }
         MeiElement mei = document.getRootElement();
         for(MeiElement element : mei.getChildren()) {
-            recursiveDFS(element);
+            recursiveDFS(element);//<meihead> and <music> will be passed
         }
     }
     
@@ -136,8 +136,22 @@ public class MeiSequence {
     //COULD TEST WITH SWITCH STATEMENT FOR NEATNESS
     //would need to check if switch uses .equals() or == (probably .equals())
     private void processElement(MeiElement element) {
+        //Get children of meihead which will be needed for workDesc
+        if(element.getName().equals("meiHead")) {
+            processParent(element);
+        }
+        //Get children of workDesc which will be work
+        else if(element.getName().equals("workDesc")) {
+            processParent(element);
+        }
+        //Process work by creatin MeiWork objects
+        //and populating the works hashmap
+        //This is used for default settings for each mdiv
+        else if(element.getName().equals("work")) {
+            processWork(element);
+        }
         //Get children of mdiv which will probably be <body>
-        if(element.getName().equals("music")) {
+        else if(element.getName().equals("music")) {
             processParent(element);
         }
         //Get children of mdiv which will probably be <mdiv>
@@ -146,7 +160,7 @@ public class MeiSequence {
         }
         //Get children of mdiv which will probably be <score>
         else if(element.getName().equals("mdiv")) {
-            processParent(element);
+            processMdiv(element);
         }
         //Get children of score which will probably be <scoreDef>
         //or <section>
@@ -219,8 +233,98 @@ public class MeiSequence {
     }
     
     /**
+     * Populates the work HashMap.
+     * If an n attribute is not provided then we know we have more than
+     * one work and so more than one mdiv.
+     * If no n attribute is found, then we only have 1 mdiv.
+     * @param work 
+     */
+    private void processWork(MeiElement work) {
+        MeiWork thisWork;
+        int n = 1;
+        String nString = work.getAttribute("n");
+        //If work does not have n then we assume 
+        //that n = 1
+        if(!attributeExists(nString)) {
+            thisWork = createMeiWork(work,n);
+            works.put(n, thisWork);
+        }
+        //If we have n="x" then we have >=1 movement
+        //and so we get the new n
+        else {
+            n = Integer.parseInt(nString);
+            thisWork = createMeiWork(work,n);
+            works.put(n, thisWork);
+        }
+    }
+    
+    /**
+     * Creates an MeiWork object with the key, meter, tempo and instrVoice tags.
+     * @param work
+     * @return 
+     */
+    private MeiWork createMeiWork(MeiElement work, int n) {
+        MeiWork newWork = new MeiWork(n);
+        List<MeiElement> workBuild = work.getChildren();
+        for(MeiElement ele : workBuild) {
+            if(ele.getName().equals("key")) {
+                newWork.setKeyName(ele.getAttribute("pname"));
+                newWork.setKeyMode(ele.getAttribute("mode"));
+            }
+            else if(ele.getName().equals("meter")) {
+                newWork.setMeterCount(ele.getAttribute("count"));
+                newWork.setMeterUnit(ele.getAttribute("unit"));
+            }
+            else if(ele.getName().equals("tempo")) {
+                newWork.setTempo(ele.getValue());
+            }
+            else if(ele.getName().equals("perfMedium")) {
+                List<MeiElement> instrList = ele.getDescendantsByName("instrVoice");
+                populateInstrVoice(instrList,newWork);
+            }
+        }
+        return newWork;
+    }
+    
+    /**
+     * Iterates through all instrVoice tags within a perfMedium/Instrumentation
+     * tag.
+     * If no n attribute is given, then sequential iteration is assumed.
+     * @param instrList
+     * @param newWork 
+     */
+    private void populateInstrVoice(List<MeiElement> instrList, MeiWork newWork) {
+        int n = 1;
+        for(MeiElement instrVoice : instrList) {
+            String value = instrVoice.getValue();
+            String nString = instrVoice.getAttribute("n");
+            if(attributeExists(nString)) {
+                n = Integer.parseInt(nString);
+            }
+            newWork.addInstrVoice(n, instrVoice.getValue());
+            n++; //Double check this in testing
+                 //maybe not the best coding practice
+        }
+    }
+    
+    /**
+     * Change global movement if n attribute is given in mdiv.
+     * @param mdiv 
+     */
+    private void processMdiv(MeiElement mdiv) {
+        int n = 1;
+        String nString = mdiv.getAttribute("n");
+        if(attributeExists(nString)) {
+            n = Integer.parseInt(nString);
+        }
+        currentMovement = n;
+        processParent(mdiv);
+    }
+    
+    /**
      * Stores meter.count, meter.unit and key.sig in String[] defaults.
      * These will be used for staffDef elements as default values.
+     * Will replace metaData if needed.
      * @param scoreDef passed scoreDef tag
      */
     private void processScoreDef(MeiElement scoreDef) {
@@ -231,16 +335,16 @@ public class MeiSequence {
         String keysig = scoreDef.getAttribute("key.sig");
         String keymode = scoreDef.getAttribute("key.mode");
         if(attributeExists(count)) {
-            defaults[1] = count;
+            works.get(currentMovement).setMeterCount(count);
         }
         if(attributeExists(unit)) {
-            defaults[2] = unit;
+            works.get(currentMovement).setMeterUnit(unit);
         }
         if(attributeExists(keysig)) {
-            defaults[3] = keysig;
+            works.get(currentMovement).setKeysig(keysig);
         }
         if(attributeExists(keymode)) {
-            defaults[4] = keymode;
+            works.get(currentMovement).setKeyMode(keymode);
         }
         processParent(scoreDef);
     }
@@ -254,7 +358,7 @@ public class MeiSequence {
         MeiStaff thisStaff;       
         
         //Set up necessary attributes
-        int n = 0; // n = 0 in case it does not exist
+        int n = 1; // n = 1 in case it does not exist
         String nString = staffDef.getAttribute("n");
         String count = staffDef.getAttribute("meter.count");
         String unit = staffDef.getAttribute("meter.unit");
@@ -359,13 +463,13 @@ public class MeiSequence {
             newStaff.setMeterCount(count);
         }
         else {
-            newStaff.setMeterCount(defaults[1]);
+            newStaff.setMeterCount(works.get(n).getMeterCount());
         }
         if(attributeExists(unit)) {
             newStaff.setMeterUnit(unit);
         }
         else {
-            newStaff.setMeterUnit(defaults[2]);
+            newStaff.setMeterUnit(works.get(n).getMeterUnit());
         }
         if(attributeExists(label)) {
             newStaff.setLabel(label);
@@ -377,13 +481,13 @@ public class MeiSequence {
             newStaff.setKeysig(keysig);
         }
         else {
-            newStaff.setKeysig(defaults[3]);
+            newStaff.setKeysig(works.get(n).getKeysig());
         }
         if(attributeExists(keymode)) {
             newStaff.setKeymode(keymode);
         }
         else {
-            newStaff.setKeymode(defaults[4]);
+            newStaff.setKeymode(works.get(n).getKeyMode());
         }
         return newStaff;
     }

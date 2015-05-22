@@ -306,6 +306,7 @@ public class MeiStaff {
                 .append(label, rhs.label)
                 .append(meterCount, rhs.meterCount)
                 .append(meterUnit, rhs.meterUnit)
+                .append(keysigMap, this.keysigMap)
                 .isEquals();
     }
 
