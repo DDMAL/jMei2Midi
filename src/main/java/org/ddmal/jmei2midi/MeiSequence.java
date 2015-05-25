@@ -279,11 +279,28 @@ public class MeiSequence {
                 newWork.setTempo(ele.getValue());
             }
             else if(ele.getName().equals("perfMedium")) {
-                List<MeiElement> instrList = ele.getDescendantsByName("instrVoice");
-                populateInstrVoice(instrList,newWork);
+                processPerfMedium(ele,newWork);
             }
         }
         return newWork;
+    }
+    
+    /**
+     * Splits up perfMedium element into castList and instrumentation
+     * elements to get descendant castItem and instrVoice in order.
+     * @param element
+     * @param newWork 
+     */
+    private void processPerfMedium(MeiElement element, MeiWork newWork) {
+        //need to add cast list here
+        for(MeiElement child : element.getChildren()) {
+            if(child.getName().equals("castList")) {
+                populateInstrVoice(child.getDescendantsByName("castItem"), newWork);
+            }
+            else if(child.getName().equals("instrumentation")) {
+                populateInstrVoice(child.getDescendantsByName("instrVoice"),newWork);
+            }
+        }
     }
     
     /**
@@ -295,6 +312,10 @@ public class MeiSequence {
      */
     private void populateInstrVoice(List<MeiElement> instrList, MeiWork newWork) {
         int n = 1;
+        //If we have cast list then start from that point
+        if(newWork.getInstrVoice().size() > 0) {
+            n = newWork.getInstrVoice().size() + 1;
+        }
         for(MeiElement instrVoice : instrList) {
             String value = instrVoice.getValue();
             String nString = instrVoice.getAttribute("n");
@@ -347,6 +368,25 @@ public class MeiSequence {
             works.get(currentMovement).setKeyMode(keymode);
         }
         processParent(scoreDef);
+    }
+    
+    /**
+     * THIS MAY NOT BE NECESSARY, LEAVING IT HERE FOR NOW
+     * Process a staffGrp element such that a staffDef will define
+     * a new staff and a staffGrp will define a group of staffs
+     * with the same instrument.
+     * @param staffGrp 
+     */
+    private void processStaffGrp(MeiElement staffGrp) {
+        String uniqueID = staffGrp.getId();
+        for(MeiElement staffElement : staffGrp.getChildren()) {
+            if(staffElement.getName().equals("staffDef")) {
+                processStaffDef(staffElement);
+            }
+            else if(staffElement.getName().equals("staffGrp")) {
+                processStaffGrp(staffElement);
+            }
+        }
     }
     
     //START FROM HERE
@@ -402,7 +442,7 @@ public class MeiSequence {
     }
     
     /**
-     * MeiStaff object populated with new values.
+     * MeiStaff object populated with new values in new staffDef.
      * When a staff already exists but a new staffDef is found with the
      * same n attribute then the given attributes are changed accordingly.
      * Since MeiStaff has already been created,
@@ -422,6 +462,7 @@ public class MeiSequence {
                                       String label,
                                       String keysig,
                                       String keymode) {
+        thisStaff.setTempo(works.get(currentMovement).getTempo());
         if(attributeExists(count)) {
             thisStaff.setMeterCount(count);
         }
@@ -458,38 +499,73 @@ public class MeiSequence {
                                     String label,
                                     String keysig,
                                     String keymode) {
+        MeiWork work = works.get(currentMovement);
         MeiStaff newStaff = new MeiStaff(n);
+        newStaff.setTempo(work.getTempo());
+        
         if(attributeExists(count)) {
             newStaff.setMeterCount(count);
         }
         else {
-            newStaff.setMeterCount(works.get(n).getMeterCount());
+            newStaff.setMeterCount(work.getMeterCount());
         }
         if(attributeExists(unit)) {
             newStaff.setMeterUnit(unit);
         }
         else {
-            newStaff.setMeterUnit(works.get(n).getMeterUnit());
+            newStaff.setMeterUnit(work.getMeterUnit());
         }
         if(attributeExists(label)) {
             newStaff.setLabel(label);
         }
         else {
-            newStaff.setLabel("Piano");
+            processNewLabel(newStaff, n);
         }
         if(attributeExists(keysig)) {
             newStaff.setKeysig(keysig);
         }
         else {
-            newStaff.setKeysig(works.get(n).getKeysig());
+            newStaff.setKeysig(work.getKeysig());
         }
         if(attributeExists(keymode)) {
             newStaff.setKeymode(keymode);
         }
         else {
-            newStaff.setKeymode(works.get(n).getKeyMode());
+            newStaff.setKeymode(work.getKeyMode());
         }
         return newStaff;
+    }
+    
+    /**
+     * If instrument not given in label
+     * or instrument not given in meihead
+     * then loop back till you find an instrument
+     * or else there is no instrument and
+     * Piano is default in MeiStaff default object.
+     * @param newStaff
+     * @param n 
+     */
+    private void processNewLabel(MeiStaff newStaff, int n) {
+        //Check if there is a work
+        MeiWork work = works.get(currentMovement);
+        if(work != null) {
+            //Check if there is a valid instrVoice
+            if(work.getInstrVoice().containsKey(n)) {
+                newStaff.setLabel(work.getInstrVoice().get(n));
+            }
+            //If there is no instrVoice then take previous one
+            else {
+            //Iterate through hashmap backwards
+            //till we find an instrument.
+            //This will be in the same staffGrp.
+                for(int i = n-1; i >= 0; i--) {
+                    if(work.getInstrVoice().containsKey(i)) {
+                        newStaff.setLabel(work.getInstrVoice().get(i));
+                    }
+                }
+            } 
+        }      
+        //Else no instrument given and we default to piano
     }
     
     /**

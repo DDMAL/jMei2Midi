@@ -79,33 +79,50 @@ public class MeiSequenceTest {
     public void testProcessWork() throws InvalidMidiDataException {
         //This doesnt work strangely
         //maybe debug from here
-        /*Test 1 : Czerny
+        //Test 1 : Czerny
         String filename = "/Users/dinamix/Documents/mei/"
                 + "music-encoding/samples/MEI2013/Music/Complete examples/Czerny_op603_6.mei";       
         MeiSequence czerny = new MeiSequence(filename);
         MeiWork expected = new MeiWork(1, "d", "minor", "4", "4", null);
         expected.addInstrVoice(1, "Organ");
         MeiWork actual = czerny.getWorks().get(1);
-        assertEquals(expected, actual);*/
+        assertEquals(expected, actual);
         
         //Test 2 Beethoven
         String filename2 = "/Users/dinamix/Documents/mei/"
                 + "music-encoding/samples/MEI2013/Music/Complete examples/Beethoven_op.18.mei";       
         MeiSequence beethoven = new MeiSequence(filename2);
-        MeiWork expected2 = new MeiWork(1, "f", "major", "3", "4", "Allegro con brio");
-        expected2.addInstrVoice(1, "Violin I");
-        expected2.addInstrVoice(2, "Violin II");
-        expected2.addInstrVoice(3, "Viola");
-        expected2.addInstrVoice(4, "Violoncello");
-        MeiWork actual2 = beethoven.getWorks().get(1);
-        assertEquals(expected2, actual2);
+        MeiWork expectedB = new MeiWork(1, "f", "major", "3", "4", "Allegro con brio");
+        expectedB.addInstrVoice(1, "Violin I");
+        expectedB.addInstrVoice(2, "Violin II");
+        expectedB.addInstrVoice(3, "Viola");
+        expectedB.addInstrVoice(4, "Violoncello");
+        MeiWork actualB = beethoven.getWorks().get(1);
+        assertEquals(expectedB, actualB);
         
-        MeiWork expected3 = new MeiWork(2, "f", "major", "9", "8", "Adagio affettuoso ed appasionato");
-        expected3.addInstrVoice(1, "Violin I");
-        expected3.addInstrVoice(2, "Violin II");
-        expected3.addInstrVoice(3, "Viola");
-        expected3.addInstrVoice(4, "Violoncello");
-        MeiWork actual3 = beethoven.getWorks().get(2);
+        MeiWork expectedB2 = new MeiWork(2, "f", "minor", "9", "8", "Adagio affettuoso ed appasionato");
+        expectedB2.addInstrVoice(1, "Violin I");
+        expectedB2.addInstrVoice(2, "Violin II");
+        expectedB2.addInstrVoice(3, "Viola");
+        expectedB2.addInstrVoice(4, "Violoncello");
+        MeiWork actualB2 = beethoven.getWorks().get(2);
+        assertEquals(expectedB2, actualB2);
+        
+        MeiWork expectedB3 = new MeiWork(3, "f", "major", "3", "4", "Scherzo. Allegro molto.");
+        expectedB3.addInstrVoice(1, "Violin I");
+        expectedB3.addInstrVoice(2, "Violin II");
+        expectedB3.addInstrVoice(3, "Viola");
+        expectedB3.addInstrVoice(4, "Violoncello");
+        MeiWork actualB3 = beethoven.getWorks().get(3);
+        assertEquals(expectedB3, actualB3);
+        
+        MeiWork expectedB4 = new MeiWork(4, "f", "minor", "2", "4", "Allegro.");
+        expectedB4.addInstrVoice(1, "Violin I");
+        expectedB4.addInstrVoice(2, "Violin II");
+        expectedB4.addInstrVoice(3, "Viola");
+        expectedB4.addInstrVoice(4, "Violoncello");
+        MeiWork actualB4 = beethoven.getWorks().get(4);
+        assertEquals(expectedB4, actualB4);
     }
 
     /**
@@ -113,7 +130,6 @@ public class MeiSequenceTest {
      * Will need to add tempo when process MeiHead is completed.
      * @throws javax.sound.midi.InvalidMidiDataException
      */
-    @Ignore
     @Test
     public void testProcessScoreDef() throws InvalidMidiDataException {
         //Test 1 : treble-clef-out
@@ -127,8 +143,8 @@ public class MeiSequenceTest {
             throw new InvalidMidiDataException("scoreDef MIDI error");
         }
         HashMap<Integer,MeiStaff> expected = new HashMap<>();
-        expected.put(1, new MeiStaff(1, "Adagio", "", "0", "major", "4", "4"));
-        assertEquals(expected, trebleclefout.getWorks());
+        expected.put(1, new MeiStaff(1, null, "Piano", "0", "major", "4", "4"));
+        assertEquals(expected, trebleclefout.getStaffs());
         
         //Test 2 : Beethoven_op.18
         String filename2 = "/Users/dinamix/Documents/mei/"
@@ -141,8 +157,8 @@ public class MeiSequenceTest {
             throw new InvalidMidiDataException("scoreDef MIDI error 2");
         }
         HashMap<Integer,MeiStaff> expected2 = new HashMap<>();
-        expected2.put(1, new MeiStaff(1, "Adagio", "", "1f", "minor", "2", "4"));
-        assertEquals(expected2, beethoven18.getWorks());
+        expected2.put(1, new MeiStaff(1, "Allegro.", "Violino I", "1f", "major", "3", "4"));
+        assertEquals(expected2.get(1), beethoven18.getStaffs().get(1));
         
         //Test 3 : Berlioz
         String filename3 = "/Users/dinamix/Documents/mei/"
@@ -155,8 +171,8 @@ public class MeiSequenceTest {
             throw new InvalidMidiDataException("scoreDef MIDI error 2");
         }
         HashMap<Integer,MeiStaff> expected3 = new HashMap<>();
-        expected3.put(1, new MeiStaff(1, "Adagio", "", "0", "major", "6", "8"));
-        assertEquals(expected3, berlioz2.getWorks());
+        expected3.put(1, new MeiStaff(1, "Allegretto grazioso", "Tenor", "0", "major", "6", "8"));
+        assertEquals(expected3.get(1), berlioz2.getStaffs().get(1));
     }
 
     /**
@@ -182,7 +198,7 @@ public class MeiSequenceTest {
             throw new InvalidMidiDataException("createMeiStaff error");
         }
         MeiStaff actual = trebleclefout.getStaffs().get(1);
-        MeiStaff expected = new MeiStaff(1, "Adagio", "Piano", "0", "major", "4", "4");
+        MeiStaff expected = new MeiStaff(1, null, "Piano", "0", "major", "4", "4");
         HashMap<Integer,MeiStaff> expectedMap = new HashMap<>();
         expectedMap.put(1, expected);
         assertEquals(expected,actual);

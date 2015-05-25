@@ -23,15 +23,15 @@ public class MainTest {
 
     public static void main(String[] args) {
         MeiDocument doc = MeiXmlReader.loadFile(
-                new File("/Users/dinamix/Documents/mei/mei-test-set/MEI-files/clefs/treble-clef-out.mei"));
+                new File("/Users/dinamix/Documents/mei/"
+                        + "music-encoding/samples/MEI2013/Music/Complete examples/Ives_TheCage.mei"));
 
-        MeiElement music = doc.getRootElement();
+        List<MeiElement> list = doc.getElementsByName("music");
 
-        String testNull = music.getAttribute("key.sig");
-        System.out.println(testNull);
-        
-        if (music.getAttribute("meiversion") != null) {
-            System.out.println(music.getAttribute("meiversion"));
+        MeiElement music = list.get(0);
+        List<MeiElement> staffGrp = music.getDescendantsByName("staffGrp");
+        for(MeiElement ele : staffGrp) {
+            System.out.println(ele.getId());
         }
         //processChildren(music);
     }
