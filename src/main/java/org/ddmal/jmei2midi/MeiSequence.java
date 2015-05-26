@@ -39,11 +39,6 @@ public class MeiSequence {
     private int currentMovement; //this will hold the current mdiv number
     private HashMap<Integer,MeiWork> works; //this accounts for changes in <scoreDef>
                                             //that may or may not need to be global
-                                            //defaults[0] for tempo
-                                            //defaults[1] for meter.count
-                                            //defaults[2] for meter.unit
-                                            //defaults[3] for key.sig
-                                            //defaults[4] for key.mode
                                
     private HashMap<String,String> xmlIds; //not necessary with DFS
     
@@ -181,8 +176,9 @@ public class MeiSequence {
         else if(element.getName().equals("staffDef")) {
             processStaffDef(element);
         }
+        //Get children of section which will probably be <measure>
         else if(element.getName().equals("section")) {
-            //Get children of section which will probably be <measure>
+            processParent(element);
         }
         else if(element.getName().equals("measure")) {
             //Get children of measure which will probably be <staff>
@@ -367,7 +363,40 @@ public class MeiSequence {
         if(attributeExists(keymode)) {
             works.get(currentMovement).setKeyMode(keymode);
         }
+        //For a scoreDef change randomly in the file
+        //If staffs not empty, then update them
+        if(!staffs.isEmpty()) {
+            updateStaffs();
+        }
         processParent(scoreDef);
+    }
+    
+    /**
+     * New scoreDef found during the piece will update all defined
+     * staffs accordingly.
+     */
+    private void updateStaffs() {
+        MeiWork work = works.get(currentMovement);
+        String count = work.getMeterCount();
+        String unit = work.getMeterUnit();
+        String tempo = work.getTempo();
+        String keysig = work.getKeysig();
+        String keymode = work.getKeyMode();
+        //Update each staff accordingly
+        for(Integer i : staffs.keySet()) {
+            updateMeiStaff(staffs.get(i), 
+                                  count,
+                                  unit,
+                                  tempo,
+                                  null, //label not in MeiWork for now
+                                        //never really found in tests
+                                  keysig,
+                                  keymode);
+        }
+       
+        //@TODO
+        //At the end we need to create or change MIDI tracks
+        //@TODO
     }
     
     /**
@@ -405,6 +434,7 @@ public class MeiSequence {
         String label = staffDef.getAttribute("label");
         String keysig = staffDef.getAttribute("key.sig");
         String keymode = staffDef.getAttribute("key.mode");
+        String tempo = works.get(currentMovement).getTempo();
         
         //CASE 1: N ATTRIBUTE DNE
         //Check if n attribute exists
@@ -425,14 +455,15 @@ public class MeiSequence {
         //and make appropriate changes
         if(staffs.containsKey(n)){
             thisStaff = staffs.get(n);
-            thisStaff = updateMeiStaff(thisStaff, count, 
-                                         unit, label, keysig, keymode);
+            thisStaff = updateMeiStaff(thisStaff, count, unit, 
+                                         tempo, label, keysig, keymode);
             staffs.replace(n, thisStaff);
         }
         //If staff not created yet, then instantiate it
         //and put it into HashMap<MeiStaff>
         else {
-            thisStaff = createMeiStaff(n, count, unit, label, keysig, keymode);
+            thisStaff = createMeiStaff(n, count, unit,
+                                        tempo, label, keysig, keymode);
             staffs.put(n, thisStaff);
         }
         
@@ -457,12 +488,15 @@ public class MeiSequence {
      * @return newly populated MeiStaff object
      */
     private MeiStaff updateMeiStaff(MeiStaff thisStaff,
-                                      String count,
+                                      String count,                                     
                                       String unit,
+                                      String tempo,
                                       String label,
                                       String keysig,
                                       String keymode) {
-        thisStaff.setTempo(works.get(currentMovement).getTempo());
+        if(attributeExists(tempo)) {
+            thisStaff.setTempo(tempo);
+        }
         if(attributeExists(count)) {
             thisStaff.setMeterCount(count);
         }
@@ -496,13 +530,16 @@ public class MeiSequence {
     private MeiStaff createMeiStaff(int n,
                                     String count,
                                     String unit,
+                                    String tempo,                                    
                                     String label,
                                     String keysig,
                                     String keymode) {
         MeiWork work = works.get(currentMovement);
         MeiStaff newStaff = new MeiStaff(n);
-        newStaff.setTempo(work.getTempo());
         
+        if(attributeExists(tempo)) {
+            newStaff.setTempo(tempo);
+        }
         if(attributeExists(count)) {
             newStaff.setMeterCount(count);
         }
@@ -549,9 +586,10 @@ public class MeiSequence {
         //Check if there is a work
         MeiWork work = works.get(currentMovement);
         if(work != null) {
+            HashMap<Integer,String> instrVoice = work.getInstrVoice();
             //Check if there is a valid instrVoice
-            if(work.getInstrVoice().containsKey(n)) {
-                newStaff.setLabel(work.getInstrVoice().get(n));
+            if(instrVoice.containsKey(n)) {
+                newStaff.setLabel(instrVoice.get(n));
             }
             //If there is no instrVoice then take previous one
             else {
@@ -559,8 +597,9 @@ public class MeiSequence {
             //till we find an instrument.
             //This will be in the same staffGrp.
                 for(int i = n-1; i >= 0; i--) {
-                    if(work.getInstrVoice().containsKey(i)) {
-                        newStaff.setLabel(work.getInstrVoice().get(i));
+                    if(instrVoice.containsKey(i)) {
+                        newStaff.setLabel(instrVoice.get(i));
+                        break;//once changed dont change anymore
                     }
                 }
             } 

@@ -17,7 +17,9 @@ public class MeiWork {
     private int n;
     private String keyName;
     private String keyMode;
+    //Could remove this altogether actually
     private String keysig; //Only used with scoredef, not work
+                           //keysig is specific to MeiStaff, not MeiWork
     private String meterCount;
     private String meterUnit;
     private String tempo;
@@ -30,7 +32,7 @@ public class MeiWork {
         this.keysig = null;
         this.meterCount = null;
         this.meterUnit = null;
-        this.tempo = null;
+        this.tempo = "Adagio"; //default for now
         instrVoice = new HashMap<>();
     }
     
@@ -174,6 +176,7 @@ public class MeiWork {
             return false;
         }
         MeiWork rhs = (MeiWork) obj;
+        //Note: Does not depend on keysig because keysig specific to staff
         return new EqualsBuilder()
                 .append(keyName, rhs.keyName)
                 .append(keyMode, rhs.keyMode)
@@ -191,7 +194,7 @@ public class MeiWork {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(getN())
+                .append(n)
                 .toHashCode();
     }
 }

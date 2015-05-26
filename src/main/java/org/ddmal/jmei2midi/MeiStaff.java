@@ -130,7 +130,7 @@ public class MeiStaff {
         if(this.n < 9) {
             this.channel = this.n;
         }
-        else if(this.n < 16) {
+        else if(this.n < 15) {
             this.channel = this.n + 1;
         }
         else {
