@@ -290,11 +290,13 @@ public class MeiSequence {
     private void processPerfMedium(MeiElement element, MeiWork newWork) {
         //need to add cast list here
         for(MeiElement child : element.getChildren()) {
-            if(child.getName().equals("castList")) {
-                populateInstrVoice(child.getDescendantsByName("castItem"), newWork);
-            }
-            else if(child.getName().equals("instrumentation")) {
-                populateInstrVoice(child.getDescendantsByName("instrVoice"),newWork);
+            switch (child.getName()) {
+                case "castList":
+                    populateInstrVoice(child.getDescendantsByName("castItem"), newWork);
+                    break;
+                case "instrumentation":
+                    populateInstrVoice(child.getDescendantsByName("instrVoice"),newWork);
+                    break;
             }
         }
     }
@@ -365,6 +367,7 @@ public class MeiSequence {
         }
         //For a scoreDef change randomly in the file
         //If staffs not empty, then update them
+        //If they are empty, then it will be created in processStaffDef()
         if(!staffs.isEmpty()) {
             updateStaffs();
         }
@@ -431,7 +434,7 @@ public class MeiSequence {
         String nString = staffDef.getAttribute("n");
         String count = staffDef.getAttribute("meter.count");
         String unit = staffDef.getAttribute("meter.unit");
-        String label = staffDef.getAttribute("label");
+        String label = staffDef.getAttribute("label"); //could replace w/ null
         String keysig = staffDef.getAttribute("key.sig");
         String keymode = staffDef.getAttribute("key.mode");
         String tempo = works.get(currentMovement).getTempo();
@@ -567,7 +570,7 @@ public class MeiSequence {
         if(attributeExists(keymode)) {
             newStaff.setKeymode(keymode);
         }
-        else {
+        else if(attributeExists(work.getKeyMode())) {
             newStaff.setKeymode(work.getKeyMode());
         }
         return newStaff;

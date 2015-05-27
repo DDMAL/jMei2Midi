@@ -3,115 +3,29 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package MyTest;
+package org.ddmal.midiUtilities;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-
 
 /**
  *
  * @author dinamix
  */
-public class SequenceTest {
-
-    private Sequence sequence;
-    private static final int VEL = 64; //VELOCITY
-
-    public SequenceTest() {
-        try {
-            //Resolution in ticks per beat
-            //PPQ is pulses per quarter note
-            //PPQ = 256 to match Sibelius
-            sequence = new Sequence(Sequence.PPQ, 256);
-        } catch (InvalidMidiDataException ex) {
-            ex.printStackTrace();
-            System.exit(1);
-        }
-
-        Track track = sequence.createTrack();
-        track.add(createTrackTempo(240,0));
-        track.add(createProgramChange(56, 0, 0));
-
-        //first chord: C major
-        track.add(createNoteOnEvent(60, 0, 0));
-        track.add(createNoteOnEvent(64, 0, 0));
-        track.add(createNoteOnEvent(67, 0, 0));
-        track.add(createNoteOffEvent(60, 256, 0));
-        track.add(createNoteOffEvent(64, 256, 0));
-        track.add(createNoteOffEvent(67, 256, 0));
-
-        // second chord: f minor N
-        track.add(createNoteOnEvent(53, 256, 0));
-        track.add(createNoteOnEvent(65, 256, 0));
-        track.add(createNoteOnEvent(68, 256, 0));
-        track.add(createNoteOnEvent(73, 256, 0));
-        track.add(createNoteOffEvent(53, 512, 0));
-        track.add(createNoteOffEvent(65, 512, 0));
-        track.add(createNoteOffEvent(68, 512, 0));
-        track.add(createNoteOffEvent(73, 512, 0));
-        
-        track.add(createTrackTempo(60, 512));
-        track.add(createProgramChange(42, 512, 0));
-
-        // third chord: C major 6-4
-        track.add(createNoteOnEvent(55, 512, 0));
-        track.add(createNoteOnEvent(64, 512, 0));
-        track.add(createNoteOnEvent(67, 512, 0));
-        track.add(createNoteOnEvent(72, 512, 0));
-        track.add(createNoteOffEvent(64, 768, 0));
-        track.add(createNoteOffEvent(72, 768, 0));
-
-        // forth chord: G major 7
-        track.add(createNoteOnEvent(65, 768, 0));
-        track.add(createNoteOnEvent(71, 768, 0));
-        track.add(createNoteOffEvent(55, 1024, 0));
-        track.add(createNoteOffEvent(65, 1024, 0));
-        track.add(createNoteOffEvent(67, 1024, 0));
-        track.add(createNoteOffEvent(71, 1024, 0));
-
-        // fifth chord: C major
-        track.add(createNoteOnEvent(0, 1024, 0));
-        track.add(createNoteOnEvent(64, 1024, 0));
-        track.add(createNoteOnEvent(67, 1024, 0));
-        track.add(createNoteOnEvent(127, 1024, 0));
-        track.add(createNoteOffEvent(0, 2048, 0));
-        track.add(createNoteOffEvent(64, 2048, 0));
-        track.add(createNoteOffEvent(67, 2048, 0));
-        track.add(createNoteOffEvent(127, 2048, 0));
-        
-//        Track track2 = sequence.createTrack();
-//        track2.add(createTrackTempo(60,0));
-//        track2.add(createProgramChange(80, 0, 1));
-//        
-//        track2.add(createNoteOnEvent(49, 0, 1));
-//        track2.add(createNoteOffEvent(49, 1536, 1));
-        
-        Track track3 = sequence.createTrack();
-        track3.add(createTrackTempo(60, 0));
-        track3.add(createProgramChange(127, 0, 2));
-        
-        track3.add(createNoteOnEvent(90, 1536, 2));
-        track3.add(createNoteOffEvent(90, 2048, 2));
-        
-        try {
-            //Midi File Type 1 -> splits tracks into individual parts within sequence
-            //Midi file Type 2 -> merges all tracks into a single track
-            MidiSystem.write(sequence, 1, new File("testmoreinst.midi"));
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            System.exit(1);
-        }
-    }
+public class MidiBuildMessage {
     
+    private static final int VEL = 64; //VELOCITY
+    
+    /**
+     * Creates a MIDI meta message for key signature and key mode
+     * given the MEI key.sig = keysig and key.mode = quality.
+     * @param keysig
+     * @param quality
+     * @param lTick
+     * @return 
+     */
     public static MidiEvent createKeySignature(String keysig,
                                                String quality,
                                                int lTick) {

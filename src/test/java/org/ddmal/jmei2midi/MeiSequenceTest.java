@@ -375,6 +375,17 @@ public class MeiSequenceTest {
         expectedJop.put(1, new MeiStaff(1, "Not fast", "Piano", "2f", "major", "2", "4"));
         expectedJop.put(2, new MeiStaff(2, "Not fast", "Piano", "2f", "major", "2", "4"));
         assertEquals(expectedJop, actualJop);
+        
+        //Test Debussy Mandolin
+        String filenameDeb = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Debussy_Mandoline.mei";  
+        MeiSequence Deb = new MeiSequence(filenameDeb);
+        HashMap<Integer,MeiStaff> actualDeb = Deb.getStaffs();
+        HashMap<Integer,MeiStaff> expectedDeb = new HashMap<>();
+        expectedDeb.put(1, new MeiStaff(1, "Allegretto vivace", "Chant", "0", "major", "6", "8"));
+        expectedDeb.put(2, new MeiStaff(2, "Allegretto vivace", "Piano", "0", "major", "6", "8"));
+        expectedDeb.put(3, new MeiStaff(3, "Allegretto vivace", "Piano", "0", "major", "6", "8"));
+        assertEquals(expectedDeb, actualDeb);
     }
     
     /**
