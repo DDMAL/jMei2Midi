@@ -12,6 +12,117 @@ package org.ddmal.midiUtilities;
 public class ConvertToMidi {
     
     /**
+     * Converts a string instrVoice from mei into an appropriate
+     * midi instrument number.
+     * http://www.midi.org/techspecs/gm1sound.php
+     * @param instr
+     * @return midi number of string instr
+     */
+    public static int instrToMidi(String instr) {
+        instr = instr.toLowerCase();
+        int midiInstr = 0;
+        if(instr == null ||
+           instr.contains("piano")) {
+            midiInstr = 0;
+        }
+        else if(instr.contains("cello")) {
+            midiInstr = 42;
+        }
+        else if(instr.contains("violin")) {
+            midiInstr = 40;
+        }
+        else if(instr.contains("viola")) {
+            midiInstr = 41;
+        }
+        else if(instr.contains("piano")) {
+            midiInstr = 0;
+        }
+        else if(instr.contains("contrabass")) {
+            midiInstr = 43;
+        }
+        else if(instr.contains("voice") ||
+                instr.contains("sopran") ||
+                instr.contains("alto") ||
+                instr.contains("tenor") ||
+                instr.contains("bass")) {
+            midiInstr = 54;
+        }
+        else if(instr.contains("harpsi")) {
+            midiInstr = 6;
+        }
+        else if(instr.contains("clavi")) {
+            midiInstr = 7;
+        }
+        else if(instr.contains("organ")) {
+            midiInstr = 19;
+        }
+        else if(instr.contains("guitar")) {
+            midiInstr = 24;
+        }
+        else if(instr.contains("harp")) {
+            midiInstr = 46;
+        }
+        else if(instr.contains("trumpet")) {
+            midiInstr = 56;
+        }
+        else if(instr.contains("trombone")) {
+            midiInstr = 57;
+        }
+        else if(instr.contains("tuba")) {
+            midiInstr = 58;
+        }
+        else if(instr.contains("french")) {
+            midiInstr = 60;
+        }
+        else if(instr.contains("brass")) {
+            midiInstr = 61;
+        }
+        else if(instr.contains("soprano sax")) {
+            midiInstr = 64;
+        }
+        else if(instr.contains("alto sax")) {
+            midiInstr = 65;
+        }
+        else if(instr.contains("tenor sax")) {
+            midiInstr = 66;
+        }
+        else if(instr.contains("baritone sax")) {
+            midiInstr = 67;
+        }
+        else if(instr.contains("sax")) {
+            midiInstr = 65;
+        }
+        else if(instr.contains("oboe")) {
+            midiInstr = 68;
+        }
+        else if(instr.contains("english")) {
+            midiInstr = 69;
+        }
+        else if(instr.contains("bassoon")) {
+            midiInstr = 70;
+        }
+        else if(instr.contains("clarinet")) {
+            midiInstr = 71;
+        }
+        else if(instr.contains("piccolo")) {
+            midiInstr = 72;
+        }
+        else if(instr.contains("flute")) {
+            midiInstr = 73;
+        }
+        else if(instr.contains("fiddle")) {
+            midiInstr = 110;
+        }
+        else {
+            //Need to stattrack here
+            //return -1 for invalid instrument
+            //The MeiSequence object would then need to use default
+            midiInstr = -1;
+        }
+        return midiInstr;
+    }
+    
+    /**
      * Converts tempo string to bpm int based on Wikipedia data of 
      * basic tempo markings.
      * http://en.wikipedia.org/wiki/Tempo
@@ -87,6 +198,8 @@ public class ConvertToMidi {
     /**
      * Converts MEI note to appropriate Midi int using note element attributes
      * pname, oct and accid.
+     * This will throw an exception through the java midi sequencer
+     * if the notes are out of midi bounds.
      * @param pname
      * @param oct
      * @return midi int given mei note values

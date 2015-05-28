@@ -382,7 +382,9 @@ public class MeiSequenceTest {
         MeiSequence Deb = new MeiSequence(filenameDeb);
         HashMap<Integer,MeiStaff> actualDeb = Deb.getStaffs();
         HashMap<Integer,MeiStaff> expectedDeb = new HashMap<>();
-        expectedDeb.put(1, new MeiStaff(1, "Allegretto vivace", "Chant", "0", "major", "6", "8"));
+        //Voice good because label is chant and so since chant is not valid
+        //we take voice in meihead as the instrument instead
+        expectedDeb.put(1, new MeiStaff(1, "Allegretto vivace", "Voice", "0", "major", "6", "8"));
         expectedDeb.put(2, new MeiStaff(2, "Allegretto vivace", "Piano", "0", "major", "6", "8"));
         expectedDeb.put(3, new MeiStaff(3, "Allegretto vivace", "Piano", "0", "major", "6", "8"));
         assertEquals(expectedDeb, actualDeb);

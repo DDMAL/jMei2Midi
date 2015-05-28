@@ -15,6 +15,7 @@ import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
+import org.ddmal.midiUtilities.ConvertToMidi;
 /**
  *
  * @author dinamix
@@ -555,9 +556,12 @@ public class MeiSequence {
         else {
             newStaff.setMeterUnit(work.getMeterUnit());
         }
-        if(attributeExists(label)) {
-            newStaff.setLabel(label);
+        //Check if label exists and if it is valid
+        if(attributeExists(label) && 
+           ConvertToMidi.instrToMidi(label) >= 0) {
+                newStaff.setLabel(label);
         }
+        //or else we use works defaults
         else {
             processNewLabel(newStaff, n);
         }
@@ -577,6 +581,10 @@ public class MeiSequence {
     }
     
     /**
+     * WARNING
+     * ASSUMPTION: Piano is last staff.
+     * This assumption allows missing instruments to
+     * to still get a correct value, such as pianos or organs.
      * If instrument not given in label
      * or instrument not given in meihead
      * then loop back till you find an instrument

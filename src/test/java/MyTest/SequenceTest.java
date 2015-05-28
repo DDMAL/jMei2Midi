@@ -38,55 +38,55 @@ public class SequenceTest {
         }
 
         Track track = sequence.createTrack();
-        track.add(createTrackTempo(240,0));
-        track.add(createProgramChange(56, 0, 0));
+        track.add(createTrackTempo(90,0));
+        track.add(createProgramChange(19, 0, 0));
 
         //first chord: C major
         track.add(createNoteOnEvent(60, 0, 0));
-        track.add(createNoteOnEvent(64, 0, 0));
-        track.add(createNoteOnEvent(67, 0, 0));
+//        track.add(createNoteOnEvent(64, 0, 0));
+//        track.add(createNoteOnEvent(67, 0, 0));
         track.add(createNoteOffEvent(60, 256, 0));
-        track.add(createNoteOffEvent(64, 256, 0));
-        track.add(createNoteOffEvent(67, 256, 0));
+//        track.add(createNoteOffEvent(64, 256, 0));
+//        track.add(createNoteOffEvent(67, 256, 0));
 
         // second chord: f minor N
         track.add(createNoteOnEvent(53, 256, 0));
-        track.add(createNoteOnEvent(65, 256, 0));
-        track.add(createNoteOnEvent(68, 256, 0));
-        track.add(createNoteOnEvent(73, 256, 0));
+//        track.add(createNoteOnEvent(65, 256, 0));
+//        track.add(createNoteOnEvent(68, 256, 0));
+//        track.add(createNoteOnEvent(73, 256, 0));
         track.add(createNoteOffEvent(53, 512, 0));
-        track.add(createNoteOffEvent(65, 512, 0));
-        track.add(createNoteOffEvent(68, 512, 0));
-        track.add(createNoteOffEvent(73, 512, 0));
+//        track.add(createNoteOffEvent(65, 512, 0));
+//        track.add(createNoteOffEvent(68, 512, 0));
+//        track.add(createNoteOffEvent(73, 512, 0));
         
-        track.add(createTrackTempo(60, 512));
-        track.add(createProgramChange(42, 512, 0));
+//        track.add(createTrackTempo(60, 511));
+//        track.add(createProgramChange(2, 511, 0));
 
         // third chord: C major 6-4
-        track.add(createNoteOnEvent(55, 512, 0));
+//        track.add(createNoteOnEvent(55, 512, 0));
         track.add(createNoteOnEvent(64, 512, 0));
-        track.add(createNoteOnEvent(67, 512, 0));
-        track.add(createNoteOnEvent(72, 512, 0));
+//        track.add(createNoteOnEvent(67, 512, 0));
+//        track.add(createNoteOnEvent(72, 512, 0));
         track.add(createNoteOffEvent(64, 768, 0));
-        track.add(createNoteOffEvent(72, 768, 0));
+//        track.add(createNoteOffEvent(72, 768, 0));
 
         // forth chord: G major 7
-        track.add(createNoteOnEvent(65, 768, 0));
+//        track.add(createNoteOnEvent(65, 768, 0));
         track.add(createNoteOnEvent(71, 768, 0));
-        track.add(createNoteOffEvent(55, 1024, 0));
-        track.add(createNoteOffEvent(65, 1024, 0));
-        track.add(createNoteOffEvent(67, 1024, 0));
+//        track.add(createNoteOffEvent(55, 1024, 0));
+//        track.add(createNoteOffEvent(65, 1024, 0));
+//        track.add(createNoteOffEvent(67, 1024, 0));
         track.add(createNoteOffEvent(71, 1024, 0));
 
         // fifth chord: C major
-        track.add(createNoteOnEvent(0, 1024, 0));
-        track.add(createNoteOnEvent(64, 1024, 0));
-        track.add(createNoteOnEvent(67, 1024, 0));
-        track.add(createNoteOnEvent(127, 1024, 0));
-        track.add(createNoteOffEvent(0, 2048, 0));
-        track.add(createNoteOffEvent(64, 2048, 0));
-        track.add(createNoteOffEvent(67, 2048, 0));
-        track.add(createNoteOffEvent(127, 2048, 0));
+//        track.add(createNoteOnEvent(60, 1024, 0));
+//        track.add(createNoteOnEvent(64, 1024, 0));
+//        track.add(createNoteOnEvent(67, 1024, 0));
+        track.add(createNoteOnEvent(73, 1024, 0));
+//        track.add(createNoteOffEvent(60, 2048, 0));
+//        track.add(createNoteOffEvent(64, 2048, 0));
+//        track.add(createNoteOffEvent(67, 2048, 0));
+        track.add(createNoteOffEvent(73, 2048, 0));
         
 //        Track track2 = sequence.createTrack();
 //        track2.add(createTrackTempo(60,0));

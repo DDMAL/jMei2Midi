@@ -262,7 +262,7 @@ public class MeiStaff {
             keysigMap = null; //null means C major
         }
         else {
-            HashMap<String, String> keysignature = new HashMap<String, String>();
+            HashMap<String, String> keysignature = new HashMap<>();
             if (keysig.substring(1, 2).equals("s")) {
                 String keys[] = {"f", "c", "g", "d", "a", "e", "b"};
                 for (int i = 0; i < numberOfAccidentals; i++) {
