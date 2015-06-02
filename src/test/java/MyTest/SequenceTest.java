@@ -60,7 +60,8 @@ public class SequenceTest {
 //        track.add(createNoteOffEvent(73, 512, 0));
         
 //        track.add(createTrackTempo(60, 511));
-//        track.add(createProgramChange(2, 511, 0));
+        track.add(createProgramChange(2, 511, 0));
+        track.add(createKeySignature("0", "major", 0));
 
         // third chord: C major 6-4
 //        track.add(createNoteOnEvent(55, 512, 0));

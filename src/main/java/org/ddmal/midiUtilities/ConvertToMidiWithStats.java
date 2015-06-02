@@ -5,20 +5,29 @@
  */
 package org.ddmal.midiUtilities;
 
+import org.ddmal.jmei2midi.MeiStatTracker;
+
 /**
  *
  * @author dinamix
  */
-public class ConvertToMidi {
+public class ConvertToMidiWithStats {
     
     /**
      * Converts a string instrVoice from mei into an appropriate
      * midi instrument number.
+     * -1 is returned for an invalid instrument so that validity
+     * can be check when comparing mei element labels and metadata.
+     * Note: Some words are cut short because examples were found
+     * with this abbrevation and because it does not impact the actual
+     * search of the word, an abbreviation makes for a more 
+     * thorough check.
      * http://www.midi.org/techspecs/gm1sound.php
      * @param instr
+     * @param stats
      * @return midi number of string instr
      */
-    public static int instrToMidi(String instr) {
+    public static int instrToMidi(String instr, MeiStatTracker stats) {
         if(instr == null) {
             return -1;
         }
@@ -119,6 +128,7 @@ public class ConvertToMidi {
         else {
             //Return -1 for invalid instrument and record stats
             midiInstr = -1;
+            stats.addInvalidInstrument(instr);
         }
         return midiInstr;
     }
@@ -128,9 +138,10 @@ public class ConvertToMidi {
      * basic tempo markings.
      * http://en.wikipedia.org/wiki/Tempo
      * @param tempo
+     * @param stats
      * @return tempo string converted to bpm int
      */
-    public static int tempoToBpm(String tempo) {
+    public static int tempoToBpm(String tempo, MeiStatTracker stats) {
         int bpm = 90; //default for now
         tempo = tempo.toLowerCase(); //for consistency put all to lower case
 
@@ -192,6 +203,10 @@ public class ConvertToMidi {
         }
         else if(tempo.contains("prestissimo")) {
             bpm = 200;
+        }
+        else {
+            //Add invalid stats
+            stats.addInvalidTempo(tempo);
         }
         return bpm;
     }

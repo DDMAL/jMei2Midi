@@ -8,6 +8,7 @@ package org.ddmal.jmei2midi;
 import java.util.HashMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.ddmal.midiUtilities.ConvertToMidi;
 
 /**
  * MeiStaff will keep track of each staff element in an MEI document.
@@ -38,6 +39,7 @@ public class MeiStaff {
                                               //this is used to check each note
     
     private String label; //usually used for instrument name
+    private int midiLabel;
     
     
     private String meterCount; //need for things like mRest
@@ -47,17 +49,21 @@ public class MeiStaff {
      * Default MeiStaff Constructor.
      * Should not be used because all values assumed.
      * Only created to account for someone forgetting to input
-     * required attributes in scoreDef or staffDef.
+     * some attributes in scoreDef or staffDef such as in
+     * Debussy Mandoline where the keymode and keysig are "unclear".
+     * Label and tempo will be adjusted accordingly.
      */
-        public MeiStaff(int n) {
+    public MeiStaff(int n) {
         this.n = n;
         this.computeChannel();
-        this.tempo = "Adagio";
-        this.label = "Piano";
+        this.tempo = "default";
         this.computeBpm();
+        this.label = "default";
+        this.computeMidiLabel();
         this.tick = 0;
+        this.layerOffset = 0;
         this.keysig = "0";
-        this.keymode = "major";
+        this.keymode = "major"; //Used in debussy mandolin
         this.computeKeysigMap();
         this.meterCount = "4";
         this.meterUnit = "4";
@@ -83,9 +89,11 @@ public class MeiStaff {
         this.n = n;
         this.computeChannel();
         this.tempo = tempo;
-        this.label = label;
         this.computeBpm();
+        this.label = label;
+        this.computeMidiLabel();
         this.tick = 0;
+        this.layerOffset = 0;
         this.keysig = keysig;
         this.keymode = keymode.toLowerCase();
         this.computeKeysigMap();
@@ -107,6 +115,32 @@ public class MeiStaff {
         this.n = n;
         computeChannel();
     }
+    
+    /**
+     * @return channel
+     */
+    public int getChannel() {
+        return this.channel;
+    }
+       
+    /**
+     * Computes the appropriate MIDI channel given the MEI n attribute.
+     * Want to start from 0 but n start from 1.
+     * Want to add one if we have 9-15 so that we skip over channel 9.
+     * If n is >= 16, then we use channel 15 for remaining tracks.
+     * This is required for each instrument.
+     */
+    private void computeChannel() {
+        if(this.n <= 9) {
+            this.channel = this.n - 1;
+        }
+        else if(this.n < 16) {
+            this.channel = this.n;
+        }
+        else {
+            this.channel = 15;
+        }
+    }
 
     /**
      * @return the label
@@ -120,22 +154,24 @@ public class MeiStaff {
      */
     public void setLabel(String label) {
         this.label = label;
+        this.computeMidiLabel();
     }
     
     /**
-     * Computes the appropriate MIDI channel given the MEI n attribute.
-     * This is required for each instrument.
+     * Overload method for both label and midiLabel.
+     * @param label
+     * @param midiLabel 
      */
-    private void computeChannel() {
-        if(this.n < 9) {
-            this.channel = this.n;
-        }
-        else if(this.n < 15) {
-            this.channel = this.n + 1;
-        }
-        else {
-            this.channel = 15;
-        }
+    public void setLabel(String label, int midiLabel) {
+        this.label = label;
+        this.midiLabel = midiLabel;
+    }
+    
+    /**
+     * @return midi conversion of label string
+     */
+    public int getMidiLabel() {
+        return midiLabel;
     }
 
     /**
@@ -151,6 +187,29 @@ public class MeiStaff {
      */
     public void setKeymode(String keymode) {
         this.keymode = keymode.toLowerCase();
+    }
+    
+    /**
+     * @return current tick including the current layerOffset
+     */
+    public int getTick() {
+        return this.tick + this.layerOffset;
+    }
+    
+    /**
+     * Should be at the end of a staff element.
+     * @param tick 
+     */
+    public void setTick(int tick) {
+        this.tick = tick;
+    }
+    
+    /**
+     * Should be updated during a layer and can reset for multiple layers.
+     * @param layerOffset 
+     */
+    public void setLayerOffset(int layerOffset) {
+        this.layerOffset = layerOffset;
     }
     
     /**
@@ -244,7 +303,16 @@ public class MeiStaff {
      * Will need to find Adagio... norms and do string conversion.
      */
     private void computeBpm() {
-        bpm = 90;
+        this.bpm = ConvertToMidi.tempoToBpm(tempo);
+    }
+    
+    /**
+     * This will convert a String to an appropriate midi
+     * instrument equivalent.
+     * May return -1 which would cause a Midi exception.
+     */
+    private void computeMidiLabel() {
+        this.midiLabel = ConvertToMidi.instrToMidi(this.label);
     }
     
     /**

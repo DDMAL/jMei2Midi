@@ -16,6 +16,8 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 import org.ddmal.midiUtilities.ConvertToMidi;
+import org.ddmal.midiUtilities.ConvertToMidiWithStats;
+import org.ddmal.midiUtilities.MidiBuildMessage;
 /**
  *
  * @author dinamix
@@ -29,6 +31,7 @@ public class MeiSequence {
     private HashMap<Integer,MeiStaff> staffs; //staffs store in hashmap
                                               //for easier access throughout
     
+    //Probably won't use this because of sequence.getTracks()
     private List<Track> tracks; //keep tracks in sequence for simpler reference
                                 //and for >16 staffs
                                 //Will relate to the n attribute of MeiStaff
@@ -40,12 +43,14 @@ public class MeiSequence {
     private int currentMovement; //this will hold the current mdiv number
     private HashMap<Integer,MeiWork> works; //this accounts for changes in <scoreDef>
                                             //that may or may not need to be global
-                               
-    private HashMap<String,String> xmlIds; //not necessary with DFS
+    
+    //This allows a sequence to generate some mei stats
+    //Such as invalid tempo and invalid instruments
+    private MeiStatTracker stats;
     
     /**
      * Constructor that creates a MIDI Sequence given an MEI filename.
-     * @param filename 
+     * @param filename  
      * @throws javax.sound.midi.InvalidMidiDataException 
      */
     public MeiSequence(String filename) throws InvalidMidiDataException {
@@ -63,6 +68,42 @@ public class MeiSequence {
         //So far we need 5 values for:
         //tempo, meter.count, meter.unit, key.sig and key.mode
         works = new HashMap<>();
+        
+        //Create a new MeiStatTracker
+        stats = new MeiStatTracker(filename);
+        
+        //Turn the document into a MIDI sequence
+        //It is returned in the class sequence variable
+        documentToSequence();
+    }
+    
+    /**
+     * Constructor that creates a MIDI Sequence given an MEI filename and
+     * also keeps track of some mei stats using MeiStatTracker reference.
+     * @param filename 
+     * @param stats 
+     * @throws javax.sound.midi.InvalidMidiDataException 
+     */
+    public MeiSequence(String filename,
+                       MeiStatTracker stats) throws InvalidMidiDataException {
+        
+        //Read in MEI XML file
+        document = MeiXmlReader.loadFile(filename);
+        
+        //Instantiate tracks as ArrayList
+        tracks = new ArrayList<>();
+        
+        //Instantiate staffs as ArrayList
+        staffs = new HashMap<>();
+        
+        //Create new defaults array for default values
+        //So far we need 5 values for:
+        //tempo, meter.count, meter.unit, key.sig and key.mode
+        works = new HashMap<>();
+        
+        //Update a stats object by reference
+        this.stats = stats;
+        stats.setFileName(filename);
         
         //Turn the document into a MIDI sequence
         //It is returned in the class sequence variable
@@ -91,6 +132,14 @@ public class MeiSequence {
      */
     public HashMap<Integer,MeiStaff> getStaffs() {
         return this.staffs;
+    }
+    
+    /**
+     * Returns MeiStatTracker created from any invalid data needed.
+     * @return 
+     */
+    public MeiStatTracker getStats() {
+        return this.stats;
     }
 
     /**
@@ -350,27 +399,31 @@ public class MeiSequence {
     private void processScoreDef(MeiElement scoreDef) {
         //Keep default key.sig and then use
         //staff def key.sig on other staffs
+        MeiWork work = works.get(currentMovement);
         String count = scoreDef.getAttribute("meter.count");
         String unit = scoreDef.getAttribute("meter.unit");
         String keysig = scoreDef.getAttribute("key.sig");
         String keymode = scoreDef.getAttribute("key.mode");
         if(attributeExists(count)) {
-            works.get(currentMovement).setMeterCount(count);
+            work.setMeterCount(count);
         }
         if(attributeExists(unit)) {
-            works.get(currentMovement).setMeterUnit(unit);
+            work.setMeterUnit(unit);
         }
         if(attributeExists(keysig)) {
-            works.get(currentMovement).setKeysig(keysig);
+            work.setKeysig(keysig);
         }
         if(attributeExists(keymode)) {
-            works.get(currentMovement).setKeyMode(keymode);
+            work.setKeyMode(keymode);
         }
         //For a scoreDef change randomly in the file
-        //If staffs not empty, then update them
+        //If staffs not empty and all new attributes are non-null, 
+        //then update them.
         //If they are empty, then it will be created in processStaffDef()
-        if(!staffs.isEmpty()) {
-            updateStaffs();
+        if(!staffs.isEmpty() &&
+           (attributeExists(count) || attributeExists(unit) ||
+            attributeExists(keysig) || attributeExists(keymode))) {
+            updateStaffs(work);
         }
         processParent(scoreDef);
     }
@@ -379,8 +432,7 @@ public class MeiSequence {
      * New scoreDef found during the piece will update all defined
      * staffs accordingly.
      */
-    private void updateStaffs() {
-        MeiWork work = works.get(currentMovement);
+    private void updateStaffs(MeiWork work) {
         String count = work.getMeterCount();
         String unit = work.getMeterUnit();
         String tempo = work.getTempo();
@@ -388,14 +440,17 @@ public class MeiSequence {
         String keymode = work.getKeyMode();
         //Update each staff accordingly
         for(Integer i : staffs.keySet()) {
-            updateMeiStaff(staffs.get(i), 
+            //Optimization to check if there was a change
+            //If not then don't send another midi message
+            if(!checkCopy(staffs.get(i), count, unit, staffs.get(i).getLabel(), keysig, keymode, tempo)) {
+                updateMeiStaff(staffs.get(i), 
                                   count,
                                   unit,
                                   tempo,
-                                  null, //label not in MeiWork for now
-                                        //never really found in tests
+                                  null, //label not in MeiWork
                                   keysig,
                                   keymode);
+            }
         }
        
         //@TODO
@@ -435,7 +490,7 @@ public class MeiSequence {
         String nString = staffDef.getAttribute("n");
         String count = staffDef.getAttribute("meter.count");
         String unit = staffDef.getAttribute("meter.unit");
-        String label = staffDef.getAttribute("label"); //could replace w/ null
+        String label = staffDef.getAttribute("label");
         String keysig = staffDef.getAttribute("key.sig");
         String keymode = staffDef.getAttribute("key.mode");
         String tempo = works.get(currentMovement).getTempo();
@@ -455,25 +510,58 @@ public class MeiSequence {
         }*/
         
         //CASE 2: N ATTRIBUTE DOES EXIST
-        //If staff already created then check it
-        //and make appropriate changes
-        if(staffs.containsKey(n)){
-            thisStaff = staffs.get(n);
-            thisStaff = updateMeiStaff(thisStaff, count, unit, 
-                                         tempo, label, keysig, keymode);
-            staffs.replace(n, thisStaff);
-        }
         //If staff not created yet, then instantiate it
         //and put it into HashMap<MeiStaff>
-        else {
+        if(!staffs.containsKey(n)) {
             thisStaff = createMeiStaff(n, count, unit,
                                         tempo, label, keysig, keymode);
             staffs.put(n, thisStaff);
         }
-        
+        //If staff already created and all values are non-null
+        //then check it and make appropriate changes
+        //Notes: Tempo not checked because will be checked in scoreDef
+        //       Null check done for optimization
+        //       If they are all null and already contained then don't do anything
+        else {
+            thisStaff = staffs.get(n);
+            if(!checkCopy(thisStaff,count,unit,label,keysig,keymode,tempo)) {
+                thisStaff = updateMeiStaff(thisStaff, count, unit, 
+                                           tempo, label, keysig, keymode);
+                staffs.replace(n, thisStaff);
+            }
+        }
         //@TODO
         //At the end we need to create or change MIDI tracks
         //@TODO
+    }
+    
+    /**
+     * Optimization method to check if a current staff and a new
+     * mei staff element are the same or if the new element
+     * has only unnecessary information.
+     * If they are the same the then return true or else it returns false.
+     * @param thisStaff
+     * @param count
+     * @param unit
+     * @param label
+     * @param keysig
+     * @param keymode
+     * @param tempo
+     * @return 
+     */
+    private boolean checkCopy(MeiStaff thisStaff,
+                              String count,
+                              String unit,
+                              String label,
+                              String keysig,
+                              String keymode,
+                              String tempo) {
+        return (thisStaff.getMeterCount().equals(count) || count == null) &&
+                (thisStaff.getMeterUnit().equals(unit) || unit == null) &&
+                (thisStaff.getLabel().equals(label) || label == null) &&
+                (thisStaff.getKeysig().equals(keysig) || keysig == null) &&
+                (thisStaff.getKeymode().equals(keymode) || keymode == null) &&
+                (thisStaff.getTempo().equals(tempo) || tempo == null);
     }
     
     /**
@@ -498,6 +586,8 @@ public class MeiSequence {
                                       String label,
                                       String keysig,
                                       String keymode) {
+        //Stats checking
+        ConvertToMidiWithStats.tempoToBpm(tempo, stats);
         if(attributeExists(tempo)) {
             thisStaff.setTempo(tempo);
         }
@@ -507,8 +597,12 @@ public class MeiSequence {
         if(attributeExists(unit)) {
             thisStaff.setMeterUnit(unit);
         }
-        if(attributeExists(label)) {
-            thisStaff.setLabel(label);
+        int midiInstr = ConvertToMidiWithStats.instrToMidi(label, stats);
+        if(midiInstr > -1) {
+            thisStaff.setLabel(label, midiInstr);
+        }
+        else {
+            thisStaff.setLabel(processNewLabel(thisStaff.getN()));
         }
         if(attributeExists(keysig)) {
             thisStaff.setKeysig(keysig);
@@ -516,6 +610,7 @@ public class MeiSequence {
         if(attributeExists(keymode)) {
             thisStaff.setKeymode(keymode);
         }
+        buildMidiTrack(thisStaff);
         return thisStaff;
     }
     
@@ -542,6 +637,7 @@ public class MeiSequence {
         MeiStaff newStaff = new MeiStaff(n);
         
         if(attributeExists(tempo)) {
+            //ConvertToMidiWithStats.tempoToBpm(tempo, stats);
             newStaff.setTempo(tempo);
         }
         if(attributeExists(count)) {
@@ -556,14 +652,14 @@ public class MeiSequence {
         else {
             newStaff.setMeterUnit(work.getMeterUnit());
         }
-        //Check if label exists and if it is valid
-        if(attributeExists(label) && 
-           ConvertToMidi.instrToMidi(label) >= 0) {
-                newStaff.setLabel(label);
+        //Check if label exists and if it is a valid instrument
+        int midiInstr = ConvertToMidiWithStats.instrToMidi(label, stats);
+        if(midiInstr > -1) {
+            newStaff.setLabel(label,midiInstr);
         }
         //or else we use works defaults
         else {
-            processNewLabel(newStaff, n);
+            newStaff.setLabel(processNewLabel(n));
         }
         if(attributeExists(keysig)) {
             newStaff.setKeysig(keysig);
@@ -577,12 +673,14 @@ public class MeiSequence {
         else if(attributeExists(work.getKeyMode())) {
             newStaff.setKeymode(work.getKeyMode());
         }
+        buildMidiTrack(newStaff);
         return newStaff;
     }
     
     /**
      * WARNING
-     * ASSUMPTION: Piano is last staff.
+     * ASSUMPTION: Piano is last staff so we can find instrument
+     * even though it is not related to staff in any way.
      * This assumption allows missing instruments to
      * to still get a correct value, such as pianos or organs.
      * If instrument not given in label
@@ -593,29 +691,102 @@ public class MeiSequence {
      * @param newStaff
      * @param n 
      */
-    private void processNewLabel(MeiStaff newStaff, int n) {
+    private String processNewLabel(int n) {
         //Check if there is a work
         MeiWork work = works.get(currentMovement);
         if(work != null) {
             HashMap<Integer,String> instrVoice = work.getInstrVoice();
             //Check if there is a valid instrVoice
             if(instrVoice.containsKey(n)) {
-                newStaff.setLabel(instrVoice.get(n));
+                String instr = instrVoice.get(n);
+                boolean instrValid = ConvertToMidi.instrToMidi(instr) > -1;
+                if(instrValid) {
+                    return instr;
+                }
+            }
+            //Or if we previously had an instrument here
+            else if(staffs.containsKey(n) &&
+                    !staffs.get(n).getLabel().equals("default")) {
+                return staffs.get(n).getLabel();
             }
             //If there is no instrVoice then take previous one
             else {
             //Iterate through hashmap backwards
             //till we find an instrument.
-            //This will be in the same staffGrp.
+            //This will be in the same staffGrp if at the end.
                 for(int i = n-1; i >= 0; i--) {
                     if(instrVoice.containsKey(i)) {
-                        newStaff.setLabel(instrVoice.get(i));
-                        break;//once changed dont change anymore
+                        return instrVoice.get(i);
                     }
                 }
             } 
-        }      
-        //Else no instrument given and we default to piano
+        }   
+        //This is if nothing is found
+        //Default is voice
+        //Piano is used if we have only 2 staffs
+        String instrument = "Voice";
+        if(staffs.size() == 2) {
+            instrument = "Piano";
+        }
+        return instrument;
+    }
+    
+    /**
+     * Builds a new midi track if not already in sequence or else
+     * it will fetch the old track based on the given staff.
+     * Midi events are then added through the addEventsToTrack().
+     * @param staff 
+     */
+    private void buildMidiTrack(MeiStaff staff) {
+        Track newTrack;
+        //The info that will be changed
+        int thisN = staff.getN();
+        int thisChannel = staff.getChannel();
+        int thisTick = staff.getTick();
+        String thisKey = staff.getKeysig();
+        String thisQuality = staff.getKeymode();
+        int thisBpm = staff.getBpm();
+        int thisProgram = staff.getMidiLabel();
+        
+        //If tracks does not have this n track
+        //Then create a new track for the sequence
+        if(sequence.getTracks().length < thisN) {
+            newTrack = sequence.createTrack();
+        }
+        else {
+            newTrack = sequence.getTracks()[thisN-1];
+        }
+        addEventsToTrack(newTrack, 
+                         thisChannel, 
+                         thisTick, 
+                         thisKey, 
+                         thisQuality, 
+                         thisProgram, 
+                         thisBpm);
+    }
+    
+    /**
+     * Sends appropriate midi events to the specified track.
+     * This could be optimized to check previous events and not send
+     * if they are the same but they may be tricky.
+     * @param track
+     * @param channel
+     * @param tick
+     * @param key
+     * @param quality
+     * @param midiLabel
+     * @param bpm 
+     */
+    private void addEventsToTrack(Track track,
+                                  int channel,
+                                  int tick,
+                                  String key,
+                                  String quality,
+                                  int midiLabel,
+                                  int bpm) {
+        track.add(MidiBuildMessage.createKeySignature(key, quality, tick));
+        track.add(MidiBuildMessage.createProgramChange(midiLabel, tick, channel));
+        track.add(MidiBuildMessage.createTrackTempo(bpm, tick));
     }
     
     /**

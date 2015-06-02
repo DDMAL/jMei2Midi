@@ -32,7 +32,7 @@ public class MeiWork {
         this.keysig = null;
         this.meterCount = null;
         this.meterUnit = null;
-        this.tempo = "Adagio"; //default for now
+        this.tempo = "default"; //default for now
         instrVoice = new HashMap<>();
     }
     
