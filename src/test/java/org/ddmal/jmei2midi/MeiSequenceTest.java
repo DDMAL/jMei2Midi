@@ -245,6 +245,47 @@ public class MeiSequenceTest {
         MeiWork expectedChopin = new MeiWork(1, "f", "minor", "6", "8", "Allegro molto agitato");
         expectedChopin.addInstrVoice(1, "Piano");
         assertEquals(expectedChopin, actualChopin);
+        
+        //Test Gluck
+        String filenameGluck = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Gluck_CheFaroSenzaEuridice.mei";  
+        MeiSequence Gluck = new MeiSequence(filenameGluck);
+        MeiWork actualGluck = Gluck.getWorks().get(1);
+        MeiWork expectedGluck = new MeiWork(1, "c", "major", "4", "4", "Andante con moto");
+        expectedGluck.addInstrVoice(1, "Soprano");
+        expectedGluck.addInstrVoice(2, "Violin I");
+        expectedGluck.addInstrVoice(3, "Violin II");
+        expectedGluck.addInstrVoice(4, "Viola");
+        expectedGluck.addInstrVoice(5, "Harpsichord");
+        expectedGluck.addInstrVoice(6, "Violoncello");
+        assertEquals(expectedGluck, actualGluck);
+        
+        //Test Beethoven Hymn to joe
+        //A very inconsistent example between work and staff labels
+        String filenameBHJ = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Beethoven_Hymn_to_joy.mei";
+        MeiSequence BHJ = new MeiSequence(filenameBHJ);
+        MeiWork actualBHJ = BHJ.getWorks().get(1);
+        MeiWork expectedBHJ = new MeiWork(1, "d", "major", "4", "4", "Allegro assai");
+        expectedBHJ.addInstrVoice(1, "Sopran");
+        expectedBHJ.addInstrVoice(2, "Alt");
+        expectedBHJ.addInstrVoice(3, "Tenor");
+        expectedBHJ.addInstrVoice(4, "Bass");
+        expectedBHJ.addInstrVoice(5, "piccolo");
+        expectedBHJ.addInstrVoice(6, "2 flutes");
+        expectedBHJ.addInstrVoice(7, "2 oboes");
+        expectedBHJ.addInstrVoice(8, "2 clarinets");
+        expectedBHJ.addInstrVoice(9, "2 bassoon");
+        expectedBHJ.addInstrVoice(10, "contrabassoon");
+        expectedBHJ.addInstrVoice(11, "4 horns");
+        expectedBHJ.addInstrVoice(12, "2 trumpets");
+        expectedBHJ.addInstrVoice(13, "3 trombones");
+        expectedBHJ.addInstrVoice(14, "timpani");
+        expectedBHJ.addInstrVoice(15, "cymbals");
+        expectedBHJ.addInstrVoice(16, "triangle");
+        expectedBHJ.addInstrVoice(17, "bass drum");
+        expectedBHJ.addInstrVoice(18, "string orchestra");
+        assertEquals(expectedBHJ, actualBHJ);
     }
 
     /**
@@ -334,7 +375,7 @@ public class MeiSequenceTest {
         expectedBS.put(3, new MeiStaff(3, "Poco Adagio.", "Viola", "4f", "major", "3", "4"));
         expectedBS.put(4, new MeiStaff(4, "Poco Adagio.", "Violoncello", "4f", "major", "3", "4"));
         //Strange staffDef @ n=6 but we add it to make test work (never used in piece)
-        expectedBS.put(6, new MeiStaff(6,"Poco Adagio.", "Violoncello", "4f", "major", "3", "4"));
+        expectedBS.put(6, new MeiStaff(6,"Poco Adagio.", "Voice", "4f", "major", "3", "4"));
         assertEquals(expectedBS, actualBS);
         
         //Test : Brahms Wie
@@ -416,6 +457,53 @@ public class MeiSequenceTest {
         expectedChopin.put(1, new MeiStaff(1, "Allegro molto agitato", "Piano", "4f", "minor", "6", "8"));
         expectedChopin.put(2, new MeiStaff(2, "Allegro molto agitato", "Piano", "4f", "minor", "6", "8"));
         assertEquals(expectedChopin, actualChopin);
+        
+        //Test Gluck
+        String filenameGluck = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Gluck_CheFaroSenzaEuridice.mei";  
+        MeiSequence Gluck = new MeiSequence(filenameGluck);
+        HashMap<Integer,MeiStaff> actualGluck = Gluck.getStaffs();
+        HashMap<Integer,MeiStaff> expectedGluck = new HashMap<>();
+        expectedGluck.put(1, new MeiStaff(1, "Andante con moto", "Soprano", "0", "major", "4", "4"));
+        expectedGluck.put(2, new MeiStaff(2, "Andante con moto", "Violin I", "0", "major", "4", "4"));
+        expectedGluck.put(3, new MeiStaff(3, "Andante con moto", "Violin II", "0", "major", "4", "4"));
+        expectedGluck.put(4, new MeiStaff(4, "Andante con moto", "Viola", "0", "major", "4", "4"));
+        expectedGluck.put(5, new MeiStaff(5, "Andante con moto", "Harpsichord", "0", "major", "4", "4"));
+        expectedGluck.put(6, new MeiStaff(6, "Andante con moto", "Harpsichord", "0", "major", "4", "4"));
+        expectedGluck.put(7, new MeiStaff(7, "Andante con moto", "Cello", "0", "major", "4", "4"));
+        assertEquals(expectedGluck, actualGluck);
+        
+        //Test Beethoven Hymn to joe
+        String filenameBHJ = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Beethoven_Hymn_to_joy.mei";
+        MeiSequence BHJ = new MeiSequence(filenameBHJ);
+        HashMap<Integer,MeiStaff> actualBHJ = BHJ.getStaffs();
+        HashMap<Integer,MeiStaff> expectedBHJ = new HashMap<>();
+        expectedBHJ.put(1, new MeiStaff(1, "Allegro assai", "Soprano", "2s", "major", "4", "4"));
+        expectedBHJ.put(2, new MeiStaff(2, "Allegro assai", "Alto", "2s", "major", "4", "4"));
+        expectedBHJ.put(3, new MeiStaff(3, "Allegro assai", "Tenor", "2s", "major", "4", "4"));
+        expectedBHJ.put(4, new MeiStaff(4, "Allegro assai", "Baritone", "2s", "major", "4", "4"));
+        expectedBHJ.put(5, new MeiStaff(5, "Allegro assai", "Bass", "2s", "major", "4", "4"));
+        expectedBHJ.put(6, new MeiStaff(6, "Allegro assai", "Piccolo", "2s", "major", "4", "4"));
+        expectedBHJ.put(7, new MeiStaff(7, "Allegro assai", "Flute", "2s", "major", "4", "4"));
+        expectedBHJ.put(8, new MeiStaff(8, "Allegro assai", "Oboe", "2s", "major", "4", "4"));
+        expectedBHJ.put(9, new MeiStaff(9, "Allegro assai", "Bassoon", "2s", "major", "4", "4"));
+        expectedBHJ.put(10, new MeiStaff(10, "Allegro assai", "Clarinet in B", "4s", "major", "4", "4"));
+        expectedBHJ.put(11, new MeiStaff(11, "Allegro assai", "Bass Clarinet", "4s", "major", "4", "4"));
+        expectedBHJ.put(12, new MeiStaff(12, "Allegro assai", "Alto Sax.", "5s", "major", "4", "4"));
+        expectedBHJ.put(13, new MeiStaff(13, "Allegro assai", "Tenor Sax.", "4s", "major", "4", "4"));
+        expectedBHJ.put(14, new MeiStaff(14, "Allegro assai", "Baritone Sax.", "5s", "major", "4", "4"));
+        expectedBHJ.put(15, new MeiStaff(15, "Allegro assai", "Trumpet in B", "4s", "major", "4", "4"));
+        expectedBHJ.put(16, new MeiStaff(16, "Allegro assai", "Horn in F 1", "3s", "major", "4", "4"));
+        expectedBHJ.put(17, new MeiStaff(17, "Allegro assai", "Trombone", "2s", "major", "4", "4"));
+        expectedBHJ.put(18, new MeiStaff(18, "Allegro assai", "Bass Trombone", "2s", "major", "4", "4"));
+        expectedBHJ.put(19, new MeiStaff(19, "Allegro assai", "Euphonium", "2s", "major", "4", "4"));
+        expectedBHJ.put(20, new MeiStaff(20, "Allegro assai", "Tuba", "2s", "major", "4", "4"));
+        expectedBHJ.put(21, new MeiStaff(21, "Allegro assai", "Timpani", "2s", "major", "4", "4"));
+        expectedBHJ.put(22, new MeiStaff(22, "Allegro assai", "Tubular Bells", "2s", "major", "4", "4"));
+        expectedBHJ.put(23, new MeiStaff(23, "Allegro assai", "Glockenspiel", "2s", "major", "4", "4"));
+        expectedBHJ.put(24, new MeiStaff(24, "Allegro assai", "Snare", "2s", "major", "4", "4"));
+        assertEquals(expectedBHJ, actualBHJ);
     }
     
     /**
@@ -469,13 +557,20 @@ public class MeiSequenceTest {
                 assertArrayEquals(expectedbytes, actualbytes);
             }
         }
+        for(int x = 0; x < expectedtco.length; x++) {
+            for(int i = 0; i < expectedtco[x].size(); i++) {
+                byte[] actualbytes = actualtco[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedtco[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
         
         //Test Czerny
         String filenameCzerny = "/Users/dinamix/Documents/mei/"
                 + "music-encoding/samples/MEI2013/Music/Complete examples/Czerny_op603_6.mei";
         MeiSequence Czerny = new MeiSequence(filenameCzerny);
         Track[] actualCzerny = Czerny.getSequence().getTracks();
-        Sequence sequenceCzerny = new Sequence(Sequence.PPQ, 256,6);
+        Sequence sequenceCzerny = new Sequence(Sequence.PPQ, 256,3);
         Track[] expectedCzerny = sequenceCzerny.getTracks();
         expectedCzerny[0].add(MidiBuildMessage.createKeySignature("1f", "minor", 0));
         expectedCzerny[0].add(MidiBuildMessage.createProgramChange(19, 0, 0));
@@ -491,6 +586,13 @@ public class MeiSequenceTest {
         expectedCzerny[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualCzerny.length; x++) {
             for(int i = 0; i < actualCzerny[x].size(); i++) {
+                byte[] actualbytes = actualCzerny[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedCzerny[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        for(int x = 0; x < expectedCzerny.length; x++) {
+            for(int i = 0; i < expectedCzerny[x].size(); i++) {
                 byte[] actualbytes = actualCzerny[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedCzerny[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
@@ -519,6 +621,13 @@ public class MeiSequenceTest {
                 assertArrayEquals(expectedbytes, actualbytes);
             }
         }
+        for(int x = 0; x < expectedChopin.length; x++) {
+            for(int i = 0; i < expectedChopin[x].size(); i++) {
+                byte[] actualbytes = actualChopin[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedChopin[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
         
         //Test Joplin
         String filenameJoplin = "/Users/dinamix/Documents/mei/"
@@ -526,7 +635,7 @@ public class MeiSequenceTest {
         MeiSequence Joplin = new MeiSequence(filenameJoplin);
         Track[] actualJoplin = Joplin.getSequence().getTracks();
         assertEquals(2, actualJoplin.length);
-        Sequence sequenceJoplin = new Sequence(Sequence.PPQ, 256,4);
+        Sequence sequenceJoplin = new Sequence(Sequence.PPQ, 256,2);
         Track[] expectedJoplin = sequenceJoplin.getTracks();
         expectedJoplin[0].add(MidiBuildMessage.createKeySignature("1f", "major", 0));
         expectedJoplin[0].add(MidiBuildMessage.createProgramChange(0, 0, 0));
@@ -546,6 +655,13 @@ public class MeiSequenceTest {
         expectedJoplin[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualJoplin.length; x++) {
             for(int i = 0; i < actualJoplin[x].size(); i++) {
+                byte[] actualbytes = actualJoplin[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedJoplin[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        for(int x = 0; x < expectedJoplin.length; x++) {
+            for(int i = 0; i < expectedJoplin[x].size(); i++) {
                 byte[] actualbytes = actualJoplin[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedJoplin[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
@@ -599,6 +715,13 @@ public class MeiSequenceTest {
         expectedJSB[3].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualJSB.length; x++) {
             for(int i = 0; i < actualJSB[x].size(); i++) {
+                byte[] actualbytes = actualJSB[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedJSB[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        for(int x = 0; x < expectedJSB.length; x++) {
+            for(int i = 0; i < expectedJSB[x].size(); i++) {
                 byte[] actualbytes = actualJSB[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedJSB[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
@@ -709,6 +832,8 @@ public class MeiSequenceTest {
         expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
         expectedViv[4].add(MidiBuildMessage.createTrackTempo(144, 0));
         
+        //Doubles occur here because of violencello and so code does not think
+        //that it is the same. Could try with contain maybe
         expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
         expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
         expectedViv[4].add(MidiBuildMessage.createTrackTempo(71, 0));
@@ -725,13 +850,222 @@ public class MeiSequenceTest {
         expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
         expectedViv[4].add(MidiBuildMessage.createTrackTempo(184, 0));
         expectedViv[4].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        for(int x = 0; x < expectedViv.length; x++) {
+            //System.out.println(x + " New Track: ");
+            for(int i = 0; i < expectedViv[x].size(); i++) {
+                byte[] actualbytes = actualViv[x].get(i).getMessage().getMessage();
+                //System.out.println(Arrays.toString(actualbytes));
+                byte[] expectedbytes = expectedViv[x].get(i).getMessage().getMessage();
+                //System.out.println(Arrays.toString(expectedbytes));
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
         for(int x = 0; x < actualViv.length; x++) {
-            System.out.println(x + " New Track: ");
+            //System.out.println(x + " New Track: ");
             for(int i = 0; i < actualViv[x].size(); i++) {
                 byte[] actualbytes = actualViv[x].get(i).getMessage().getMessage();
                 //System.out.println(Arrays.toString(actualbytes));
                 byte[] expectedbytes = expectedViv[x].get(i).getMessage().getMessage();
                 //System.out.println(Arrays.toString(expectedbytes));
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        
+        //Test Gluck
+        String filenameGluck = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Gluck_CheFaroSenzaEuridice.mei";
+        MeiSequence Gluck = new MeiSequence(filenameGluck);
+        Track[] actualGluck = Gluck.getSequence().getTracks();
+        Sequence sequenceGluck = new Sequence(Sequence.PPQ, 256,7);
+        Track[] expectedGluck = sequenceGluck.getTracks();
+        expectedGluck[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedGluck[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedGluck[0].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        
+        expectedGluck[1].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedGluck[1].add(MidiBuildMessage.createProgramChange(40, 0, 1));
+        expectedGluck[1].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        
+        expectedGluck[2].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedGluck[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
+        expectedGluck[2].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        
+        expectedGluck[3].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedGluck[3].add(MidiBuildMessage.createProgramChange(41, 0, 3));
+        expectedGluck[3].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[3].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        
+        expectedGluck[4].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedGluck[4].add(MidiBuildMessage.createProgramChange(6, 0, 4));
+        expectedGluck[4].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[4].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        
+        expectedGluck[5].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedGluck[5].add(MidiBuildMessage.createProgramChange(6, 0, 5));
+        expectedGluck[5].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[5].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        
+        expectedGluck[6].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedGluck[6].add(MidiBuildMessage.createProgramChange(42, 0, 6));
+        expectedGluck[6].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[6].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        for(int x = 0; x < expectedGluck.length; x++) {
+            for(int i = 0; i < expectedGluck[x].size(); i++) {
+                byte[] actualbytes = actualGluck[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedGluck[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        for(int x = 0; x < actualGluck.length; x++) {
+            for(int i = 0; i < actualGluck[x].size(); i++) {
+                byte[] actualbytes = actualGluck[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedGluck[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        
+        //Test Beethoven Hymn to Joy
+        //Very good, the extra staffDefs were skipped due to optimizations
+        String filenameBHJ = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Beethoven_Hymn_to_joy.mei";
+        MeiSequence BHJ = new MeiSequence(filenameBHJ);
+        Track[] actualBHJ = BHJ.getSequence().getTracks();
+        Sequence sequenceBHJ = new Sequence(Sequence.PPQ, 256,24);
+        Track[] expectedBHJ = sequenceBHJ.getTracks();
+        //Soprano
+        expectedBHJ[0].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedBHJ[0].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Alto
+        expectedBHJ[1].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[1].add(MidiBuildMessage.createProgramChange(54, 0, 1));
+        expectedBHJ[1].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Tenor
+        expectedBHJ[2].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[2].add(MidiBuildMessage.createProgramChange(54, 0, 2));
+        expectedBHJ[2].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Baritone
+        expectedBHJ[3].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[3].add(MidiBuildMessage.createProgramChange(54, 0, 3));
+        expectedBHJ[3].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[3].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Bass
+        expectedBHJ[4].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[4].add(MidiBuildMessage.createProgramChange(54, 0, 4));
+        expectedBHJ[4].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[4].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Piccolo
+        expectedBHJ[5].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[5].add(MidiBuildMessage.createProgramChange(72, 0, 5));
+        expectedBHJ[5].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[5].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Flute
+        expectedBHJ[6].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[6].add(MidiBuildMessage.createProgramChange(73, 0, 6));
+        expectedBHJ[6].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[6].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Oboe
+        expectedBHJ[7].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[7].add(MidiBuildMessage.createProgramChange(68, 0, 7));
+        expectedBHJ[7].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[7].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Bassoon
+        expectedBHJ[8].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[8].add(MidiBuildMessage.createProgramChange(70, 0, 8));
+        expectedBHJ[8].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[8].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Clarinet in B
+        expectedBHJ[9].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
+        expectedBHJ[9].add(MidiBuildMessage.createProgramChange(71, 0, 10));
+        expectedBHJ[9].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[9].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Bass Clarinet
+        expectedBHJ[10].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
+        expectedBHJ[10].add(MidiBuildMessage.createProgramChange(71, 0, 11));
+        expectedBHJ[10].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[10].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Alto sax
+        expectedBHJ[11].add(MidiBuildMessage.createKeySignature("5s", "major", 0));
+        expectedBHJ[11].add(MidiBuildMessage.createProgramChange(65, 0, 12));
+        expectedBHJ[11].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[11].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Tenor sax
+        expectedBHJ[12].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
+        expectedBHJ[12].add(MidiBuildMessage.createProgramChange(66, 0, 13));
+        expectedBHJ[12].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[12].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Baritone sax
+        expectedBHJ[13].add(MidiBuildMessage.createKeySignature("5s", "major", 0));
+        expectedBHJ[13].add(MidiBuildMessage.createProgramChange(67, 0, 14));
+        expectedBHJ[13].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[13].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Trumpet in B
+        expectedBHJ[14].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
+        expectedBHJ[14].add(MidiBuildMessage.createProgramChange(56, 0, 15));
+        expectedBHJ[14].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[14].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Horn in F 1
+        expectedBHJ[15].add(MidiBuildMessage.createKeySignature("3s", "major", 0));
+        expectedBHJ[15].add(MidiBuildMessage.createProgramChange(69, 0, 15));
+        expectedBHJ[15].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[15].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Trombone
+        expectedBHJ[16].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[16].add(MidiBuildMessage.createProgramChange(57, 0, 15));
+        expectedBHJ[16].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[16].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Bass Trombone
+        expectedBHJ[17].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[17].add(MidiBuildMessage.createProgramChange(57, 0, 15));
+        expectedBHJ[17].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[17].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Euphonium
+        expectedBHJ[18].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[18].add(MidiBuildMessage.createProgramChange(58, 0, 15));
+        expectedBHJ[18].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[18].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Tuba
+        expectedBHJ[19].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[19].add(MidiBuildMessage.createProgramChange(58, 0, 15));
+        expectedBHJ[19].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[19].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Timpani
+        expectedBHJ[20].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[20].add(MidiBuildMessage.createProgramChange(49, 0, 15));
+        expectedBHJ[20].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[20].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Tubular Bells
+        expectedBHJ[21].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[21].add(MidiBuildMessage.createProgramChange(16, 0, 15));
+        expectedBHJ[21].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[21].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Glockenspiel
+        expectedBHJ[22].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[22].add(MidiBuildMessage.createProgramChange(11, 0, 15));
+        expectedBHJ[22].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[22].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        //Snare
+        expectedBHJ[23].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedBHJ[23].add(MidiBuildMessage.createProgramChange(38, 0, 9));
+        expectedBHJ[23].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[23].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        for(int x = 0; x < actualBHJ.length; x++) {
+            for(int i = 0; i < actualBHJ[x].size(); i++) {
+                byte[] actualbytes = actualBHJ[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedBHJ[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        for(int x = 0; x < expectedBHJ.length; x++) {
+            for(int i = 0; i < expectedBHJ[x].size(); i++) {
+                byte[] actualbytes = actualBHJ[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedBHJ[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
             }
         }

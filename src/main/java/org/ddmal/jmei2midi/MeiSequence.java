@@ -598,11 +598,15 @@ public class MeiSequence {
             thisStaff.setMeterUnit(unit);
         }
         int midiInstr = ConvertToMidiWithStats.instrToMidi(label, stats);
+        int percInstr = ConvertToMidiWithStats.instrToPerc(label, stats);
         if(midiInstr > -1) {
-            thisStaff.setLabel(label, midiInstr);
+            thisStaff.setLabelInstr(label, midiInstr);
+        }
+        else if(percInstr > -1) {
+            thisStaff.setLabelPerc(label, percInstr);
         }
         else {
-            thisStaff.setLabel(processNewLabel(thisStaff.getN()));
+            thisStaff.setLabel(processNewLabel(thisStaff.getN(),label));
         }
         if(attributeExists(keysig)) {
             thisStaff.setKeysig(keysig);
@@ -654,12 +658,16 @@ public class MeiSequence {
         }
         //Check if label exists and if it is a valid instrument
         int midiInstr = ConvertToMidiWithStats.instrToMidi(label, stats);
+        int percInstr = ConvertToMidiWithStats.instrToPerc(label, stats);
         if(midiInstr > -1) {
-            newStaff.setLabel(label,midiInstr);
+            newStaff.setLabelInstr(label,midiInstr);
+        }
+        else if(percInstr > -1) {
+            newStaff.setLabelPerc(label, percInstr);
         }
         //or else we use works defaults
         else {
-            newStaff.setLabel(processNewLabel(n));
+            newStaff.setLabel(processNewLabel(n,label));
         }
         if(attributeExists(keysig)) {
             newStaff.setKeysig(keysig);
@@ -679,25 +687,35 @@ public class MeiSequence {
     
     /**
      * WARNING
-     * ASSUMPTION: Piano is last staff so we can find instrument
-     * even though it is not related to staff in any way.
-     * This assumption allows missing instruments to
-     * to still get a correct value, such as pianos or organs.
-     * If instrument not given in label
-     * or instrument not given in meihead
-     * then loop back till you find an instrument
-     * or else there is no instrument and
-     * Piano is default in MeiStaff default object.
-     * @param newStaff
-     * @param n 
+     * ORDER DOES MATTER FOR CASE OF MULTI-STAFF INSTRUMENTS.
+     * Will check if piano first or else will take from works.
+     * If nothing in works but already has a value != "default
+     * then it will take the new value.
+     * Or else it will return Voice or if there are 2 staffs, Piano.
+     * @param n
+     * @param label
+     * @return 
      */
-    private String processNewLabel(int n) {
+    private String processNewLabel(int n,String label) {
         //Check if there is a work
         MeiWork work = works.get(currentMovement);
         if(work != null) {
             HashMap<Integer,String> instrVoice = work.getInstrVoice();
+            //If there is no label and the previous label is a multi-staff
+            //instrument then copy the previous instrument
+            if((label == null) &&
+                staffs.containsKey(n-1) &&
+                (staffs.get(n-1).getLabel().toLowerCase().contains("piano") ||
+                staffs.get(n-1).getLabel().toLowerCase().contains("organ") ||
+                staffs.get(n-1).getLabel().toLowerCase().contains("harpsi"))) {
+                for(int i = n-1; i >= 0; i--) {
+                    if(instrVoice.containsKey(i)) {
+                        return instrVoice.get(i);
+                    }
+                }
+            }
             //Check if there is a valid instrVoice
-            if(instrVoice.containsKey(n)) {
+            else if(instrVoice.containsKey(n)) {
                 String instr = instrVoice.get(n);
                 boolean instrValid = ConvertToMidi.instrToMidi(instr) > -1;
                 if(instrValid) {
@@ -708,17 +726,6 @@ public class MeiSequence {
             else if(staffs.containsKey(n) &&
                     !staffs.get(n).getLabel().equals("default")) {
                 return staffs.get(n).getLabel();
-            }
-            //If there is no instrVoice then take previous one
-            else {
-            //Iterate through hashmap backwards
-            //till we find an instrument.
-            //This will be in the same staffGrp if at the end.
-                for(int i = n-1; i >= 0; i--) {
-                    if(instrVoice.containsKey(i)) {
-                        return instrVoice.get(i);
-                    }
-                }
             } 
         }   
         //This is if nothing is found

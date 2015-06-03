@@ -59,7 +59,6 @@ public class MeiStaff {
         this.tempo = "default";
         this.computeBpm();
         this.label = "default";
-        this.computeMidiLabel();
         this.tick = 0;
         this.layerOffset = 0;
         this.keysig = "0";
@@ -90,8 +89,7 @@ public class MeiStaff {
         this.computeChannel();
         this.tempo = tempo;
         this.computeBpm();
-        this.label = label;
-        this.computeMidiLabel();
+        this.setLabel(label);
         this.tick = 0;
         this.layerOffset = 0;
         this.keysig = keysig;
@@ -148,21 +146,38 @@ public class MeiStaff {
     public String getLabel() {
         return label;
     }
-
-    /**
-     * @param label the label to set
-     */
+    
     public void setLabel(String label) {
         this.label = label;
-        this.computeMidiLabel();
+        if(ConvertToMidi.instrToMidi(label) > -1) {
+            this.computeMidiLabel();
+        }
+        else if(ConvertToMidi.instrToPerc(label) > -1) {
+            this.computeMidiPerc();
+            this.channel = 9;
+        }
+    }
+
+    /**
+     * Optimization to set a percussion instrument once you know that it
+     * is a percussion instrument.
+     * Used for verification of instrument in MeiSequence.
+     * @param label the label to set
+     * @param midiPerc
+     */
+    public void setLabelPerc(String label, int midiPerc) {
+        this.label = label;
+        this.midiLabel = midiPerc;
+        this.channel = 9;
     }
     
     /**
-     * Overload method for both label and midiLabel.
+     * Optimization to set a instrument once you know that it
+     * is a instrument.
      * @param label
      * @param midiLabel 
      */
-    public void setLabel(String label, int midiLabel) {
+    public void setLabelInstr(String label, int midiLabel) {
         this.label = label;
         this.midiLabel = midiLabel;
     }
@@ -313,6 +328,10 @@ public class MeiStaff {
      */
     private void computeMidiLabel() {
         this.midiLabel = ConvertToMidi.instrToMidi(this.label);
+    }
+    
+    private void computeMidiPerc() {
+        this.midiLabel = ConvertToMidi.instrToPerc(this.label);
     }
     
     /**

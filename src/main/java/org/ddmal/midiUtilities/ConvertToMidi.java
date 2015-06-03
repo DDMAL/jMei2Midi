@@ -12,6 +12,30 @@ package org.ddmal.midiUtilities;
 public class ConvertToMidi {
     
     /**
+     * Converts instr to Percussion specifically for channel 9
+     * in the MeiStaff objects.
+     * @param instr
+     * @return 
+     */
+    public static int instrToPerc(String instr) {
+        int percInstr = 0;
+        if(instr == null) {
+            return -1;
+        }
+        instr=instr.toLowerCase();
+        if(instr.contains("snare")) {
+            percInstr = 38;
+        }
+        else if(instr.contains("bass drum")) {
+            percInstr = 35;
+        }
+        else {
+            percInstr = -1;
+        }
+        return percInstr;
+    }
+    
+    /**
      * Converts a string instrVoice from mei into an appropriate
      * midi instrument number.
      * http://www.midi.org/techspecs/gm1sound.php
@@ -36,49 +60,8 @@ public class ConvertToMidi {
         else if(instr.contains("viola")) {
             midiInstr = 41;
         }
-        else if(instr.contains("piano")) {
-            midiInstr = 0;
-        }
         else if(instr.contains("contrabass")) {
             midiInstr = 43;
-        }
-        else if(instr.contains("voice") ||
-                instr.contains("sopran") ||
-                instr.contains("alto") ||
-                instr.contains("tenor") ||
-                instr.contains("bass")) {
-            midiInstr = 54;
-        }
-        else if(instr.contains("harpsi")) {
-            midiInstr = 6;
-        }
-        else if(instr.contains("clavi")) {
-            midiInstr = 7;
-        }
-        else if(instr.contains("organ")) {
-            midiInstr = 19;
-        }
-        else if(instr.contains("guitar")) {
-            midiInstr = 24;
-        }
-        else if(instr.contains("harp")) {
-            midiInstr = 46;
-        }
-        else if(instr.contains("trumpet")) {
-            midiInstr = 56;
-        }
-        else if(instr.contains("trombone")) {
-            midiInstr = 57;
-        }
-        else if(instr.contains("tuba")) {
-            midiInstr = 58;
-        }
-        else if(instr.contains("french") ||
-                instr.contains("horn")) {
-            midiInstr = 60;
-        }
-        else if(instr.contains("brass")) {
-            midiInstr = 61;
         }
         else if(instr.contains("soprano sax")) {
             midiInstr = 64;
@@ -92,13 +75,54 @@ public class ConvertToMidi {
         else if(instr.contains("baritone sax")) {
             midiInstr = 67;
         }
+        else if(instr.contains("harpsi")) {
+            midiInstr = 6;
+        }
+        else if(instr.contains("clavi")) {
+            midiInstr = 7;
+        }
+        else if(instr.contains("glocken")) {
+            midiInstr = 11;
+        }
+        else if(instr.contains("tubular bell")) {
+            midiInstr = 16;
+        }
+        else if(instr.contains("organ")) {
+            midiInstr = 19;
+        }
+        else if(instr.contains("guitar")) {
+            midiInstr = 24;
+        }
+        else if(instr.contains("harp")) {
+            midiInstr = 46;
+        }
+        else if(instr.contains("timpani")) {
+            midiInstr = 49;
+        }
+        else if(instr.contains("trumpet")) {
+            midiInstr = 56;
+        }
+        else if(instr.contains("trombone")) {
+            midiInstr = 57;
+        }
+        else if(instr.contains("tuba") ||
+                instr.contains("euphonium")) {
+            midiInstr = 58;
+        }
+        else if(instr.contains("french horn")) {
+            midiInstr = 60;
+        }
+        else if(instr.contains("brass")) {
+            midiInstr = 61;
+        }
         else if(instr.contains("sax")) {
             midiInstr = 65;
         }
         else if(instr.contains("oboe")) {
             midiInstr = 68;
         }
-        else if(instr.contains("english")) {
+        else if(instr.contains("english") ||
+                instr.contains("horn")) {
             midiInstr = 69;
         }
         else if(instr.contains("bassoon")) {
@@ -115,6 +139,14 @@ public class ConvertToMidi {
         }
         else if(instr.contains("fiddle")) {
             midiInstr = 110;
+        }
+        else if(instr.contains("voice") ||
+                instr.contains("sopran") ||
+                instr.contains("alto") ||
+                instr.contains("tenor") ||
+                instr.contains("barit") ||
+                instr.contains("bass")) {
+            midiInstr = 54;
         }
         else {
             //Return -1 for invalid instrument and record stats

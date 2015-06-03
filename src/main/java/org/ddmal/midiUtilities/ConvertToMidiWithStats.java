@@ -5,6 +5,7 @@
  */
 package org.ddmal.midiUtilities;
 
+import java.util.HashMap;
 import org.ddmal.jmei2midi.MeiStatTracker;
 
 /**
@@ -13,7 +14,87 @@ import org.ddmal.jmei2midi.MeiStatTracker;
  */
 public class ConvertToMidiWithStats {
     
+    //Can't use this hash because to many variations on instruments.
+    //Leaving here for the time being.
+    /*public static final HashMap<String, Integer> midiInstr = new HashMap<>();
+    static {
+        midiInstr.put("piano", 0);
+        midiInstr.put("cello", 42);
+        midiInstr.put("violin", 40);
+        midiInstr.put("viola", 41);
+        midiInstr.put("contrabass", 43);
+        midiInstr.put("soprano sax", 64);
+        midiInstr.put("alto sax", 65);
+        midiInstr.put("tenor sax", 66);
+        midiInstr.put("baritone sax", 67);
+        midiInstr.put("harpsichord", 6);
+        midiInstr.put("clavichord", 7);
+        midiInstr.put("glockenspiel", 11);
+        midiInstr.put("tubular bell", 16);
+        midiInstr.put("organ", 19);
+        midiInstr.put("guitar", 24);
+        midiInstr.put("harp", 46);
+        midiInstr.put("timpani", 49);
+        midiInstr.put("trumpet", 56);
+        midiInstr.put("trombone", 57);
+        midiInstr.put("tuba", 58);
+        midiInstr.put("euphonium", 58);
+        midiInstr.put("french horn", 60);
+        midiInstr.put("brass", 61);
+        midiInstr.put("sax", 65);
+        midiInstr.put("oboe", 68);
+        midiInstr.put("english horn", 69);
+        midiInstr.put("horn", 69);
+        midiInstr.put("bassoon", 70);
+        midiInstr.put("clarinet", 71);
+        midiInstr.put("piccolo", 72);
+        midiInstr.put("flute", 73);
+        midiInstr.put("fiddle", 110);
+        midiInstr.put("voice", 54);
+        midiInstr.put("soprano", 54);
+        midiInstr.put("sopran", 54);
+        midiInstr.put("alto", 54);
+        midiInstr.put("tenor", 54);
+        midiInstr.put("baritone", 54);
+        midiInstr.put("bass", 54);
+    }*/
+    
     /**
+     * Converts a string percussion from mei into an appropriate
+     * midi instrument note number in channel 9.
+     * -1 is returned for an invalid instrument so that validity
+     * can be check when comparing mei element labels and metadata.
+     * Note: Some words are cut short because examples were found
+     * with this abbrevation and because it does not impact the actual
+     * search of the word, an abbreviation makes for a more 
+     * thorough check.
+     * http://www.midi.org/techspecs/gm1sound.php
+     * @param instr
+     * @param stats
+     * @return 
+     */
+    public static int instrToPerc(String instr, MeiStatTracker stats) {
+        int percInstr = 0;
+        if(instr == null) {
+            return -1;
+        }
+        instr=instr.toLowerCase();
+        if(instr.contains("snare")) {
+            percInstr = 38;
+        }
+        else if(instr.contains("bass drum")) {
+            percInstr = 35;
+        }
+        else {
+            percInstr = -1;
+            stats.addInvalidInstrument(instr);
+        }
+        return percInstr;
+    }
+    
+    /**
+     * NOTE: COULD USE A HASHMAP HERE BUT IMPROPER SPELLING FROM MEI USERS
+     * MAKES ME SOMEWHAT HESITANT
      * Converts a string instrVoice from mei into an appropriate
      * midi instrument number.
      * -1 is returned for an invalid instrument so that validity
@@ -45,49 +126,8 @@ public class ConvertToMidiWithStats {
         else if(instr.contains("viola")) {
             midiInstr = 41;
         }
-        else if(instr.contains("piano")) {
-            midiInstr = 0;
-        }
         else if(instr.contains("contrabass")) {
             midiInstr = 43;
-        }
-        else if(instr.contains("voice") ||
-                instr.contains("sopran") ||
-                instr.contains("alto") ||
-                instr.contains("tenor") ||
-                instr.contains("bass")) {
-            midiInstr = 54;
-        }
-        else if(instr.contains("harpsi")) {
-            midiInstr = 6;
-        }
-        else if(instr.contains("clavi")) {
-            midiInstr = 7;
-        }
-        else if(instr.contains("organ")) {
-            midiInstr = 19;
-        }
-        else if(instr.contains("guitar")) {
-            midiInstr = 24;
-        }
-        else if(instr.contains("harp")) {
-            midiInstr = 46;
-        }
-        else if(instr.contains("trumpet")) {
-            midiInstr = 56;
-        }
-        else if(instr.contains("trombone")) {
-            midiInstr = 57;
-        }
-        else if(instr.contains("tuba")) {
-            midiInstr = 58;
-        }
-        else if(instr.contains("french") ||
-                instr.contains("horn")) {
-            midiInstr = 60;
-        }
-        else if(instr.contains("brass")) {
-            midiInstr = 61;
         }
         else if(instr.contains("soprano sax")) {
             midiInstr = 64;
@@ -101,13 +141,54 @@ public class ConvertToMidiWithStats {
         else if(instr.contains("baritone sax")) {
             midiInstr = 67;
         }
+        else if(instr.contains("harpsi")) {
+            midiInstr = 6;
+        }
+        else if(instr.contains("clavi")) {
+            midiInstr = 7;
+        }
+        else if(instr.contains("glocken")) {
+            midiInstr = 11;
+        }
+        else if(instr.contains("tubular bell")) {
+            midiInstr = 16;
+        }
+        else if(instr.contains("organ")) {
+            midiInstr = 19;
+        }
+        else if(instr.contains("guitar")) {
+            midiInstr = 24;
+        }
+        else if(instr.contains("harp")) {
+            midiInstr = 46;
+        }
+        else if(instr.contains("timpani")) {
+            midiInstr = 49;
+        }
+        else if(instr.contains("trumpet")) {
+            midiInstr = 56;
+        }
+        else if(instr.contains("trombone")) {
+            midiInstr = 57;
+        }
+        else if(instr.contains("tuba") ||
+                instr.contains("euphonium")) {
+            midiInstr = 58;
+        }
+        else if(instr.contains("french horn")) {
+            midiInstr = 60;
+        }
+        else if(instr.contains("brass")) {
+            midiInstr = 61;
+        }
         else if(instr.contains("sax")) {
             midiInstr = 65;
         }
         else if(instr.contains("oboe")) {
             midiInstr = 68;
         }
-        else if(instr.contains("english")) {
+        else if(instr.contains("english") ||
+                instr.contains("horn")) {
             midiInstr = 69;
         }
         else if(instr.contains("bassoon")) {
@@ -124,6 +205,14 @@ public class ConvertToMidiWithStats {
         }
         else if(instr.contains("fiddle")) {
             midiInstr = 110;
+        }
+        else if(instr.contains("voice") ||
+                instr.contains("sopran") ||
+                instr.contains("alt") ||
+                instr.contains("tenor") ||
+                instr.contains("barit") ||
+                instr.contains("bass")) {
+            midiInstr = 54;
         }
         else {
             //Return -1 for invalid instrument and record stats
