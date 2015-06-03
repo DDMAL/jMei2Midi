@@ -35,6 +35,15 @@ public class ConvertToMidiTest {
     @Test
     public void testTempoToBpm() {
     }
+    
+    /**
+     * Test of DurToTick method, of class ConvertToMidi.
+     */
+    @Test
+    public void testDurToTick() {
+        assertEquals(128,ConvertToMidi.durToTick("8"));
+        assertEquals(512,ConvertToMidi.durToTick("2"));
+    }
 
     /**
      * Test of NoteToMidi method, of class ConvertToMidi.

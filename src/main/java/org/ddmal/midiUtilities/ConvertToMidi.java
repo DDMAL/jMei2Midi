@@ -282,4 +282,14 @@ public class ConvertToMidi {
         }
         return midiNote + octave;
     }
+    
+    /**
+     * Convert a note duration to an equivalent midi tick.
+     * Assumes a PPQ of 256.
+     * @param dur
+     * @return 
+     */
+    public static long durToTick(String dur) {
+        return (256 * 4) / Long.parseLong(dur);
+    }
 }

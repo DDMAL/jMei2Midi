@@ -15,6 +15,7 @@ import javax.sound.midi.InvalidMidiDataException;
 public class Main {
     public static void main(String[] args) throws InvalidMidiDataException {
         MeiSequence test = new MeiSequence("/Users/dinamix/Documents/mei/"
-                + "mei-test-set/MEI-files/clefs/treble-clef-out.mei");
+                + "mei-test-set/MEI/clefs/treble-clef.mei");
+        System.out.println(256%6);
     }  
 }

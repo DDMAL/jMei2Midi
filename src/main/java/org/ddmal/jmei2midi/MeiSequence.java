@@ -175,7 +175,8 @@ public class MeiSequence {
     
     /**
      * Each MEI element processed accordingly.
-     * If element not in switch statement below, then not processed at all.
+     * Some elements may only be processed within other elements
+     * such as a note.
      * @param element can be any MEI tag
      */
     //COULD TEST WITH SWITCH STATEMENT FOR NEATNESS
@@ -230,13 +231,15 @@ public class MeiSequence {
         else if(element.getName().equals("section")) {
             processParent(element);
         }
+        //Get children of measure which will probably be <staff>
         else if(element.getName().equals("measure")) {
-            //Get children of measure which will probably be <staff>
+            processParent(element);
         }
+        //Get children of staff which will probably be <layer>
+        //If staff has more than 2 children, need to consider offset
+        //Check staff n attribute and then pass on MeiStaff
         else if(element.getName().equals("staff")) {
-            //Get children of staff which will probably be <layer>
-            //If staff has more than 2 children, need to consider offset
-            //Check staff n attribute and then pass on MeiStaff
+            processStaff(element);
         }
         else if(element.getName().equals("layer")) {
             //Get children of layer which will be note, rest or mRest
@@ -477,16 +480,13 @@ public class MeiSequence {
         }
     }
     
-    //START FROM HERE
-    //DO SEQUENTIAL CASES WITH DEFAULT BEING LAST CASE
-    //Need to check n for 10 or greater than 16
-    //Then check if n is in staff or else create new MeiStaff
-    //And create new Track()
+    //May need to add instrDef but so far this doesn't seem necessary
+    //as instrDef can give random midi data for channels (Mozart Quintet)
     private void processStaffDef(MeiElement staffDef) {
         MeiStaff thisStaff;       
         
         //Set up necessary attributes
-        int n = 1; // n = 1 in case it does not exist
+        int n = 1; // n = 1 in case it does not exist to place in hash
         String nString = staffDef.getAttribute("n");
         String count = staffDef.getAttribute("meter.count");
         String unit = staffDef.getAttribute("meter.unit");
@@ -687,7 +687,7 @@ public class MeiSequence {
     
     /**
      * WARNING
-     * ORDER DOES MATTER FOR CASE OF MULTI-STAFF INSTRUMENTS.
+     * ORDER OF IF STATEMENTS DOES MATTER FOR CASE OF MULTI-STAFF INSTRUMENTS.
      * Will check if piano first or else will take from works.
      * If nothing in works but already has a value != "default
      * then it will take the new value.
@@ -749,7 +749,7 @@ public class MeiSequence {
         //The info that will be changed
         int thisN = staff.getN();
         int thisChannel = staff.getChannel();
-        int thisTick = staff.getTick();
+        long thisTick = staff.getTick();
         String thisKey = staff.getKeysig();
         String thisQuality = staff.getKeymode();
         int thisBpm = staff.getBpm();
@@ -786,7 +786,7 @@ public class MeiSequence {
      */
     private void addEventsToTrack(Track track,
                                   int channel,
-                                  int tick,
+                                  long tick,
                                   String key,
                                   String quality,
                                   int midiLabel,
@@ -797,23 +797,133 @@ public class MeiSequence {
     }
     
     /**
-     * Helper method to standardize if an attribute exists within an element.
-     * @param attribute
-     * @return true if attribute exists
+     * Process the mei staff element accordingly.
+     * @TODO
+     * Need to include copyof element for things like erlkonig.
+     * @TODO
+     * @param staff 
      */
-    private boolean attributeExists(String attribute) {
-        return attribute != null;
+    private void processStaff(MeiElement staff) {
+        //n is a required attribute of staff
+        int staffN = Integer.parseInt(staff.getAttribute("n"));
+        MeiStaff thisStaff = staffs.get(staffN);
+        //This gets all layers within staff in order to be processed
+        List<MeiElement> layers = staff.getDescendantsByName("layer");
+        processLayers(layers,thisStaff);
+        //Parent will be processed for any extra elements
+        //such as score/staffDefs
+        processParent(staff);
+    }
+    
+    private void processLayers(List<MeiElement> layers, MeiStaff thisStaff) {
+        //Layers will use layer offset as tick count
+        for(MeiElement layer : layers) {
+            processLayer(layer,thisStaff);
+        }
+        //will set general tick count here after all layers are done
+        long newTick = thisStaff.getTick() + thisStaff.getTickLayer();
+        thisStaff.setTick(newTick);
+    }
+    
+    private void processLayer(MeiElement layer, MeiStaff thisStaff) {
+        for(MeiElement child : layer.getChildren()) {
+            //Reset tick layer offset every time we have a new layer
+            thisStaff.setTickLayer(0);
+            processLayerChild(child,thisStaff);
+        }
+    }
+    
+    private void processLayerChild(MeiElement child, MeiStaff thisStaff) {
+        if(child.getName().equals("note")) {
+            processNote(child,thisStaff);
+        }
+        else if(child.getName().equals("beam")) {
+            
+        }
+        else if(child.getName().equals("chord")) {
+            
+        }
+        else if(child.getName().equals("rest")) {
+            
+        }
+        else if(child.getName().equals("mRest")) {
+            
+        }
+        else if(child.getName().equals("tuplet")) {
+            int tuple = Integer.parseInt(child.getAttribute("num"));
+            thisStaff.setTuplet(tuple);
+            
+            //Process here
+            
+            //Add mod of odd number to tick once it finishes the tuplet
+            thisStaff.setTick(thisStaff.getTick() + 256%tuple);
+        }
+        else {
+            processParent(child);
+        }
+    }
+    
+    public void processBeam(MeiElement parent) {
+        
     }
     
     public void processChord(MeiElement parent) {
         
     }
     
-    public void processNote(MeiElement parent) {
+    public void processNote(MeiElement note, MeiStaff thisStaff) {
+        String pname = note.getAttribute("pname");
+        String oct = note.getAttribute("oct");
+        String accid = note.getAttribute("accid");
+        String dur = note.getAttribute("dur");
+        String tie = note.getAttribute("tie");
+        
+        //Get the proper pitch given accidental or key signature
+        int nPitch;
+        if(attributeExists(accid)) {
+            nPitch = ConvertToMidi.NoteToMidi(pname, oct, accid);
+        }
+        else { 
+            nPitch = ConvertToMidi.NoteToMidi(pname, oct, 
+                                    thisStaff.getKeysigMap().get(pname));
+        }
+        
+        //Make appropriate note
+        Track thisTrack = sequence.getTracks()[thisStaff.getN()-1];
+        if(attributeExists(tie)) {
+            addMidiTieNote();
+        }
+        else {
+            addMidiNote();
+        }
+    }
+    
+    public void addMidiNote() {
+        
+    }
+    
+    public void addMidiTieNote() {
+        
+    }
+    
+    public void processMrest(MeiElement parent) {
         
     }
     
     public void processRest(MeiElement parent) {
         
+    }
+    
+    public void processTuplet(MeiElement tuplet) {
+        
+    }
+    
+    /**
+     * Helper method to standardize if an attribute exists within an element.
+     * @param attribute
+     * @return true if attribute exists
+     */
+    private boolean attributeExists(String attribute) {
+        return attribute != null;
     }
 }

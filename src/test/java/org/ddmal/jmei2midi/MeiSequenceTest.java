@@ -297,7 +297,7 @@ public class MeiSequenceTest {
     public void testProcessScoreDef() throws InvalidMidiDataException {
         //Test 1 : treble-clef-out
         String filename = "/Users/dinamix/Documents/mei/"
-                + "mei-test-set/MEI-files/clefs/treble-clef-out.mei";
+                + "mei-test-set/MEI/clefs/treble-clef.mei";
         MeiSequence trebleclefout;
         try {
             trebleclefout = new MeiSequence(filename);
@@ -515,7 +515,7 @@ public class MeiSequenceTest {
         //Test 1 : treble-clef-out
         //No n attribute given in many of the mei-test-set files
         String filename = "/Users/dinamix/Documents/mei/"
-                + "mei-test-set/MEI-files/clefs/treble-clef-out.mei";
+                + "mei-test-set/MEI/clefs/treble-clef.mei";
         MeiSequence trebleclefout;
         try {
             trebleclefout = new MeiSequence(filename);
@@ -540,7 +540,7 @@ public class MeiSequenceTest {
     public void testBuildMidiTrack() throws InvalidMidiDataException {
         //Test for treble-clef-out
         String filename = "/Users/dinamix/Documents/mei/"
-                + "mei-test-set/MEI-files/clefs/treble-clef-out.mei";
+                + "mei-test-set/MEI/clefs/treble-clef.mei";
         MeiSequence trebleclefout = new MeiSequence(filename);
         Track[] actualtco = trebleclefout.getSequence().getTracks();
         Sequence sequence = new Sequence(Sequence.PPQ, 256);

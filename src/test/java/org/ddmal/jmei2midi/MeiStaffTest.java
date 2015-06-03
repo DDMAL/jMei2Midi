@@ -46,51 +46,53 @@ public class MeiStaffTest {
     public void testComputeKey() {
         MeiStaff CMajor = new MeiStaff(0, "", "", "0", "","","");
         HashMap<String,String> expectCMajor = CMajor.getKeysigMap();
-        assertNull(expectCMajor);
+        assertNull(expectCMajor.get("f"));
         
         MeiStaff GMajor = new MeiStaff(0, "", "", "1s", "","","");
         HashMap<String,String> expectGMajor = GMajor.getKeysigMap();
         HashMap<String,String> actualGMajor = new HashMap<String,String>();
-        actualGMajor.put("f", "f");
+        actualGMajor.put("f", "s");
         assertEquals(actualGMajor,expectGMajor);
         
         MeiStaff ASMinor = new MeiStaff(0, "", "", "7s", "","","");
         HashMap<String,String> expectASMinor = ASMinor.getKeysigMap();
         HashMap<String,String> actualASMinor = new HashMap<String,String>();
-        actualASMinor.put("f", "f");
-        actualASMinor.put("c", "c");
-        actualASMinor.put("g", "g");
-        actualASMinor.put("d", "d");
-        actualASMinor.put("a", "a");
-        actualASMinor.put("e", "e");
-        actualASMinor.put("b", "b");
+        actualASMinor.put("f", "s");
+        actualASMinor.put("c", "s");
+        actualASMinor.put("g", "s");
+        actualASMinor.put("d", "s");
+        actualASMinor.put("a", "s");
+        actualASMinor.put("e", "s");
+        actualASMinor.put("b", "s");
         assertEquals(actualASMinor, expectASMinor);
-        assertTrue(expectASMinor.containsValue("f"));
-        assertTrue(expectASMinor.containsValue("c"));
-        assertTrue(expectASMinor.containsValue("g"));
-        assertTrue(expectASMinor.containsValue("d"));
-        assertTrue(expectASMinor.containsValue("a"));
-        assertTrue(expectASMinor.containsValue("e"));
-        assertTrue(expectASMinor.containsValue("b"));
+        assertTrue(expectASMinor.containsKey("f"));
+        assertTrue(expectASMinor.containsKey("c"));
+        assertTrue(expectASMinor.containsKey("g"));
+        assertTrue(expectASMinor.containsKey("d"));
+        assertTrue(expectASMinor.containsKey("a"));
+        assertTrue(expectASMinor.containsKey("e"));
+        assertTrue(expectASMinor.containsKey("b"));
+        assertNull(expectASMinor.get("q"));
         
         MeiStaff AFMinor = new MeiStaff(0, "", "", "7f", "","","");
         HashMap<String,String> expectAFMinor = AFMinor.getKeysigMap();
         HashMap<String,String> actualAFMinor = new HashMap<String,String>();
-        actualAFMinor.put("b", "b");
-        actualAFMinor.put("e", "e");
-        actualAFMinor.put("a", "a");
-        actualAFMinor.put("d", "d");
-        actualAFMinor.put("g", "g");
-        actualAFMinor.put("c", "c");
+        actualAFMinor.put("b", "f");
+        actualAFMinor.put("e", "f");
+        actualAFMinor.put("a", "f");
+        actualAFMinor.put("d", "f");
+        actualAFMinor.put("g", "f");
+        actualAFMinor.put("c", "f");
         actualAFMinor.put("f", "f");
         assertEquals(actualAFMinor,expectAFMinor);
-        assertTrue(expectAFMinor.containsValue("b"));
-        assertTrue(expectAFMinor.containsValue("e"));
-        assertTrue(expectAFMinor.containsValue("a"));
-        assertTrue(expectAFMinor.containsValue("d"));
-        assertTrue(expectAFMinor.containsValue("g"));
-        assertTrue(expectAFMinor.containsValue("c"));
-        assertTrue(expectAFMinor.containsValue("f"));
+        assertTrue(expectAFMinor.containsKey("b"));
+        assertTrue(expectAFMinor.containsKey("e"));
+        assertTrue(expectAFMinor.containsKey("a"));
+        assertTrue(expectAFMinor.containsKey("d"));
+        assertTrue(expectAFMinor.containsKey("g"));
+        assertTrue(expectAFMinor.containsKey("c"));
+        assertTrue(expectAFMinor.containsKey("f"));
+        assertNull(expectAFMinor.get("x"));
     }
     
 }

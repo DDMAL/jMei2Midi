@@ -28,7 +28,7 @@ public class MidiBuildMessage {
      */
     public static MidiEvent createKeySignature(String keysig,
                                                String quality,
-                                               int lTick) {
+                                               long lTick) {
         byte[] bytearray = keysigToByteArray(keysig,quality);
         MetaMessage setKeysig = new MetaMessage();
         try {
@@ -73,7 +73,7 @@ public class MidiBuildMessage {
      * @return 
      */
     public static MidiEvent createProgramChange(int pEvent,
-                                                int lTick,
+                                                long lTick,
                                                 int nChannel) {
         ShortMessage programChange = new ShortMessage();
         try {
@@ -97,7 +97,7 @@ public class MidiBuildMessage {
      * @param lTick
      * @return
      */
-    public static MidiEvent createTrackTempo(int bpm, int lTick) {
+    public static MidiEvent createTrackTempo(int bpm, long lTick) {
         byte[] bytearray = bpmToByteArray(bpm);
         MetaMessage setTempo = new MetaMessage();
         try {

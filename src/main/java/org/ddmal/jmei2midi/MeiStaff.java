@@ -25,8 +25,8 @@ public class MeiStaff {
     private int bpm; //converted tempo to beats per minute
     
     
-    private int tick; //current tick count of this staff
-    private int layerOffset; //included to account for multiple layers
+    private long tick; //current tick count of this staff
+    private long layerOffset; //included to account for multiple layers
                              //starting at the same time
                              //only need to use with 2 or more layers
     
@@ -44,6 +44,8 @@ public class MeiStaff {
     
     private String meterCount; //need for things like mRest
     private String meterUnit;
+    
+    private int tuplet; //this accounts for tuplets within staff
     
     /**
      * Default MeiStaff Constructor.
@@ -66,6 +68,7 @@ public class MeiStaff {
         this.computeKeysigMap();
         this.meterCount = "4";
         this.meterUnit = "4";
+        this.tuplet = 1;
     }
     
     /**
@@ -97,6 +100,7 @@ public class MeiStaff {
         this.computeKeysigMap();
         this.meterCount = meterCount;
         this.meterUnit = meterUnit;
+        this.tuplet = 1;
     }
 
     /**
@@ -205,18 +209,33 @@ public class MeiStaff {
     }
     
     /**
-     * @return current tick including the current layerOffset
+     * @return current tick before layers
      */
-    public int getTick() {
-        return this.tick + this.layerOffset;
+    public long getTick() {
+        return this.tick;
+    }
+    
+    /**
+     * @return current tick within a layer
+     */
+    public long getTickLayer() {
+        return this.layerOffset;
     }
     
     /**
      * Should be at the end of a staff element.
      * @param tick 
      */
-    public void setTick(int tick) {
+    public void setTick(long tick) {
         this.tick = tick;
+    }
+    
+    /**
+     * Should be used within a layer element.
+     * @param tick 
+     */
+    public void setTickLayer(long tick) {
+        this.layerOffset = tick;
     }
     
     /**
@@ -313,6 +332,22 @@ public class MeiStaff {
     }
     
     /**
+     * 
+     * @return this tuplet
+     */
+    public int getTuplet() {
+        return tuplet;
+    }
+    
+    /**
+     * 
+     * @param tuplet 
+     */
+    public void setTuplet(int tuplet) {
+        this.tuplet = tuplet;
+    }
+    
+    /**
      * This will convert a String to an appropriate bpm equivalent
      * (default = 90).
      * Will need to find Adagio... norms and do string conversion.
@@ -346,22 +381,21 @@ public class MeiStaff {
     private void computeKeysigMap() {
         int numberOfAccidentals = Integer.parseInt(keysig.substring(0,1));
         if(numberOfAccidentals == 0) {
-            keysigMap = null; //null means C major
+            keysigMap = new HashMap<>(); //null means C major
         }
         else {
-            HashMap<String, String> keysignature = new HashMap<>();
+            keysigMap = new HashMap<>();
             if (keysig.substring(1, 2).equals("s")) {
                 String keys[] = {"f", "c", "g", "d", "a", "e", "b"};
                 for (int i = 0; i < numberOfAccidentals; i++) {
-                    keysignature.put(keys[i], keys[i]);
+                    keysigMap.put(keys[i], "s");
                 }
             } else if (keysig.substring(1, 2).equals("f")) {
                 String keys[] = {"b", "e", "a", "d", "g", "c", "f"};
                 for (int i = 0; i < numberOfAccidentals; i++) {
-                    keysignature.put(keys[i], keys[i]);
+                    keysigMap.put(keys[i], "f");
                 }
             }
-            keysigMap = keysignature;
         }
     }
     
