@@ -41,8 +41,8 @@ public class ConvertToMidiTest {
      */
     @Test
     public void testDurToTick() {
-        assertEquals(128,ConvertToMidi.durToTick("8"));
-        assertEquals(512,ConvertToMidi.durToTick("2"));
+        assertEquals(128,ConvertToMidi.durToTick("8",1,1));
+        assertEquals(512,ConvertToMidi.durToTick("2",1,1));
     }
 
     /**

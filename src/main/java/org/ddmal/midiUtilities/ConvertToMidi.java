@@ -240,7 +240,15 @@ public class ConvertToMidi {
     public static int NoteToMidi(String pname, String oct, String accid) {
         //difference between accid and accid.ges?
         int midiNote = 0; //start with C0
-        int octave = Integer.parseInt(oct)*12;//get proper octave
+        int octave = 1;
+        try {
+            octave = Integer.parseInt(oct)*12;//get proper octave
+        }
+        catch(NumberFormatException nfe) {
+            System.out.println("oct is " + oct);
+            System.out.println("pname is " + pname);
+            System.out.println("accid is " + accid);
+        }
         
         //Get midi base note
         if(pname.equalsIgnoreCase("c")) {
@@ -266,11 +274,13 @@ public class ConvertToMidi {
         }
         
         //Account for accidentals if not null
+        //If accid = "n" then nothing will happen
         if(accid != null) {
             if(accid.equalsIgnoreCase("s")) {
                 midiNote++;    
             }
-            else if(accid.equalsIgnoreCase("ss")) {
+            else if(accid.equalsIgnoreCase("ss") ||
+                    accid.equalsIgnoreCase("x")) {
                 midiNote += 2;
             }
             else if(accid.equalsIgnoreCase("f")) {
@@ -286,10 +296,15 @@ public class ConvertToMidi {
     /**
      * Convert a note duration to an equivalent midi tick.
      * Assumes a PPQ of 256.
+     * Truncates fraction so that it can be added later on.
      * @param dur
      * @return 
      */
-    public static long durToTick(String dur) {
-        return (256 * 4) / Long.parseLong(dur);
+    public static long durToTick(String dur, int num, int numbase) {
+        return (long) ((long) ((256.0 * numbase) / num) * (4.0 / Long.parseLong(dur)));
+    }
+    
+    public static long tickRemainder(int num) {
+        return 256 % num;
     }
 }

@@ -5,6 +5,7 @@
  */
 package org.ddmal.jmei2midi;
 
+import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.HashMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -45,7 +46,10 @@ public class MeiStaff {
     private String meterCount; //need for things like mRest
     private String meterUnit;
     
-    private int tuplet; //this accounts for tuplets within staff
+    
+    private HashMap<String,MeiElement> layerChild; //holds all layer children names
+                                                   //as keys with the element itself
+                                                   //as values
     
     /**
      * Default MeiStaff Constructor.
@@ -68,7 +72,7 @@ public class MeiStaff {
         this.computeKeysigMap();
         this.meterCount = "4";
         this.meterUnit = "4";
-        this.tuplet = 1;
+        layerChild = new HashMap<>();
     }
     
     /**
@@ -100,7 +104,7 @@ public class MeiStaff {
         this.computeKeysigMap();
         this.meterCount = meterCount;
         this.meterUnit = meterUnit;
-        this.tuplet = 1;
+        layerChild = new HashMap<>();
     }
 
     /**
@@ -331,20 +335,16 @@ public class MeiStaff {
         return bpm;
     }
     
-    /**
-     * 
-     * @return this tuplet
-     */
-    public int getTuplet() {
-        return tuplet;
+    public HashMap<String,MeiElement> getLayerChild() {
+        return layerChild;
     }
     
-    /**
-     * 
-     * @param tuplet 
-     */
-    public void setTuplet(int tuplet) {
-        this.tuplet = tuplet;
+    public void setLayerChild(MeiElement element) {
+        layerChild.put(element.getName(), element);
+    }
+    
+    public void removeLayerChild(String elementName) {
+        layerChild.remove(elementName);
     }
     
     /**

@@ -16,7 +16,13 @@ import javax.sound.midi.Sequence;
  */
 public class MidiIO {
     //Maybe should create my own exception to deal with Midi IO
-    public static void write(Sequence sequence, String filename) throws IOException {
-        MidiSystem.write(sequence, 1, new File(filename));
+    public static void write(Sequence sequence, String filename) {
+        try {
+            MidiSystem.write(sequence, 1, new File(filename));
+        }
+        catch(IOException ioe) {
+            ioe.printStackTrace();
+            System.exit(1);
+        }
     }
 }

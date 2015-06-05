@@ -342,7 +342,8 @@ public class ConvertToMidiWithStats {
             if(accid.equalsIgnoreCase("s")) {
                 midiNote++;    
             }
-            else if(accid.equalsIgnoreCase("ss")) {
+            else if(accid.equalsIgnoreCase("ss") ||
+                    accid.equalsIgnoreCase("x")) {
                 midiNote += 2;
             }
             else if(accid.equalsIgnoreCase("f")) {

@@ -28,15 +28,15 @@ public class MidiBuildMessage {
      */
     public static MidiEvent createKeySignature(String keysig,
                                                String quality,
-                                               long lTick) {
+                                               long lTick) 
+                                               throws InvalidMidiDataException {
         byte[] bytearray = keysigToByteArray(keysig,quality);
         MetaMessage setKeysig = new MetaMessage();
         try {
             setKeysig.setMessage(0x59, bytearray, bytearray.length);
         }
         catch(InvalidMidiDataException ex) {
-            ex.printStackTrace();
-            System.exit(1);
+            throw new InvalidMidiDataException("invalid key signature");
         }
         return new MidiEvent(setKeysig, lTick);
     }
@@ -74,7 +74,8 @@ public class MidiBuildMessage {
      */
     public static MidiEvent createProgramChange(int pEvent,
                                                 long lTick,
-                                                int nChannel) {
+                                                int nChannel) 
+                                                throws InvalidMidiDataException {
         ShortMessage programChange = new ShortMessage();
         try {
             programChange.setMessage(ShortMessage.PROGRAM_CHANGE, 
@@ -83,8 +84,7 @@ public class MidiBuildMessage {
                                      0);
         }
         catch(InvalidMidiDataException ex) {
-            ex.printStackTrace();
-            System.exit(1);
+            throw new InvalidMidiDataException("invalid program change");
         }
         return new MidiEvent(programChange, lTick);
     }
@@ -97,14 +97,14 @@ public class MidiBuildMessage {
      * @param lTick
      * @return
      */
-    public static MidiEvent createTrackTempo(int bpm, long lTick) {
+    public static MidiEvent createTrackTempo(int bpm, long lTick) 
+                                             throws InvalidMidiDataException {
         byte[] bytearray = bpmToByteArray(bpm);
         MetaMessage setTempo = new MetaMessage();
         try {
             setTempo.setMessage(0x51, bytearray, bytearray.length);
         } catch (InvalidMidiDataException ex) {
-            ex.printStackTrace();
-            System.exit(1);
+            throw new InvalidMidiDataException("invalid tempo");
         }
         return new MidiEvent(setTempo, lTick);
     }
@@ -148,8 +148,9 @@ public class MidiBuildMessage {
      * @return 
      */
     public static MidiEvent createNoteOnEvent(int nPitch,
-                                               long lTick,
-                                               int nChannel) {
+                                              long lTick,
+                                              int nChannel) 
+                                              throws InvalidMidiDataException {
         return createNoteEvent(ShortMessage.NOTE_ON,
                                nPitch,
                                VEL,
@@ -165,8 +166,9 @@ public class MidiBuildMessage {
      * @return 
      */   
     public static MidiEvent createNoteOffEvent(int nPitch,
-                                                long lTick,
-                                                int nChannel) {
+                                               long lTick,
+                                               int nChannel) 
+                                               throws InvalidMidiDataException {
         return createNoteEvent(ShortMessage.NOTE_OFF,
                                nPitch,
                                0,
@@ -188,13 +190,13 @@ public class MidiBuildMessage {
                                              int nPitch,
                                              int nVelocity,
                                              long lTick,
-                                             int nChannel) {
+                                             int nChannel) 
+                                             throws InvalidMidiDataException {
         ShortMessage message = new ShortMessage();
         try {
             message.setMessage(nCommand, nChannel, nPitch, nVelocity);
         } catch (InvalidMidiDataException ex) {
-            ex.printStackTrace();
-            System.exit(1);
+            throw new InvalidMidiDataException("invalid note");
         }
         return new MidiEvent(message, lTick);
     }

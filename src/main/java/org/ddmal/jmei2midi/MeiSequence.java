@@ -18,6 +18,7 @@ import javax.sound.midi.Track;
 import org.ddmal.midiUtilities.ConvertToMidi;
 import org.ddmal.midiUtilities.ConvertToMidiWithStats;
 import org.ddmal.midiUtilities.MidiBuildMessage;
+import org.ddmal.midiUtilities.MidiIO;
 /**
  *
  * @author dinamix
@@ -240,6 +241,11 @@ public class MeiSequence {
         //Check staff n attribute and then pass on MeiStaff
         else if(element.getName().equals("staff")) {
             processStaff(element);
+        }
+        //May contain layer or staff and
+        //may be contained by measure or
+        else if(element.getName().equals("ossia")) {
+            processParent(element);
         }
         else if(element.getName().equals("layer")) {
             //Get children of layer which will be note, rest or mRest
@@ -791,13 +797,21 @@ public class MeiSequence {
                                   String quality,
                                   int midiLabel,
                                   int bpm) {
-        track.add(MidiBuildMessage.createKeySignature(key, quality, tick));
-        track.add(MidiBuildMessage.createProgramChange(midiLabel, tick, channel));
-        track.add(MidiBuildMessage.createTrackTempo(bpm, tick));
+        try {
+            track.add(MidiBuildMessage.createKeySignature(key, quality, tick));
+            track.add(MidiBuildMessage.createProgramChange(midiLabel, tick, channel));
+            track.add(MidiBuildMessage.createTrackTempo(bpm, tick));
+        }
+        catch(InvalidMidiDataException imde) {
+            imde.printStackTrace();
+            System.exit(1);
+        }
     }
     
     /**
      * Process the mei staff element accordingly.
+     * This will process layers of staff and will then process
+     * any other children normally through processElement().
      * @TODO
      * Need to include copyof element for things like erlkonig.
      * @TODO
@@ -808,29 +822,26 @@ public class MeiSequence {
         int staffN = Integer.parseInt(staff.getAttribute("n"));
         MeiStaff thisStaff = staffs.get(staffN);
         //This gets all layers within staff in order to be processed
-        List<MeiElement> layers = staff.getDescendantsByName("layer");
-        processLayers(layers,thisStaff);
-        //Parent will be processed for any extra elements
-        //such as score/staffDefs
-        processParent(staff);
-    }
-    
-    private void processLayers(List<MeiElement> layers, MeiStaff thisStaff) {
-        //Layers will use layer offset as tick count
-        for(MeiElement layer : layers) {
-            processLayer(layer,thisStaff);
+        //Also continues to process sequentially within staff if not layer
+        for(MeiElement child : staff.getChildren()) {
+            if(child.getName().equals("layer")) {
+                processLayer(child,thisStaff);
+            }
+            else {
+                processParent(child);
+            }
         }
-        //will set general tick count here after all layers are done
+        //will set general tick count here after a layer is done
         long newTick = thisStaff.getTick() + thisStaff.getTickLayer();
         thisStaff.setTick(newTick);
     }
     
     private void processLayer(MeiElement layer, MeiStaff thisStaff) {
-        for(MeiElement child : layer.getChildren()) {
-            //Reset tick layer offset every time we have a new layer
-            thisStaff.setTickLayer(0);
-            processLayerChild(child,thisStaff);
-        }
+        //Reset tick layer offset every time we have a new layer
+        thisStaff.setTickLayer(0);
+        //Process the layer
+        processParentLayer(layer, thisStaff);
+        
     }
     
     private void processLayerChild(MeiElement child, MeiStaff thisStaff) {
@@ -838,10 +849,10 @@ public class MeiSequence {
             processNote(child,thisStaff);
         }
         else if(child.getName().equals("beam")) {
-            
+            processParentLayer(child,thisStaff);
         }
         else if(child.getName().equals("chord")) {
-            
+            processChord(child, thisStaff);
         }
         else if(child.getName().equals("rest")) {
             
@@ -850,16 +861,20 @@ public class MeiSequence {
             
         }
         else if(child.getName().equals("tuplet")) {
-            int tuple = Integer.parseInt(child.getAttribute("num"));
-            thisStaff.setTuplet(tuple);
-            
-            //Process here
-            
-            //Add mod of odd number to tick once it finishes the tuplet
-            thisStaff.setTick(thisStaff.getTick() + 256%tuple);
+            processTuplet(child, thisStaff);
         }
+        else if(child.getName().equals("tie")) {
+            
+        }
+        //Maybe else is not the safest idea
         else {
             processParent(child);
+        }
+    }
+    
+    public void processParentLayer(MeiElement parent, MeiStaff thisStaff) {
+        for(MeiElement child : parent.getChildren()) {
+            processLayerChild(child, thisStaff);
         }
     }
     
@@ -867,16 +882,48 @@ public class MeiSequence {
         
     }
     
-    public void processChord(MeiElement parent) {
+    public void processChord(MeiElement chord, MeiStaff thisStaff) {
+        //Get duration of a note because they will all be the same
+        //Put dur into layerChild hash here
+        long tick;
+        String chordDur = chord.getAttribute("dur");
+        if(attributeExists(chordDur)) {
+            thisStaff.setLayerChild(chord);
+            tick = getDurToTick(chordDur,thisStaff);
+        }
+        else {
+            List<MeiElement> notes = chord.getChildrenByName("note");
+            String dur = notes.get(0).getAttribute("dur");
+            tick = getDurToTick(dur, thisStaff);
+        }
         
+        //Process chord children
+        processParentLayer(chord,thisStaff);
+        
+        //Set layer tick appropriately
+        thisStaff.setTickLayer(thisStaff.getTickLayer() + tick);
+        thisStaff.removeLayerChild("chord");
     }
     
+    /**
+     * Midi Conversion done here and then these conversions are
+     * processed in addMidiNote to add the note to the appropriately
+     * given track.
+     * Anything that has to do with the duration or pitch of the note
+     * is dealt with in here. Extra tick consideration are done in the
+     * checkLayerParents().
+     * @param note to add
+     * @param thisStaff to get other info from
+     */
     public void processNote(MeiElement note, MeiStaff thisStaff) {
         String pname = note.getAttribute("pname");
         String oct = note.getAttribute("oct");
         String accid = note.getAttribute("accid");
         String dur = note.getAttribute("dur");
         String tie = note.getAttribute("tie");
+        //*********
+        //NEED TO ADD DOTTED NOTES
+        //*********
         
         //Get the proper pitch given accidental or key signature
         int nPitch;
@@ -888,18 +935,89 @@ public class MeiSequence {
                                     thisStaff.getKeysigMap().get(pname));
         }
         
-        //Make appropriate note
-        Track thisTrack = sequence.getTracks()[thisStaff.getN()-1];
-        if(attributeExists(tie)) {
-            addMidiTieNote();
+        //Get the proper start and end Ticks for this note
+        long startTick = thisStaff.getTick() + thisStaff.getTickLayer();
+        long endTick;
+        if(attributeExists(dur)) {
+            endTick = startTick + getDurToTick(dur, thisStaff);
         }
         else {
-            addMidiNote();
+            dur = thisStaff.getLayerChild().get("chord").getAttribute("dur");
+            endTick = startTick + getDurToTick(dur, thisStaff);
+        }
+        
+        //Create midi note based on what is in layerChild hash
+        if(!attributeExists(tie)) {
+            checkLayerParents(nPitch,startTick,endTick,thisStaff);
+        }
+        else {
+            //checkLayerParentsTie(nPitch, startTick, endTick, tie, thisStaff);
         }
     }
     
-    public void addMidiNote() {
-        
+    public void checkLayerParents(int nPitch,
+                                  long starTick,
+                                  long endTick,
+                                  MeiStaff thisStaff) {
+        Track thisTrack = sequence.getTracks()[thisStaff.getN()-1];
+        if(thisStaff.getLayerChild().containsKey("chord")) {
+            addMidiNoteOn(thisTrack, nPitch, starTick, endTick, thisStaff);
+            addMidiNoteOff(thisTrack, nPitch, starTick, endTick, thisStaff);
+        }
+        else {
+            addMidiNoteOn(thisTrack, nPitch, starTick, endTick, thisStaff);
+            addMidiNoteOff(thisTrack, nPitch, starTick, endTick, thisStaff);
+            thisStaff.setTickLayer(endTick - thisStaff.getTick());
+        }
+    }
+    
+    /**
+     * Add the given midi note on event to the specified track.
+     * This assumes that both a note-on and note-off even is required.
+     * @param thisTrack
+     * @param nPitch
+     * @param startTick
+     * @param endTick
+     * @param thisStaff 
+     */
+    public void addMidiNoteOn(Track thisTrack,
+                            int nPitch, 
+                            long startTick,
+                            long endTick, 
+                            MeiStaff thisStaff) {
+        try {
+            thisTrack.add(MidiBuildMessage.createNoteOnEvent(nPitch, 
+                                                         startTick, 
+                                                         thisStaff.getChannel()));
+        }
+        catch(InvalidMidiDataException imde) {
+            imde.printStackTrace();
+            System.exit(1); 
+        }
+    }
+    
+    /**
+     * Add the given midi note off event to the specified track.
+     * @param thisTrack
+     * @param nPitch
+     * @param startTick
+     * @param endTick
+     * @param thisStaff 
+     */
+    public void addMidiNoteOff(Track thisTrack,
+                            int nPitch, 
+                            long startTick,
+                            long endTick, 
+                            MeiStaff thisStaff) {
+        try {
+            thisTrack.add(MidiBuildMessage.createNoteOffEvent(nPitch, 
+                                                          endTick, 
+                                                          thisStaff.getChannel()));
+        }
+        catch(InvalidMidiDataException imde) {
+            imde.printStackTrace();
+            System.exit(1); 
+        }
     }
     
     public void addMidiTieNote() {
@@ -914,8 +1032,18 @@ public class MeiSequence {
         
     }
     
-    public void processTuplet(MeiElement tuplet) {
-        
+    public void processTuplet(MeiElement tuplet, MeiStaff thisStaff) {
+        //Give tuplet to MeiStaff
+        thisStaff.setLayerChild(tuplet);
+            
+        //Process here with tuplet info
+        processParentLayer(tuplet,thisStaff);
+            
+        //Add mod of odd number to tick once it finishes the tuplet
+        //And remove tuplet from hash
+        int num = getAttributeToInt("num", tuplet, 1);
+        thisStaff.setTick(thisStaff.getTick() + ConvertToMidi.tickRemainder(num));
+        thisStaff.getLayerChild().remove("tuplet");
     }
     
     /**
@@ -925,5 +1053,31 @@ public class MeiSequence {
      */
     private boolean attributeExists(String attribute) {
         return attribute != null;
+    }
+    
+    /**
+     * Helper method to convert an mei element attribute to an int given
+     * a specified default value if the attribute DNE.
+     * @param name
+     * @param ele
+     * @param intDefault
+     * @return 
+     */
+    private int getAttributeToInt(String name, MeiElement ele, int intDefault) {
+        int attInt = intDefault;
+        if(ele != null) {
+            String attString = ele.getAttribute(name);
+            if(attributeExists(attString)) {
+                attInt = Integer.parseInt(attString);
+            }
+        }
+        return attInt;
+    }
+    
+    private long getDurToTick(String dur, MeiStaff thisStaff) {
+        MeiElement tuplet = thisStaff.getLayerChild().get("tuplet");
+        int num = getAttributeToInt("num", tuplet, 1);
+        int numbase = getAttributeToInt("numbase", tuplet, 1);
+        return ConvertToMidi.durToTick(dur,num,numbase);
     }
 }
