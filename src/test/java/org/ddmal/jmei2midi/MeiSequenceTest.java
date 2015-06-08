@@ -288,6 +288,15 @@ public class MeiSequenceTest {
         expectedBHJ.addInstrVoice(17, "bass drum");
         expectedBHJ.addInstrVoice(18, "string orchestra");
         assertEquals(expectedBHJ, actualBHJ);
+        
+        //Test McFerrin
+        String filenameMcFerrin = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei";
+        MeiSequence McFerrin = new MeiSequence(filenameMcFerrin);
+        MeiWork actualMcFerrin = McFerrin.getWorks().get(1);
+        MeiWork expectedMcFerrin = new MeiWork(1, "c", "major", "4", "4", "undefined");
+        expectedMcFerrin.addInstrVoice(1, "Voice");
+        assertEquals(expectedMcFerrin, actualMcFerrin);
     }
 
     /**
@@ -374,10 +383,10 @@ public class MeiSequenceTest {
         expectedCz.put(3, new MeiStaff(3, "default", "Organ", "1f", "minor", "4", "4"));
         assertEquals(expectedCz, actualCz);
         
-        //Test 2 : Grieg butterfly
+        /*Test 2 : Grieg butterfly
         String griegfile = "/Users/dinamix/Documents/mei/"
                 + "music-encoding/samples/MEI2013/Music/Complete examples/Grieg_op.43_butterfly.mei";
-        /*MeiSequence grieg = new MeiSequence(griegfile);
+        MeiSequence grieg = new MeiSequence(griegfile);
         HashMap<Integer,MeiStaff> actualGr = grieg.getStaffs();
         for(MeiStaff staff : actualGr.values()) {
                 staff.setTick(0);
@@ -568,6 +577,19 @@ public class MeiSequenceTest {
         expectedBHJ.put(23, new MeiStaff(23, "Allegro assai", "Glockenspiel", "2s", "major", "4", "4"));
         expectedBHJ.put(24, new MeiStaff(24, "Allegro assai", "Snare", "2s", "major", "4", "4"));
         assertEquals(expectedBHJ, actualBHJ);
+        
+        //Test McFerrin
+        String filenameMcFerrin = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei";
+        MeiSequence McFerrin = new MeiSequence(filenameMcFerrin);
+        HashMap<Integer,MeiStaff> actualMcFerrin = McFerrin.getStaffs();
+        for(MeiStaff staff : actualMcFerrin.values()) {
+                staff.setTick(0);
+                staff.setTickLayer(0);
+        }
+        HashMap<Integer,MeiStaff> expectedMcFerrin = new HashMap<>();
+        expectedMcFerrin.put(1, new MeiStaff(1, "undefined", "Voice", "0", "major", "4", "4"));
+        assertEquals(expectedMcFerrin, actualMcFerrin);
     }
     
     /**
@@ -1249,9 +1271,7 @@ public class MeiSequenceTest {
         for(int x = 0; x < actualbeamP.length; x++) {
             for(int i = 0; i < actualbeamP[x].size(); i++) {
                 byte[] actualbytes = actualbeamP[x].get(i).getMessage().getMessage();
-                //System.out.println(Arrays.toString(actualbytes));
                 byte[] expectedbytes = expectedbeamP[x].get(i).getMessage().getMessage();
-                //System.out.println(Arrays.toString(expectedbytes));
                 assertArrayEquals(expectedbytes, actualbytes);
             }
         }
@@ -1259,6 +1279,102 @@ public class MeiSequenceTest {
             for(int i = 0; i < expectedbeamP[x].size(); i++) {
                 byte[] actualbytes = actualbeamP[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedbeamP[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        
+        //Test for dotted-4
+        String filenameDotted4 = "/Users/dinamix/Documents/mei/"
+                + "mei-test-set/MEI/chords/dotted-4.mei";
+        MeiSequence Dotted4 = new MeiSequence(filenameDotted4);
+        Track[] actualDotted4 = Dotted4.getSequence().getTracks();
+        Sequence sequenceDotted4 = new Sequence(Sequence.PPQ, 256, 1);
+        Track[] expectedDotted4 = sequenceDotted4.getTracks();
+        expectedDotted4[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedDotted4[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedDotted4[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        
+        int dotted4m1n1 = ConvertToMidi.NoteToMidi("d", "5", null);
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m1n1, 0, 0));
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m1n1, 768, 0));
+        
+        int dotted4m1n2 = ConvertToMidi.NoteToMidi("c", "5", null);
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m1n2, 0, 0));
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m1n2, 512, 0));
+        
+        int dotted4m1n3 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m1n3, 512, 0));
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m1n3, 768, 0));
+        
+        int dotted4m2n1 = ConvertToMidi.NoteToMidi("c", "5", null);
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m2n1, 768, 0));
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m2n1, 1536, 0));
+        
+        int dotted4m2n2 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m2n2, 768, 0));
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m2n2, 1280, 0));
+        
+        int dotted4m2n3 = ConvertToMidi.NoteToMidi("g", "4", null);
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m2n3, 1280, 0));
+        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m2n3, 1536, 0));
+        expectedDotted4[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        for(int x = 0; x < actualDotted4.length; x++) {
+            for(int i = 0; i < actualDotted4[x].size(); i++) {
+                byte[] actualbytes = actualDotted4[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedDotted4[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        for(int x = 0; x < expectedDotted4.length; x++) {
+            for(int i = 0; i < expectedDotted4[x].size(); i++) {
+                byte[] actualbytes = actualDotted4[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedDotted4[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        
+        //Test for slurs with rests
+        String filenameSlurwRest = "/Users/dinamix/Documents/mei/"
+                + "mei-test-set/MEI/ties-slurs/slurs-with-rests.mei";
+        MeiSequence SlurwRest = new MeiSequence(filenameSlurwRest);
+        Track[] actualSlurwRest = SlurwRest.getSequence().getTracks();
+        Sequence sequenceSlurwRest = new Sequence(Sequence.PPQ, 256, 1);
+        Track[] expectedSlurwRest = sequenceSlurwRest.getTracks();
+        expectedSlurwRest[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedSlurwRest[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedSlurwRest[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        
+        int slurwrestm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n1, 0, 0));
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n1, 256, 0));
+        
+        int slurwrestm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n2, 512, 0));
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n2, 768, 0));
+        
+        int slurwrestm1n3 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n3, 896, 0));
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n3, 1024, 0));
+        
+        int slurwrestm1n4 = ConvertToMidi.NoteToMidi("g", "4", null);
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n4, 1024, 0));
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n4, 1280, 0));
+        
+        int slurwrestm1n5 = ConvertToMidi.NoteToMidi("c", "5", null);
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n5, 3072, 0));
+        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n5, 3328, 0));
+        expectedSlurwRest[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
+        for(int x = 0; x < actualSlurwRest.length; x++) {
+            for(int i = 0; i < actualSlurwRest[x].size(); i++) {
+                byte[] actualbytes = actualSlurwRest[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedSlurwRest[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+            }
+        }
+        for(int x = 0; x < expectedSlurwRest.length; x++) {
+            for(int i = 0; i < expectedSlurwRest[x].size(); i++) {
+                byte[] actualbytes = actualSlurwRest[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedSlurwRest[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
             }
         }

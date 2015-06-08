@@ -300,11 +300,13 @@ public class ConvertToMidi {
      * @param dur
      * @return 
      */
-    public static long durToTick(String dur, int num, int numbase) {
-        return (long) ((long) ((256.0 * numbase) / num) * (4.0 / Long.parseLong(dur)));
+    public static long durToTick(String dur, int num, int numbase, int dot) {
+        return (long) ((((256.0 * numbase) / num) * (4.0 / Double.parseDouble(dur)))
+                        * (2 - (1 / Math.pow(2, dot))));
     }
     
     public static long tickRemainder(int num) {
         return 256 % num;
+        
     }
 }

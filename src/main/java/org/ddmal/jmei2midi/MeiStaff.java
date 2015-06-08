@@ -335,8 +335,12 @@ public class MeiStaff {
         return bpm;
     }
     
-    public HashMap<String,MeiElement> getLayerChild() {
+    public HashMap<String,MeiElement> getLayerChildMap() {
         return layerChild;
+    }
+    
+    public MeiElement getLayerChild(String element) {
+        return layerChild.get(element);
     }
     
     public void setLayerChild(MeiElement element) {

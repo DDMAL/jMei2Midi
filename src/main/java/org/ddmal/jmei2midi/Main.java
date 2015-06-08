@@ -9,6 +9,7 @@ import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import org.ddmal.midiUtilities.MidiIO;
@@ -20,20 +21,23 @@ import org.ddmal.midiUtilities.MidiIO;
  */
 public class Main {
     public static void main(String[] args) throws InvalidMidiDataException {
-        String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/chords/";
+        /*String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/chords/";
         File rootFile = new File(root);
         for(String filename : rootFile.list()) {
             MeiSequence test = new MeiSequence(root + filename);
             MidiIO.write(test.getSequence(), "midi/MEI/chords/" 
                                             + filename.replace("mei", "midi"));
-        }
-        /*MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Czerny_op603_6.mei");
-        List<MeiElement> notes = doc.getElementsByName("note");
-        for(MeiElement note : notes) {
-            String dur = note.getAttribute("dur");
-            if(dur == null) {
-                System.out.println(note.getId());
-            }
         }*/
+        /*String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei";
+        MeiSequence test = new MeiSequence(file);
+        MidiIO.write(test.getSequence(), "midi/MEI/McFerrin_Don't_worry.midi");*/
+        MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei");
+        List<MeiElement> rests = doc.getElementsByName("note");
+        for(MeiElement rest : rests) {
+            String dur = rest.getAttribute("dur");
+            if(dur == null) {
+                System.out.println(rest.getId());
+            }
+        }
     }  
 }
