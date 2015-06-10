@@ -59,6 +59,7 @@ public class ConvertToMidiTest {
             expectedC = i * 12;
             assertEquals(expectedC, actualC);
         }
+        assertEquals(60,ConvertToMidi.NoteToMidi("c","5",null));
         
         //C-sharp
         for(Integer i = 0; i <= 11; i++) {

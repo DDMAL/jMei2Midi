@@ -242,6 +242,7 @@ public class ConvertToMidi {
         int midiNote = 0; //start with C0
         int octave = 1;
         try {
+            //ADD +1 TO OCTAVE HERE AND CHECK TESTS!!!
             octave = Integer.parseInt(oct)*12;//get proper octave
         }
         catch(NumberFormatException nfe) {
@@ -301,8 +302,13 @@ public class ConvertToMidi {
      * @return 
      */
     public static long durToTick(String dur, int num, int numbase, int dot) {
-        return (long) ((((256.0 * numbase) / num) * (4.0 / Double.parseDouble(dur)))
-                        * (2 - (1 / Math.pow(2, dot))));
+        if(dur.equals("0")) {
+            return 0;
+        }
+        else {
+            return (long) ((((256.0 * numbase) / num) * (4.0 / Double.parseDouble(dur)))
+                        * (2.0 - (1 / Math.pow(2, dot))));
+        }
     }
     
     public static long tickRemainder(int num) {

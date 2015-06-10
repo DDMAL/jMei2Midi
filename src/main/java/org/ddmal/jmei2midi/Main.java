@@ -21,23 +21,27 @@ import org.ddmal.midiUtilities.MidiIO;
  */
 public class Main {
     public static void main(String[] args) throws InvalidMidiDataException {
-        /*String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/chords/";
+        /*String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/ties-slurs/";
         File rootFile = new File(root);
         for(String filename : rootFile.list()) {
             MeiSequence test = new MeiSequence(root + filename);
-            MidiIO.write(test.getSequence(), "midi/MEI/chords/" 
+            MidiIO.write(test.getSequence(), "midi/MEI/ties-slurs/" 
                                             + filename.replace("mei", "midi"));
         }*/
-        /*String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei";
+        
+        /*String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Beethoven_Hymn_to_joy.mei";
         MeiSequence test = new MeiSequence(file);
-        MidiIO.write(test.getSequence(), "midi/MEI/McFerrin_Don't_worry.midi");*/
-        MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei");
-        List<MeiElement> rests = doc.getElementsByName("note");
-        for(MeiElement rest : rests) {
-            String dur = rest.getAttribute("dur");
-            if(dur == null) {
-                System.out.println(rest.getId());
+        MidiIO.write(test.getSequence(), "midi/MEI/Complete examples/Beethoven_Hymn_to_joy.midi");*/
+        
+        MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Ravel_Le_tombeau.mei");
+        List<MeiElement> spaces = doc.getElementsByName("space");
+        int i = 1;
+        for(MeiElement space : spaces) {
+            String dur = space.getAttribute("dur");
+            if(dur != null) {
+                System.out.println(space.getId() + " " + i + " " + dur);
             }
+            i++;
         }
     }  
 }
