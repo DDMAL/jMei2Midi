@@ -29,6 +29,7 @@ public class MeiSequence {
     
     private Sequence sequence;
     
+    private MeiStaff currentStaff;
     private HashMap<Integer,MeiStaff> staffs; //staffs store in hashmap
                                               //for easier access throughout
     
@@ -68,6 +69,8 @@ public class MeiSequence {
         
         //Instantiate staffs as ArrayList
         staffs = new HashMap<>();
+        currentStaff = new MeiStaff(0); //in case there are no n attributes for 
+                                        //staffs within measures
         
         //Create new defaults array for default values
         //So far we need 5 values for:
@@ -100,6 +103,8 @@ public class MeiSequence {
         
         //Instantiate staffs as ArrayList
         staffs = new HashMap<>();
+        currentStaff = new MeiStaff(0); //in case there are no n attributes for
+                                        //staffs within measures
         
         //Create new defaults array for default values
         //So far we need 5 values for:
@@ -825,6 +830,7 @@ public class MeiSequence {
      */
     private void processMeasure(MeiElement measure) {
         //Set up a new measure object every time we have a new measure
+        //This will impliclitly reset the hashmaps
         currentMeasure = new MeiMeasure();
         getEndElements(measure);
         
@@ -859,8 +865,8 @@ public class MeiSequence {
         List<MeiElement> tupletSpans = measure.getDescendantsByName("tupletSpan");
         if(tupletSpans.size() > 0) {
             for(MeiElement tupletSpan : tupletSpans) {
-                currentMeasure.setTupletSpanStart(measure);
-                currentMeasure.setTupletSpanEnd(measure);
+                currentMeasure.setTupletSpanStart(tupletSpan);
+                currentMeasure.setTupletSpanEnd(tupletSpan);
             }
         }
     }
@@ -875,14 +881,18 @@ public class MeiSequence {
      * @param staff 
      */
     private void processStaff(MeiElement staff) {
-        //n is a required attribute of staff
-        int staffN = Integer.parseInt(staff.getAttribute("n"));
-        MeiStaff thisStaff = staffs.get(staffN);
+        //Verify n or else assume sequential ordering between staffs
+        //if no information about staffs are given then it will start at 1
+        //which matches with the staffDefs in the staffs hash
+        String nString = staff.getAttribute("n");
+        int staffN = (nString != null) ? Integer.parseInt(nString) : currentStaff.getN() + 1;
+        currentStaff = staffs.get(staffN);
+        
         //This gets all layers within staff in order to be processed
         //Also continues to process sequentially within staff if not layer
         for(MeiElement child : staff.getChildren()) {
             if(child.getName().equals("layer")) {
-                processLayer(child,thisStaff);
+                processLayer(child);
             }
             else {
                 processParent(child);
@@ -890,36 +900,35 @@ public class MeiSequence {
         }
     }
     
-    private void processLayer(MeiElement layer, MeiStaff thisStaff) {
+    private void processLayer(MeiElement layer) {
         //Reset tick layer offset every time we have a new layer
-        thisStaff.setTickLayer(0);
+        currentStaff.setTickLayer(0);
         //Process the layer
-        processParentLayer(layer, thisStaff);
-        
+        processParentLayer(layer);
     }
     
-    private void processLayerChild(MeiElement child, MeiStaff thisStaff) {
+    private void processLayerChild(MeiElement child) {
         //Process other elements that might effect this one
         checkEndElementsStartID(child);
         
         String name = child.getName();
         if(name.equals("note")) {
-            processNote(child,thisStaff);
+            processNote(child);
         }
         else if(name.equals("beam")) {
-            processParentLayer(child,thisStaff);
+            processParentLayer(child);
         }
         else if(name.equals("chord")) {
-            processChord(child, thisStaff);
+            processChord(child);
         }
         else if(name.equals("rest") ||
                 name.equals("mRest") ||
                 name.equals("mSpace") ||
                 name.equals("space")) {
-            processRest(child,thisStaff);
+            processRest(child);
         }
         else if(name.equals("tuplet")) {
-            processTuplet(child, thisStaff);
+            processTuplet(child);
         }
         //Maybe else is not the safest idea
         else {
@@ -930,11 +939,17 @@ public class MeiSequence {
         checkEndElementsEndID(child);
     }
     
+    /**
+     * Checks any non-sequential mei element that contains a start id
+     * and sets retained information accordingly.
+     * Currently used for tupletSpan element.
+     * @param child 
+     */
     private void checkEndElementsStartID(MeiElement child) {
         //Check whether a start tuplet or end tuplet is there
         //One note cannot have more than one tuplet value on it
-        if(currentMeasure.getTupletSpanStart(child.getId()) != null) {
-            MeiElement tupletSpan = currentMeasure.getTupletSpanStart(child.getId());
+        MeiElement tupletSpan = currentMeasure.getTupletSpanStart(child.getId());
+        if(tupletSpan != null) {
             int num = Integer.parseInt(tupletSpan.getAttribute("num"));
             int numbase = Integer.parseInt(tupletSpan.getAttribute("numbase"));
             currentMeasure.setNum(num);
@@ -942,43 +957,54 @@ public class MeiSequence {
         }
     }
     
+    /**
+     * Checks any non-sequential mei element that contains an end id and
+     * resets any previous information that needs to be changed.
+     * Currently used for tupletSpan element.
+     * @param child 
+     */
     private void checkEndElementsEndID(MeiElement child) {
         //Check whether a start tuplet or end tuplet is there
         //One note cannot have more than one tuplet value on it
+        //ASSUMPTION
+        //This supercedes the tuplet element in importance
         if(currentMeasure.getTupletSpanEnd(child.getId()) != null) {
+            //Add tick tick remainder here
+            currentStaff.setTick(currentStaff.getTick() + 
+                    ConvertToMidi.tickRemainder(currentMeasure.getNum()));
             currentMeasure.setNum(1);
             currentMeasure.setNumBase(1);
         }
     }
     
-    public void processParentLayer(MeiElement parent, MeiStaff thisStaff) {
+    public void processParentLayer(MeiElement parent) {
         for(MeiElement child : parent.getChildren()) {
-            processLayerChild(child, thisStaff);
+            processLayerChild(child);
         }
     }
     
-    public void processChord(MeiElement chord, MeiStaff thisStaff) {
+    public void processChord(MeiElement chord) {
         //Set chord as layerChild for future use
-        thisStaff.setLayerChild(chord);
+        currentStaff.setLayerChild(chord);
         
         //Get duration of a note because they will all be the same
         //Put dur into layerChild hash here
         long tick;
         String chordDur = chord.getAttribute("dur");
         if(attributeExists(chordDur)) {
-            tick = getDurToTick(chord,thisStaff);
+            tick = getDurToTick(chord);
         }
         else {
             List<MeiElement> notes = chord.getChildrenByName("note");
-            tick = getDurToTick(notes.get(0), thisStaff);
+            tick = getDurToTick(notes.get(0));
         }
         
         //Process chord children
-        processParentLayer(chord,thisStaff);
+        processParentLayer(chord);
         
         //Set layer tick appropriately
-        thisStaff.setTickLayer(thisStaff.getTickLayer() + tick);
-        thisStaff.removeLayerChild("chord");
+        currentStaff.setTickLayer(currentStaff.getTickLayer() + tick);
+        currentStaff.removeLayerChild("chord");
     }
     
     /**
@@ -989,27 +1015,27 @@ public class MeiSequence {
      * is dealt with in here. Extra tick consideration are done in the
      * checkLayerParents().
      * @param note to add
-     * @param thisStaff to get other info from
+     * @param currentStaff to get other info from
      */
-    public void processNote(MeiElement note, MeiStaff thisStaff) {
+    public void processNote(MeiElement note) {
         //Used to use note outisde of function for now
-        thisStaff.setLayerChild(note);
+        currentStaff.setLayerChild(note);
         
         //Get the correct note pitch with name, octave and accidental
-        int nPitch = getMidiPitch(note, thisStaff);
+        int nPitch = getMidiPitch(note);
         
         //Get the proper start and end Ticks for this note
-        long startTick = thisStaff.getTick() + thisStaff.getTickLayer();
-        long endTick = startTick + getDurToTick(note, thisStaff);
+        long startTick = currentStaff.getTick() + currentStaff.getTickLayer();
+        long endTick = startTick + getDurToTick(note);
         
         //Check parents to see how to process this chord
-        checkLayerParents(nPitch,startTick,endTick,thisStaff);
+        checkLayerParents(nPitch,startTick,endTick);
         
-        //Remove current note from thisStaff has
-        thisStaff.removeLayerChild("note");
+        //Remove current note from currentStaff has
+        currentStaff.removeLayerChild("note");
     }
     
-    public int getMidiPitch(MeiElement note, MeiStaff thisStaff) {
+    public int getMidiPitch(MeiElement note) {
         //Attributes taken here to be processed here
         String pname = note.getAttribute("pname");
         String oct = note.getAttribute("oct");
@@ -1030,7 +1056,7 @@ public class MeiSequence {
         }
         else { 
             nPitch = ConvertToMidi.NoteToMidi(pname, oct, 
-                                    thisStaff.getKeysigMap().get(pname));
+                                    currentStaff.getKeysigMap().get(pname));
         }
         return nPitch;
     }
@@ -1046,30 +1072,29 @@ public class MeiSequence {
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param thisStaff 
+     * @param currentStaff 
      */
     public void checkLayerParents(int nPitch,
                                   long startTick,
-                                  long endTick,
-                                  MeiStaff thisStaff) {
-        Track thisTrack = sequence.getTracks()[thisStaff.getN()-1];
-        MeiElement chord = thisStaff.getLayerChild("chord");
-        String tie = thisStaff.getLayerChild("note").getAttribute("tie");
+                                  long endTick) {
+        Track thisTrack = sequence.getTracks()[currentStaff.getN()-1];
+        MeiElement chord = currentStaff.getLayerChild("chord");
+        String tie = currentStaff.getLayerChild("note").getAttribute("tie");
         if(chord != null && tie != null) {
-            addMidiTieNote(thisTrack, tie, nPitch, startTick, endTick, thisStaff);
+            addMidiTieNote(thisTrack, tie, nPitch, startTick, endTick);
         }
         else if(chord != null) {
-            addMidiNoteOn(thisTrack, nPitch, startTick, endTick, thisStaff);
-            addMidiNoteOff(thisTrack, nPitch, startTick, endTick, thisStaff);
+            addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
+            addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
         }
         else if(tie != null) {
-            addMidiTieNote(thisTrack, tie, nPitch, startTick, endTick, thisStaff);
-            thisStaff.setTickLayer(endTick - thisStaff.getTick());
+            addMidiTieNote(thisTrack, tie, nPitch, startTick, endTick);
+            currentStaff.setTickLayer(endTick - currentStaff.getTick());
         }
         else {
-            addMidiNoteOn(thisTrack, nPitch, startTick, endTick, thisStaff);
-            addMidiNoteOff(thisTrack, nPitch, startTick, endTick, thisStaff);
-            thisStaff.setTickLayer(endTick - thisStaff.getTick());
+            addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
+            addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
+            currentStaff.setTickLayer(endTick - currentStaff.getTick());
         }
     }
     
@@ -1080,17 +1105,16 @@ public class MeiSequence {
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param thisStaff 
+     * @param currentStaff 
      */
     public void addMidiNoteOn(Track thisTrack,
                             int nPitch, 
                             long startTick,
-                            long endTick, 
-                            MeiStaff thisStaff) {
+                            long endTick) {
         try {
             thisTrack.add(MidiBuildMessage.createNoteOnEvent(nPitch, 
                                                          startTick, 
-                                                         thisStaff.getChannel()));
+                                                         currentStaff.getChannel()));
         }
         catch(InvalidMidiDataException imde) {
             imde.printStackTrace();
@@ -1104,17 +1128,16 @@ public class MeiSequence {
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param thisStaff 
+     * @param currentStaff 
      */
     public void addMidiNoteOff(Track thisTrack,
                             int nPitch, 
                             long startTick,
-                            long endTick, 
-                            MeiStaff thisStaff) {
+                            long endTick) {
         try {
             thisTrack.add(MidiBuildMessage.createNoteOffEvent(nPitch, 
                                                           endTick, 
-                                                          thisStaff.getChannel()));
+                                                          currentStaff.getChannel()));
         }
         catch(InvalidMidiDataException imde) {
             imde.printStackTrace();
@@ -1125,54 +1148,69 @@ public class MeiSequence {
     /**
      * Check tie attribute to see whether we initialize or terminate
      * a given midi notes.
+     * i will initialize the note and t will terminate the midi note.
+     * if an m is found then nothing will be done
      * @param thisTrack
      * @param tie
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param thisStaff 
+     * @param currentStaff 
      */
     public void addMidiTieNote(Track thisTrack,
                             String tie,
                             int nPitch, 
                             long startTick,
-                            long endTick, 
-                            MeiStaff thisStaff) {
+                            long endTick) {
         if(tie.contains("i")) {
-            addMidiNoteOn(thisTrack, nPitch, startTick, endTick, thisStaff);
+            addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
         }
         else if(tie.contains("t")) {
-            addMidiNoteOff(thisTrack, nPitch, startTick, endTick, thisStaff);
+            addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
         }
     }
     
     /**
-     * Process a rest by only adding to the layer tick count of thisStaff
+     * Process a rest by only adding to the layer tick count of currentStaff
      * without actually creating any midi events.
      * @param rest
-     * @param thisStaff 
+     * @param currentStaff 
      */
-    public void processRest(MeiElement rest, MeiStaff thisStaff) {
+    public void processRest(MeiElement rest) {
         //Get the proper start and end Ticks for this rest
-        long startTick = thisStaff.getTick() + thisStaff.getTickLayer();
-        long endTick = startTick + getDurToTick(rest, thisStaff);
+        long startTick = currentStaff.getTick() + currentStaff.getTickLayer();
+        long endTick = startTick + getDurToTick(rest);
         
         //Change the layers tick accordingly
-        thisStaff.setTickLayer(endTick - thisStaff.getTick());
+        currentStaff.setTickLayer(endTick - currentStaff.getTick());
     }
     
-    public void processTuplet(MeiElement tuplet, MeiStaff thisStaff) {
+    /**
+     * Process a tuplet element by using the num and numbase attribute.
+     * NOTE
+     * If the current measure has a tuplet span and a tuplet for the same
+     * notes then the remainder will be calculated twice.
+     * @param tuplet
+     * @param currentStaff 
+     */
+    public void processTuplet(MeiElement tuplet) {
         //Give tuplet to MeiStaff
-        thisStaff.setLayerChild(tuplet);
+        currentStaff.setLayerChild(tuplet);
+        int num = getAttributeToInt("num", tuplet, 1);
+        int numbase = getAttributeToInt("numbase", tuplet, 1);
+        currentMeasure.setNum(num);
+        currentMeasure.setNumBase(numbase);
             
         //Process here with tuplet info
-        processParentLayer(tuplet,thisStaff);
+        processParentLayer(tuplet);
             
         //Add mod of odd number to tick once it finishes the tuplet
         //And remove tuplet from hash
-        int num = getAttributeToInt("num", tuplet, 1);
-        thisStaff.setTick(thisStaff.getTick() + ConvertToMidi.tickRemainder(num));
-        thisStaff.getLayerChildMap().remove("tuplet");
+        currentStaff.setTick(currentStaff.getTick() 
+                          + ConvertToMidi.tickRemainder(num));
+        currentMeasure.setNum(1);
+        currentMeasure.setNumBase(1);
+        currentStaff.getLayerChildMap().remove("tuplet");
     }
     
     /**
@@ -1211,17 +1249,16 @@ public class MeiSequence {
      * This assumes that if not dur is given in element or chord
      * then the note takes up a full measure.
      * @param dur
-     * @param thisStaff
+     * @param currentStaff
      * @return long tick value of dur string
      */
-    private long getDurToTick(MeiElement element, MeiStaff thisStaff) {
+    private long getDurToTick(MeiElement element) {
         //CHECK IN HERE FOR TUPLETS FROM tupletSpan
         //If in tuplet then use that or else check tupletSpan
-        MeiElement tuplet = thisStaff.getLayerChild("tuplet");
-        String dur = getDurString(element, thisStaff);
-        int dots = getDots(element, thisStaff);
-        int num = getAttributeToInt("num", tuplet, 1);
-        int numbase = getAttributeToInt("numbase", tuplet, 1);
+        int num = currentMeasure.getNum();
+        int numbase = currentMeasure.getNumBase();
+        String dur = getDurString(element);
+        int dots = getDots(element);
         return ConvertToMidi.durToTick(dur,num,numbase,dots);
     }
     
@@ -1230,27 +1267,27 @@ public class MeiSequence {
      * whether it's a note, a chord or a rest/space.
      * If no duration is found, then a dur = "0" is returned.
      * @param element
-     * @param thisStaff
+     * @param currentStaff
      * @return duration of element in string form
      */
-    private String getDurString(MeiElement element, MeiStaff thisStaff) {
+    private String getDurString(MeiElement element) {
         String dur;
         //Else assume it is an entire measure
         //Could replace this with 
         //else if(element.getName().equals("mRest" || "mSpace))
         if(element.getName().equals("mRest") ||
            element.getName().equals("mSpace")){
-            double count = Integer.parseInt(thisStaff.getMeterCount());
-            double unit = Integer.parseInt(thisStaff.getMeterUnit());
+            double count = Integer.parseInt(currentStaff.getMeterCount());
+            double unit = Integer.parseInt(currentStaff.getMeterUnit());
             dur = String.valueOf(unit / count);
         }
         //For notes and rests with dur attributes
         else if(attributeExists(element.getAttribute("dur"))) {
             dur = element.getAttribute("dur");
         }
-        else if(thisStaff.getLayerChild("chord") != null &&
-                thisStaff.getLayerChild("chord").getAttribute("dur") != null) {
-            dur = thisStaff.getLayerChild("chord").getAttribute("dur");
+        else if(currentStaff.getLayerChild("chord") != null &&
+                currentStaff.getLayerChild("chord").getAttribute("dur") != null) {
+            dur = currentStaff.getLayerChild("chord").getAttribute("dur");
         }
         else {
             dur = "0";
@@ -1263,14 +1300,14 @@ public class MeiSequence {
      * on if it's a chord or a note.
      * If no dots are found, then a dots = 0 value is returned.
      * @param element
-     * @param thisStaff
+     * @param currentStaff
      * @return number of corresponding dots for element
      */
-    private int getDots(MeiElement element, MeiStaff thisStaff) {
+    private int getDots(MeiElement element) {
         int dots;
-        if(thisStaff.getLayerChild("chord") != null &&
-           thisStaff.getLayerChild("chord").getAttribute("dots") != null) {
-            dots = Integer.parseInt(thisStaff.getLayerChild("chord").getAttribute("dots"));
+        if(currentStaff.getLayerChild("chord") != null &&
+           currentStaff.getLayerChild("chord").getAttribute("dots") != null) {
+            dots = Integer.parseInt(currentStaff.getLayerChild("chord").getAttribute("dots"));
         }
         else {
             dots = getAttributeToInt("dots", element, 0);

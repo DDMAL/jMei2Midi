@@ -117,6 +117,9 @@ public class ConvertToMidiWithStats {
         if(instr.contains("piano")) {
             midiInstr = 0;
         }
+        else if(instr.contains("double bass")) {
+            midiInstr = 34;
+        }
         else if(instr.contains("cello")) {
             midiInstr = 42;
         }
@@ -202,6 +205,9 @@ public class ConvertToMidiWithStats {
         }
         else if(instr.contains("flute")) {
             midiInstr = 73;
+        }
+        else if(instr.contains("recorder")) {
+            midiInstr = 74;
         }
         else if(instr.contains("fiddle")) {
             midiInstr = 110;

@@ -39,6 +39,10 @@ public class MeiMeasure {
         tupletSpansStart.put(element.getAttribute("startid"), element);
     }
     
+    public boolean hasTupletSpans() {
+        return tupletSpansStart.size() > 0;
+    }
+    
     public MeiElement getTupletSpanEnd(String id) {
         return tupletSpansEnd.get(id);
     }

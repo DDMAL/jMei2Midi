@@ -297,6 +297,19 @@ public class MeiSequenceTest {
         MeiWork expectedMcFerrin = new MeiWork(1, "c", "major", "4", "4", "undefined");
         expectedMcFerrin.addInstrVoice(1, "Voice");
         assertEquals(expectedMcFerrin, actualMcFerrin);
+        
+        //Test Telemann Concert
+        String filenameTelemann = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Telemann_Concert.mei";
+        MeiSequence Telemann = new MeiSequence(filenameTelemann);
+        MeiWork actualTelemann = Telemann.getWorks().get(1);
+        MeiWork expectedTelemann = new MeiWork(1, "d", "major", "6", "8", "Adagio");
+        expectedTelemann.addInstrVoice(1, "Trumpet in C 1");
+        expectedTelemann.addInstrVoice(2, "Trumpet in C 2");
+        expectedTelemann.addInstrVoice(3, "Trumpet in C 3");
+        expectedTelemann.addInstrVoice(4, "Timpani");
+        expectedTelemann.addInstrVoice(5, "Organ");
+        assertEquals(expectedTelemann, actualTelemann);
     }
 
     /**
@@ -590,6 +603,24 @@ public class MeiSequenceTest {
         HashMap<Integer,MeiStaff> expectedMcFerrin = new HashMap<>();
         expectedMcFerrin.put(1, new MeiStaff(1, "undefined", "Voice", "0", "major", "4", "4"));
         assertEquals(expectedMcFerrin, actualMcFerrin);
+        
+        //Test Telemann
+        String filenameTelemann = "/Users/dinamix/Documents/mei/"
+                + "music-encoding/samples/MEI2013/Music/Complete examples/Telemann_Concert.mei";
+        MeiSequence Telemann = new MeiSequence(filenameTelemann);
+        HashMap<Integer,MeiStaff> actualTelemann = Telemann.getStaffs();
+        for(MeiStaff staff : actualTelemann.values()) {
+                staff.setTick(0);
+                staff.setTickLayer(0);
+        }
+        HashMap<Integer,MeiStaff> expectedTelemann = new HashMap<>();
+        expectedTelemann.put(1, new MeiStaff(1, "Adagio", "Trumpet in C 1", "2s", "major", "6", "8"));
+        expectedTelemann.put(2, new MeiStaff(2, "Adagio", "Trumpet in C 2", "2s", "major", "6", "8"));
+        expectedTelemann.put(3, new MeiStaff(3, "Adagio", "Trumpet in C 3", "2s", "major", "6", "8"));
+        expectedTelemann.put(4, new MeiStaff(4, "Adagio", "Timpani", "2s", "major", "6", "8"));
+        expectedTelemann.put(5, new MeiStaff(5, "Adagio", "Organ", "2s", "major", "6", "8"));
+        expectedTelemann.put(6, new MeiStaff(6, "Adagio", "Organ", "2s", "major", "6", "8"));
+        assertEquals(expectedTelemann, actualTelemann);
     }
     
     /**
@@ -1192,13 +1223,14 @@ public class MeiSequenceTest {
         
         int note = ConvertToMidi.NoteToMidi("g", "4", null);
         expectedtco[0].add(MidiBuildMessage.createNoteOnEvent(note, 0, 0));
-        expectedtco[0].add(MidiBuildMessage.createNoteOffEvent(note, 0, 0));
+        expectedtco[0].add(MidiBuildMessage.createNoteOffEvent(note, 1024, 0));
         expectedtco[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualtco.length; x++) {
             for(int i = 0; i < actualtco[x].size(); i++) {
                 byte[] actualbytes = actualtco[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedtco[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedtco[x].get(i).getTick(), actualtco[x].get(i).getTick());
             }
         }
         for(int x = 0; x < expectedtco.length; x++) {
@@ -1206,6 +1238,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualtco[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedtco[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedtco[x].get(i).getTick(), actualtco[x].get(i).getTick());
             }
         }
         
@@ -1273,6 +1306,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualbeamP[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedbeamP[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedbeamP[x].get(i).getTick(), actualbeamP[x].get(i).getTick());
             }
         }
         for(int x = 0; x < expectedbeamP.length; x++) {
@@ -1280,8 +1314,9 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualbeamP[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedbeamP[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedbeamP[x].get(i).getTick(), actualbeamP[x].get(i).getTick());
             }
-        }
+        }   
         
         //Test for dotted-4
         String filenameDotted4 = "/Users/dinamix/Documents/mei/"
@@ -1323,6 +1358,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualDotted4[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedDotted4[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedDotted4[x].get(i).getTick(), actualDotted4[x].get(i).getTick());
             }
         }
         for(int x = 0; x < expectedDotted4.length; x++) {
@@ -1330,6 +1366,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualDotted4[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedDotted4[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedDotted4[x].get(i).getTick(), actualDotted4[x].get(i).getTick());
             }
         }
         
@@ -1369,6 +1406,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualSlurwRest[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedSlurwRest[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedSlurwRest[x].get(i).getTick(), actualSlurwRest[x].get(i).getTick());
             }
         }
         for(int x = 0; x < expectedSlurwRest.length; x++) {
@@ -1376,6 +1414,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualSlurwRest[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedSlurwRest[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedSlurwRest[x].get(i).getTick(), actualSlurwRest[x].get(i).getTick());
             }
         }
         
@@ -1447,33 +1486,34 @@ public class MeiSequenceTest {
         expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n2, 2943, 0));
         
         int tuplets2m3n3 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n3, 2943, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n3, 3071, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n3, 2944, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n3, 3072, 0));
         
         int tuplets2m3n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n4, 3071, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n4, 3241, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n4, 3072, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n4, 3242, 0));
         
         int tuplets2m4n1 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n1, 3242, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n1, 3306, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n1, 3243, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n1, 3307, 0));
         
         int tuplets2m4n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n2, 3306, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n2, 3370, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n2, 3307, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n2, 3371, 0));
         
         int tuplets2m4n3 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n3, 3370, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n3, 3434, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n3, 3371, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n3, 3435, 0));
         
         int tuplets2m4n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n4, 3434, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n4, 3580, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n4, 3435, 0));
+        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n4, 3581, 0));
         for(int x = 0; x < actualTuplets2.length; x++) {
             for(int i = 0; i < actualTuplets2[x].size(); i++) {
                 byte[] actualbytes = actualTuplets2[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedTuplets2[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedTuplets2[x].get(i).getTick(), actualTuplets2[x].get(i).getTick());
             }
         }
         for(int x = 0; x < expectedTuplets2.length; x++) {
@@ -1481,6 +1521,114 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualTuplets2[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedTuplets2[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedTuplets2[x].get(i).getTick(), actualTuplets2[x].get(i).getTick());
+            }
+        }
+        
+        //Test for slurs with tuplets 2 with tuplet spans
+        String filenameMyTuplets2 = "/Users/dinamix/Documents/mei/"
+                + "MyMei/tuplets-2.mei";
+        MeiSequence MyTuplets2 = new MeiSequence(filenameMyTuplets2);
+        Track[] actualMyTuplets2 = MyTuplets2.getSequence().getTracks();
+        Sequence sequenceMyTuplets2 = new Sequence(Sequence.PPQ, 256, 1);
+        Track[] expectedMyTuplets2 = sequenceMyTuplets2.getTracks();
+        expectedMyTuplets2[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        
+        int mytuplets2m1n1 = ConvertToMidi.NoteToMidi("f", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n1, 768, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n1, 960, 0));
+        
+        int mytuplets2m1n2 = ConvertToMidi.NoteToMidi("g", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n2, 960, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n2, 1152, 0));
+        
+        int mytuplets2m1n3 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n3, 1152, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n3, 1344, 0));
+        
+        int mytuplets2m1n4 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n4, 1152, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n4, 1344, 0));
+        
+        int mytuplets2m1n5 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n5, 1344, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n5, 1536, 0));
+        
+        expectedMyTuplets2[0].add(MidiBuildMessage.createKeySignature("0", "major", 1536));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createProgramChange(54, 1536, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createTrackTempo(90, 1536));
+        
+        int mytuplets2m2n1 = ConvertToMidi.NoteToMidi("c", "5", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n1, 1536, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n1, 1664, 0));
+        
+        int mytuplets2m2n2 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n2, 1664, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n2, 1792, 0));
+        
+        int mytuplets2m2n3 = ConvertToMidi.NoteToMidi("f", "5", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n3, 1792, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n3, 1920, 0));
+        
+        int mytuplets2m2n4 = ConvertToMidi.NoteToMidi("d", "5", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n4, 1920, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n4, 2048, 0));
+        
+        int mytuplets2m2n5 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n5, 2048, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n5, 2240, 0));
+        
+        int mytuplets2m2n6 = ConvertToMidi.NoteToMidi("f", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n6, 2240, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n6, 2432, 0));
+        
+        int mytuplets2m3n1 = ConvertToMidi.NoteToMidi("g", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n1, 2432, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n1, 2602, 0));
+        
+        int mytuplets2m3n2 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n2, 2602, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n2, 2943, 0));
+        
+        int mytuplets2m3n3 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n3, 2944, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n3, 3072, 0));
+        
+        int mytuplets2m3n4 = ConvertToMidi.NoteToMidi("d", "5", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n4, 3072, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n4, 3242, 0));
+        
+        int mytuplets2m4n1 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n1, 3243, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n1, 3307, 0));
+        
+        int mytuplets2m4n2 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n2, 3307, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n2, 3371, 0));
+        
+        int mytuplets2m4n3 = ConvertToMidi.NoteToMidi("c", "5", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n3, 3371, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n3, 3435, 0));
+        
+        int mytuplets2m4n4 = ConvertToMidi.NoteToMidi("d", "5", null);
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n4, 3435, 0));
+        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n4, 3581, 0));
+        for(int x = 0; x < actualMyTuplets2.length; x++) {
+            for(int i = 0; i < actualMyTuplets2[x].size(); i++) {
+                byte[] actualbytes = actualMyTuplets2[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedMyTuplets2[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedMyTuplets2[x].get(i).getTick(), actualMyTuplets2[x].get(i).getTick());
+            }
+        }
+        for(int x = 0; x < expectedMyTuplets2.length; x++) {
+            for(int i = 0; i < expectedMyTuplets2[x].size(); i++) {
+                byte[] actualbytes = actualMyTuplets2[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedMyTuplets2[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedMyTuplets2[x].get(i).getTick(), actualMyTuplets2[x].get(i).getTick());
             }
         }
         
@@ -1515,6 +1663,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualTiesStems[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedTiesStems[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedTiesStems[x].get(i).getTick(), actualTiesStems[x].get(i).getTick());
             }
         }
         for(int x = 0; x < expectedTiesStems.length; x++) {
@@ -1522,6 +1671,7 @@ public class MeiSequenceTest {
                 byte[] actualbytes = actualTiesStems[x].get(i).getMessage().getMessage();
                 byte[] expectedbytes = expectedTiesStems[x].get(i).getMessage().getMessage();
                 assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedTiesStems[x].get(i).getTick(), actualTiesStems[x].get(i).getTick());
             }
         }
     }

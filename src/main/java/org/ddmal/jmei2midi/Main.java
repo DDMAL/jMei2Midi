@@ -21,27 +21,30 @@ import org.ddmal.midiUtilities.MidiIO;
  */
 public class Main {
     public static void main(String[] args) throws InvalidMidiDataException {
-        /*String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/ties-slurs/";
+        /*String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/tuplets/";
         File rootFile = new File(root);
         for(String filename : rootFile.list()) {
             MeiSequence test = new MeiSequence(root + filename);
-            MidiIO.write(test.getSequence(), "midi/MEI/ties-slurs/" 
+            MidiIO.write(test.getSequence(), "midi/MEI/tuplets/" 
                                             + filename.replace("mei", "midi"));
         }*/
         
-        /*String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Beethoven_Hymn_to_joy.mei";
+        String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Bach_BrandenburgConcert_No.4_I.mei";
         MeiSequence test = new MeiSequence(file);
-        MidiIO.write(test.getSequence(), "midi/MEI/Complete examples/Beethoven_Hymn_to_joy.midi");*/
+        MidiIO.write(test.getSequence(), "midi/MEI/Complete examples/Bach_BrandenburgConcert_No.4_I.midi");
         
-        MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Ravel_Le_tombeau.mei");
-        List<MeiElement> spaces = doc.getElementsByName("space");
+        /*MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Telemann_Concert.mei");
+        List<MeiElement> measures = doc.getElementsByName("measure");
         int i = 1;
-        for(MeiElement space : spaces) {
-            String dur = space.getAttribute("dur");
-            if(dur != null) {
-                System.out.println(space.getId() + " " + i + " " + dur);
+        for(MeiElement measure : measures) {
+            List<MeiElement> staffs = measure.getDescendantsByName("staff");
+            for(MeiElement staff : staffs) {
+                String n = staff.getAttribute("n");
+                if(n == null) {
+                    System.out.println(measure.getAttribute("n") + " " + staff.getId() + " " + i);
+                }
+                i++;
             }
-            i++;
-        }
+        }*/
     }  
 }
