@@ -21,30 +21,30 @@ import org.ddmal.midiUtilities.MidiIO;
  */
 public class Main {
     public static void main(String[] args) throws InvalidMidiDataException {
-        /*String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/tuplets/";
+        String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/repeats/";
         File rootFile = new File(root);
         for(String filename : rootFile.list()) {
             MeiSequence test = new MeiSequence(root + filename);
-            MidiIO.write(test.getSequence(), "midi/MEI/tuplets/" 
+            MidiIO.write(test.getSequence(), "midi/MEI/repeats/" 
                                             + filename.replace("mei", "midi"));
-        }*/
+        }
         
-        String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Bach_BrandenburgConcert_No.4_I.mei";
+        /*String file = "/Users/dinamix/Documents/mei/mei-test-set/MEI/repeats/3-repeats.mei";
         MeiSequence test = new MeiSequence(file);
-        MidiIO.write(test.getSequence(), "midi/MEI/Complete examples/Bach_BrandenburgConcert_No.4_I.midi");
+        MidiIO.write(test.getSequence(), "midi/MEI/Complete examples/Saint-Saens_LeCarnevalDesAnimmaux.midi");*/
         
-        /*MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Telemann_Concert.mei");
+        /*MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Czerny_op603_6.mei");
         List<MeiElement> measures = doc.getElementsByName("measure");
         int i = 1;
         for(MeiElement measure : measures) {
-            List<MeiElement> staffs = measure.getDescendantsByName("staff");
-            for(MeiElement staff : staffs) {
-                String n = staff.getAttribute("n");
+            List<MeiElement> ties = measure.getDescendantsByName("tie");
+            for(MeiElement tie : ties) {
+                String n = tie.getAttribute("endid");
                 if(n == null) {
-                    System.out.println(measure.getAttribute("n") + " " + staff.getId() + " " + i);
+                    System.out.println(measure.getAttribute("n") + " " + tie.getId() + " " + i);
                 }
                 i++;
             }
         }*/
-    }  
+    }      
 }

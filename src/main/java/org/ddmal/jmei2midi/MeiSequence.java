@@ -9,7 +9,6 @@ import ca.mcgill.music.ddmal.mei.MeiAttribute;
 import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
@@ -18,7 +17,6 @@ import javax.sound.midi.Track;
 import org.ddmal.midiUtilities.ConvertToMidi;
 import org.ddmal.midiUtilities.ConvertToMidiWithStats;
 import org.ddmal.midiUtilities.MidiBuildMessage;
-import org.ddmal.midiUtilities.MidiIO;
 /**
  *
  * @author dinamix
@@ -27,18 +25,13 @@ public class MeiSequence {
     
     private MeiDocument document;
     
+    
     private Sequence sequence;
+    
     
     private MeiStaff currentStaff;
     private HashMap<Integer,MeiStaff> staffs; //staffs store in hashmap
                                               //for easier access throughout
-    
-    //Probably won't use this because of sequence.getTracks()
-    private List<Track> tracks; //keep tracks in sequence for simpler reference
-                                //and for >16 staffs
-                                //Will relate to the n attribute of MeiStaff
-                                //and will go into the list accordingly.
-                                //Account for channel 9 drums and >15 in 15
     
     //This will contain metdata and be related to mdivs and scoreDefs
     //If no other information is given then defaults will be used
@@ -49,6 +42,11 @@ public class MeiSequence {
     //Stores info specific to a certain measure such as
     //accidentals and tupletSpans
     private MeiMeasure currentMeasure;
+    
+    
+    //Store all mei repeat starts and ends
+    private MeiRepeat repeats;
+    
     
     //This allows a sequence to generate some mei stats
     //Such as invalid tempo and invalid instruments
@@ -64,9 +62,6 @@ public class MeiSequence {
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(filename);
         
-        //Instantiate tracks as ArrayList
-        tracks = new ArrayList<>();
-        
         //Instantiate staffs as ArrayList
         staffs = new HashMap<>();
         currentStaff = new MeiStaff(0); //in case there are no n attributes for 
@@ -76,6 +71,9 @@ public class MeiSequence {
         //So far we need 5 values for:
         //tempo, meter.count, meter.unit, key.sig and key.mode
         works = new HashMap<>();
+        
+        //Instantiate new MeiRepeat to store all repeats
+        repeats = new MeiRepeat();
         
         //Create a new MeiStatTracker
         stats = new MeiStatTracker(filename);
@@ -97,9 +95,6 @@ public class MeiSequence {
         
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(filename);
-        
-        //Instantiate tracks as ArrayList
-        tracks = new ArrayList<>();
         
         //Instantiate staffs as ArrayList
         staffs = new HashMap<>();
@@ -192,6 +187,9 @@ public class MeiSequence {
     //COULD TEST WITH SWITCH STATEMENT FOR NEATNESS
     //would need to check if switch uses .equals() or == (probably .equals())
     private void processElement(MeiElement element) {
+        //See if this element is a copy and then process accordingly
+        checkCopy(element);
+        
         //Get children of meihead which will be needed for workDesc
         if(element.getName().equals("meiHead")) {
             processParent(element);
@@ -261,9 +259,10 @@ public class MeiSequence {
         else if(element.getName().equals("ossia")) {
             processParent(element);
         }
+        //Get children of layer which will be note, rest or mRest
+        //Layers within a staff will all start at the same tick
         else if(element.getName().equals("layer")) {
-            //Get children of layer which will be note, rest or mRest
-            //Layers within a staff will all start at the same tick
+            processLayer(element);
         }
         else if(element.getName().equals("beam")) {
             //Get children of layer which will be note, rest or mRest
@@ -829,44 +828,36 @@ public class MeiSequence {
      * @param measure 
      */
     private void processMeasure(MeiElement measure) {
-        //Set up a new measure object every time we have a new measure
-        //This will impliclitly reset the hashmaps
-        currentMeasure = new MeiMeasure();
-        getEndElements(measure);
+        if(repeats.toProcess(measure)) {
+            //Set up a new measure object every time we have a new measure
+            //This will impliclitly reset the hashmaps
+            //And check for repeats within the measure
+            currentMeasure = new MeiMeasure(measure);
         
-        //Process the measure element
-        processParent(measure);
+            //Process the measure element
+            processParent(measure);
         
-        //If there is a rest on same staff but different
-        //layer then layers will not match up
-        //This forces same ending on each measure
-        long longLayer = 0;
-        for(MeiStaff thisStaff : staffs.values()) {
-            if(thisStaff.getTickLayer() > longLayer) {
-                longLayer = thisStaff.getTickLayer();
+            //If there is a rest on same staff but different
+            //layer then layers will not match up
+            //This forces same ending on each measure
+            long longLayer = 0;
+            for(MeiStaff thisStaff : staffs.values()) {
+                if(thisStaff.getTickLayer() > longLayer) {
+                    longLayer = thisStaff.getTickLayer();
+                }
             }
-        }
-        //set all staff ticks appropriately
-        for(MeiStaff thisStaff : staffs.values()) {
-            thisStaff.setTick(thisStaff.getTick() + longLayer);
-            thisStaff.setTickLayer(0);
-        }
-    }
-    
-    /**
-     * This is specifically for elements at the end of a measure that do
-     * not have any children but that correspond to a specified
-     * start and end id.
-     * Examples are tupletSpan and tie.
-     * @param measure 
-     */
-    private void getEndElements(MeiElement measure) {
-        //Store all the tuplet spans with specified start and end ids
-        List<MeiElement> tupletSpans = measure.getDescendantsByName("tupletSpan");
-        if(tupletSpans.size() > 0) {
-            for(MeiElement tupletSpan : tupletSpans) {
-                currentMeasure.setTupletSpanStart(tupletSpan);
-                currentMeasure.setTupletSpanEnd(tupletSpan);
+            //set all staff ticks appropriately
+            for(MeiStaff thisStaff : staffs.values()) {
+                thisStaff.setTick(thisStaff.getTick() + longLayer);
+                thisStaff.setTickLayer(0);
+            }
+        
+            //Check for end repeats
+            if(repeats.compareEndID(measure) &&
+               !repeats.inRepeat()) {
+                repeats.setInRepeat(); //in repeat
+                processParent(document.getRootElement());
+                repeats.resetInRepeat();//not in repeat
             }
         }
     }
@@ -875,9 +866,6 @@ public class MeiSequence {
      * Process the mei staff element accordingly.
      * This will process layers of staff and will then process
      * any other children normally through processElement().
-     * @TODO
-     * Need to include copyof element for things like erlkonig.
-     * @TODO
      * @param staff 
      */
     private void processStaff(MeiElement staff) {
@@ -888,16 +876,7 @@ public class MeiSequence {
         int staffN = (nString != null) ? Integer.parseInt(nString) : currentStaff.getN() + 1;
         currentStaff = staffs.get(staffN);
         
-        //This gets all layers within staff in order to be processed
-        //Also continues to process sequentially within staff if not layer
-        for(MeiElement child : staff.getChildren()) {
-            if(child.getName().equals("layer")) {
-                processLayer(child);
-            }
-            else {
-                processParent(child);
-            }
-        }
+        processParent(staff);
     }
     
     private void processLayer(MeiElement layer) {
@@ -907,9 +886,17 @@ public class MeiSequence {
         processParentLayer(layer);
     }
     
+    /**
+     * All possible contained by layer elements will go through here for
+     * further processing.
+     * If this does not consider a specified element then the children of that
+     * element will be processed.
+     * @param child 
+     */
     private void processLayerChild(MeiElement child) {
         //Process other elements that might effect this one
-        checkEndElementsStartID(child);
+        checkLayerCopy(child);
+        checkElementStart(child);
         
         String name = child.getName();
         if(name.equals("note")) {
@@ -932,11 +919,11 @@ public class MeiSequence {
         }
         //Maybe else is not the safest idea
         else {
-            processParent(child);
+            processParentLayer(child);
         }
         
         //Unprocess elements that might effect this one
-        checkEndElementsEndID(child);
+        checkElementEnd(child);
     }
     
     /**
@@ -945,15 +932,45 @@ public class MeiSequence {
      * Currently used for tupletSpan element.
      * @param child 
      */
-    private void checkEndElementsStartID(MeiElement child) {
+    private void checkElementStart(MeiElement child) {
         //Check whether a start tuplet or end tuplet is there
         //One note cannot have more than one tuplet value on it
-        MeiElement tupletSpan = currentMeasure.getTupletSpanStart(child.getId());
+        MeiElement tupletSpan = currentMeasure.getStart("tupletSpan",child.getId());
         if(tupletSpan != null) {
             int num = Integer.parseInt(tupletSpan.getAttribute("num"));
             int numbase = Integer.parseInt(tupletSpan.getAttribute("numbase"));
             currentMeasure.setNum(num);
             currentMeasure.setNumBase(numbase);
+        }
+    }
+    
+    private void checkLayerCopy(MeiElement element) {
+        String copyof = element.getAttribute("copyof");
+        String sameas = element.getAttribute("sameas");
+        if(copyof != null) {
+            copyof = copyof.replaceAll("#", "");
+            MeiElement copyElement = document.getElementById(copyof);
+            processLayerChild(copyElement);
+        }
+        else if(sameas != null) {
+            sameas = sameas.replaceAll("#", "");
+            MeiElement sameElement = document.getElementById(sameas);
+            processLayerChild(sameElement);
+        }
+    }
+    
+    private void checkCopy(MeiElement element) {
+        String copyof = element.getAttribute("copyof");
+        String sameas = element.getAttribute("sameas");
+        if(copyof != null) {
+            copyof = copyof.replaceAll("#", "");
+            MeiElement copyElement = document.getElementById(copyof);
+            processParent(copyElement);
+        }
+        else if(sameas != null) {
+            sameas = sameas.replaceAll("#", "");
+            MeiElement sameElement = document.getElementById(sameas);
+            processParent(sameElement);
         }
     }
     
@@ -963,12 +980,12 @@ public class MeiSequence {
      * Currently used for tupletSpan element.
      * @param child 
      */
-    private void checkEndElementsEndID(MeiElement child) {
+    private void checkElementEnd(MeiElement child) {
         //Check whether a start tuplet or end tuplet is there
         //One note cannot have more than one tuplet value on it
         //ASSUMPTION
         //This supercedes the tuplet element in importance
-        if(currentMeasure.getTupletSpanEnd(child.getId()) != null) {
+        if(currentMeasure.getEnd("tupletSpan",child.getId()) != null) {
             //Add tick tick remainder here
             currentStaff.setTick(currentStaff.getTick() + 
                     ConvertToMidi.tickRemainder(currentMeasure.getNum()));
@@ -989,14 +1006,16 @@ public class MeiSequence {
         
         //Get duration of a note because they will all be the same
         //Put dur into layerChild hash here
-        long tick;
+        long tick = 0;
         String chordDur = chord.getAttribute("dur");
         if(attributeExists(chordDur)) {
             tick = getDurToTick(chord);
         }
         else {
             List<MeiElement> notes = chord.getChildrenByName("note");
-            tick = getDurToTick(notes.get(0));
+            if(notes.size() > 0) {
+                tick = getDurToTick(notes.get(0));
+            }
         }
         
         //Process chord children
@@ -1014,8 +1033,10 @@ public class MeiSequence {
      * Anything that has to do with the duration or pitch of the note
      * is dealt with in here. Extra tick consideration are done in the
      * checkLayerParents().
+     * Also, for chords, ticks are added at the end of the chord so that
+     * each note within the chord starts at the same time. This is done
+     * in processChord().
      * @param note to add
-     * @param currentStaff to get other info from
      */
     public void processNote(MeiElement note) {
         //Used to use note outisde of function for now
@@ -1067,28 +1088,55 @@ public class MeiSequence {
      * ASSUMPTION
      * This may need to be altered for tie attributes in chords if an examples
      * is found.
-     * Also would need to check for tie elements at the end of a measure before
-     * we process the notes.
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param currentStaff 
      */
     public void checkLayerParents(int nPitch,
                                   long startTick,
                                   long endTick) {
         Track thisTrack = sequence.getTracks()[currentStaff.getN()-1];
         MeiElement chord = currentStaff.getLayerChild("chord");
-        String tie = currentStaff.getLayerChild("note").getAttribute("tie");
-        if(chord != null && tie != null) {
-            addMidiTieNote(thisTrack, tie, nPitch, startTick, endTick);
+        MeiElement note = currentStaff.getLayerChild("note");
+        String tieAttribute = note.getAttribute("tie");
+        String tieStartID = null;
+        String tieEndID = null;
+        if(currentMeasure.has("tie")) {
+            MeiElement startTie = currentMeasure.getStart("tie", note.getId());
+            tieStartID = (startTie != null) ? startTie.getAttribute("startid") : null;
+            MeiElement endTie = currentMeasure.getEnd("tie", note.getId());
+            tieEndID = (endTie != null) ? endTie.getAttribute("endid") : null;
         }
-        else if(chord != null) {
-            addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
+        
+        if(chord != null && tieAttribute != null) {
+            addMidiTieNote(thisTrack, tieAttribute, nPitch, startTick, endTick);
+        }
+        else if(chord != null && tieStartID != null) {
+           addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
+        }
+        else if(chord != null && tieEndID != null) {
             addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
         }
-        else if(tie != null) {
-            addMidiTieNote(thisTrack, tie, nPitch, startTick, endTick);
+        else if(chord != null) {
+            String tieChord = chord.getAttribute("tie");
+            if(tieChord != null) {
+                addMidiTieNote(thisTrack, tieChord, nPitch, startTick, endTick);
+            }
+            else {
+                addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
+                addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
+            }
+        }
+        else if(tieAttribute != null) {
+            addMidiTieNote(thisTrack, tieAttribute, nPitch, startTick, endTick);
+            currentStaff.setTickLayer(endTick - currentStaff.getTick());
+        }
+        else if(tieStartID != null) {
+            addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
+            currentStaff.setTickLayer(endTick - currentStaff.getTick());
+        }
+        else if(tieEndID != null) {
+            addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
             currentStaff.setTickLayer(endTick - currentStaff.getTick());
         }
         else {
@@ -1105,7 +1153,6 @@ public class MeiSequence {
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param currentStaff 
      */
     public void addMidiNoteOn(Track thisTrack,
                             int nPitch, 
@@ -1128,7 +1175,6 @@ public class MeiSequence {
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param currentStaff 
      */
     public void addMidiNoteOff(Track thisTrack,
                             int nPitch, 
@@ -1149,13 +1195,12 @@ public class MeiSequence {
      * Check tie attribute to see whether we initialize or terminate
      * a given midi notes.
      * i will initialize the note and t will terminate the midi note.
-     * if an m is found then nothing will be done
+     * if an m ( or other letter ) is found then nothing will be done
      * @param thisTrack
      * @param tie
      * @param nPitch
      * @param startTick
      * @param endTick
-     * @param currentStaff 
      */
     public void addMidiTieNote(Track thisTrack,
                             String tie,
@@ -1174,7 +1219,6 @@ public class MeiSequence {
      * Process a rest by only adding to the layer tick count of currentStaff
      * without actually creating any midi events.
      * @param rest
-     * @param currentStaff 
      */
     public void processRest(MeiElement rest) {
         //Get the proper start and end Ticks for this rest
@@ -1190,8 +1234,7 @@ public class MeiSequence {
      * NOTE
      * If the current measure has a tuplet span and a tuplet for the same
      * notes then the remainder will be calculated twice.
-     * @param tuplet
-     * @param currentStaff 
+     * @param tuplet 
      */
     public void processTuplet(MeiElement tuplet) {
         //Give tuplet to MeiStaff
@@ -1249,7 +1292,6 @@ public class MeiSequence {
      * This assumes that if not dur is given in element or chord
      * then the note takes up a full measure.
      * @param dur
-     * @param currentStaff
      * @return long tick value of dur string
      */
     private long getDurToTick(MeiElement element) {
@@ -1266,8 +1308,9 @@ public class MeiSequence {
      * Fetches the appropriate duration of a given Mei element depending on
      * whether it's a note, a chord or a rest/space.
      * If no duration is found, then a dur = "0" is returned.
+     * ASSUMPTION
+     * Grace notes are considered to be 1 ticks now.
      * @param element
-     * @param currentStaff
      * @return duration of element in string form
      */
     private String getDurString(MeiElement element) {
@@ -1284,6 +1327,11 @@ public class MeiSequence {
         //For notes and rests with dur attributes
         else if(attributeExists(element.getAttribute("dur"))) {
             dur = element.getAttribute("dur");
+            String grace = element.getAttribute("grace");
+            //GRACE NOTE DURATION CAN BE CHANGED HERE
+            if(grace != null) {
+                dur = "15";
+            }
         }
         else if(currentStaff.getLayerChild("chord") != null &&
                 currentStaff.getLayerChild("chord").getAttribute("dur") != null) {
@@ -1300,7 +1348,6 @@ public class MeiSequence {
      * on if it's a chord or a note.
      * If no dots are found, then a dots = 0 value is returned.
      * @param element
-     * @param currentStaff
      * @return number of corresponding dots for element
      */
     private int getDots(MeiElement element) {

@@ -257,6 +257,9 @@ public class ConvertToMidi {
             System.out.println("accid is " + accid);
         }
         
+        //If no name is given to note then make it a C
+        pname = (pname != null) ? pname : "c";
+        
         //Get midi base note
         if(pname.equalsIgnoreCase("c")) {
             midiNote = 0;
@@ -283,14 +286,14 @@ public class ConvertToMidi {
         //Account for accidentals if not null
         //If accid = "n" then nothing will happen
         if(accid != null) {
-            if(accid.equalsIgnoreCase("s")) {
+            if(accid.contains("s")) {
                 midiNote++;    
             }
             else if(accid.equalsIgnoreCase("ss") ||
                     accid.equalsIgnoreCase("x")) {
                 midiNote += 2;
             }
-            else if(accid.equalsIgnoreCase("f")) {
+            else if(accid.contains("f")) {
                 midiNote--;
             }
             else if(accid.equalsIgnoreCase("ff")) {

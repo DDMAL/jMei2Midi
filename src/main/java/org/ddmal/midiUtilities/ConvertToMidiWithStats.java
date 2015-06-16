@@ -238,7 +238,7 @@ public class ConvertToMidiWithStats {
      */
     public static int tempoToBpm(String tempo, MeiStatTracker stats) {
         int bpm = 90; //default for now
-        tempo = tempo.toLowerCase(); //for consistency put all to lower case
+        tempo = (tempo != null) ? tempo.toLowerCase() : "default"; //for consistency put all to lower case
 
         if(tempo.contains("larghissimo")) {
             bpm = 24; 
@@ -260,6 +260,9 @@ public class ConvertToMidiWithStats {
         }
         else if(tempo.contains("adagietto")) {
             bpm = 74;
+        }
+        else if(tempo.contains("default")) {
+            bpm = 90;
         }
         else if(tempo.contains("andante")) {
             bpm = 92;

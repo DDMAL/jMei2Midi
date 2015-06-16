@@ -1674,6 +1674,99 @@ public class MeiSequenceTest {
                 assertEquals(expectedTiesStems[x].get(i).getTick(), actualTiesStems[x].get(i).getTick());
             }
         }
+        
+        //Test for ties-unison
+        String filenameTiesUnison = "/Users/dinamix/Documents/mei/"
+                + "mei-test-set/MEI/ties-slurs/ties-unison.mei";
+        MeiSequence TiesUnison = new MeiSequence(filenameTiesUnison);
+        Track[] actualTiesUnison = TiesUnison.getSequence().getTracks();
+        Sequence sequenceTiesUnison = new Sequence(Sequence.PPQ, 256, 1);
+        Track[] expectedTiesUnison = sequenceTiesUnison.getTracks();
+        expectedTiesUnison[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedTiesUnison[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedTiesUnison[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        
+        int TiesUnisonm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(TiesUnisonm1n1, 0, 0));
+        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(TiesUnisonm1n1, 640, 0));
+        
+        int TiesUnisonm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(TiesUnisonm1n2, 0, 0));
+        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(TiesUnisonm1n2, 640, 0));
+        for(int x = 0; x < actualTiesUnison.length; x++) {
+            for(int i = 0; i < actualTiesUnison[x].size(); i++) {
+                byte[] actualbytes = actualTiesUnison[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedTiesUnison[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedTiesUnison[x].get(i).getTick(), actualTiesUnison[x].get(i).getTick());
+            }
+        }
+        for(int x = 0; x < expectedTiesUnison.length; x++) {
+            for(int i = 0; i < expectedTiesUnison[x].size(); i++) {
+                byte[] actualbytes = actualTiesUnison[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedTiesUnison[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedTiesUnison[x].get(i).getTick(), actualTiesUnison[x].get(i).getTick());
+            }
+        }
+        
+        //Test for my ties-unison - with tie elements instead of attributes
+        String filenameMyTiesUnison = "/Users/dinamix/Documents/mei/"
+                + "MyMei/ties-unison.mei";
+        MeiSequence MyTiesUnison = new MeiSequence(filenameMyTiesUnison);
+        Track[] actualMyTiesUnison = MyTiesUnison.getSequence().getTracks();
+        Sequence sequenceMyTiesUnison = new Sequence(Sequence.PPQ, 256, 1);
+        Track[] expectedMyTiesUnison = sequenceMyTiesUnison.getTracks();
+        expectedMyTiesUnison[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedMyTiesUnison[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedMyTiesUnison[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        
+        int MyTiesUnisonm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(MyTiesUnisonm1n1, 0, 0));
+        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(MyTiesUnisonm1n1, 640, 0));
+        
+        int MyTiesUnisonm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(MyTiesUnisonm1n2, 0, 0));
+        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(MyTiesUnisonm1n2, 640, 0));
+        for(int x = 0; x < actualMyTiesUnison.length; x++) {
+            for(int i = 0; i < actualMyTiesUnison[x].size(); i++) {
+                byte[] actualbytes = actualMyTiesUnison[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedMyTiesUnison[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedMyTiesUnison[x].get(i).getTick(), actualMyTiesUnison[x].get(i).getTick());
+            }
+        }
+        for(int x = 0; x < expectedMyTiesUnison.length; x++) {
+            for(int i = 0; i < expectedMyTiesUnison[x].size(); i++) {
+                byte[] actualbytes = actualMyTiesUnison[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedMyTiesUnison[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedMyTiesUnison[x].get(i).getTick(), actualMyTiesUnison[x].get(i).getTick());
+            }
+        }
+        
+        //Test for 3 repeats
+        String filenameThreeRepeats = "/Users/dinamix/Documents/mei/"
+                + "mei-test-set/MEI/repeats/3-repeats.mei";
+        MeiSequence ThreeRepeats = new MeiSequence(filenameThreeRepeats);
+        Track[] actualThreeRepeats = ThreeRepeats.getSequence().getTracks();
+        Sequence sequenceThreeRepeats = new Sequence(Sequence.PPQ, 256, 1);
+        Track[] expectedThreeRepeats = sequenceThreeRepeats.getTracks();
+        expectedThreeRepeats[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        
+        int ThreeRepeatsm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm1n1, 0, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm1n1, 768, 0));
+        
+        int ThreeRepeatsm2n2 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm2n2, 768, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm2n2, 1536, 0));
+        
+        int ThreeRepeatsm3n3 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm3n3, 1536, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm3n3, 2304, 0));
     }
 
     /**
