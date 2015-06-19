@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ddmal.jmei2midi;
+package org.ddmal.jmei2midi.meielements;
 
 import java.util.HashMap;
-import org.ddmal.jmei2midi.MeiStaff;
+import org.ddmal.jmei2midi.meielements.MeiStaff;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

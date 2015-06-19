@@ -56,36 +56,36 @@ public class ConvertToMidiTest {
         int expectedC;
         for(Integer i = 0; i <= 11; i++) {
             actualC = ConvertToMidi.NoteToMidi(c, i.toString(), null);
-            expectedC = i * 12;
+            expectedC = i != 0 ? (i+1) * 12 : 0;
             assertEquals(expectedC, actualC);
         }
-        assertEquals(60,ConvertToMidi.NoteToMidi("c","5",null));
+        assertEquals(60,ConvertToMidi.NoteToMidi("c","4",null));
         
         //C-sharp
         for(Integer i = 0; i <= 11; i++) {
             actualC = ConvertToMidi.NoteToMidi(c, i.toString(), "s");
-            expectedC = 1 + i * 12;
+            expectedC = i != 0 ? 1 + (i+1) * 12 : 1;
             assertEquals(expectedC, actualC);
         }
         
         //C-sharp-sharp
         for(Integer i = 0; i <= 11; i++) {
             actualC = ConvertToMidi.NoteToMidi(c, i.toString(), "ss");
-            expectedC = 2 + i * 12;
+            expectedC = i != 0 ? 2 + (i+1) * 12 : 2;
             assertEquals(expectedC, actualC);
         }
         
         //C-flat
         for(Integer i = 0; i <= 11; i++) {
             actualC = ConvertToMidi.NoteToMidi(c, i.toString(), "f");
-            expectedC = -1 + i * 12;
+            expectedC = i != 0 ? -1 + (i+1) * 12 : -1;
             assertEquals(expectedC, actualC);
         }
         
         //C-flat-flat
         for(Integer i = 0; i <= 11; i++) {
             actualC = ConvertToMidi.NoteToMidi(c, i.toString(), "ff");
-            expectedC = -2 + i * 12;
+            expectedC = i != 0 ? -2 + (i+1) * 12 : -2;
             assertEquals(expectedC, actualC);
         }
         
@@ -95,7 +95,7 @@ public class ConvertToMidiTest {
         int expectedD;
         for(Integer i = 0; i <= 11; i++) {
             actualD = ConvertToMidi.NoteToMidi(d, i.toString(), null);
-            expectedD = 2 + i * 12;
+            expectedD = i != 0 ? 2 + (i+1) * 12 : 2;
             assertEquals(expectedD, actualD);
         }
         
@@ -105,7 +105,7 @@ public class ConvertToMidiTest {
         int expectedE;
         for(Integer i = 0; i <= 11; i++) {
             actualE = ConvertToMidi.NoteToMidi(e, i.toString(), null);
-            expectedE = 4 + i * 12;
+            expectedE = i != 0 ? 4 + (i+1) * 12 : 4;
             assertEquals(expectedE, actualE);
         }
         
@@ -115,7 +115,7 @@ public class ConvertToMidiTest {
         int expectedF;
         for(Integer i = 0; i <= 11; i++) {
             actualF = ConvertToMidi.NoteToMidi(f, i.toString(), null);
-            expectedF = 5 + i * 12;
+            expectedF = i != 0 ? 5 + (i+1) * 12 : 5;
             assertEquals(expectedF, actualF);
         }
         
@@ -125,7 +125,7 @@ public class ConvertToMidiTest {
         int expectedG;
         for(Integer i = 0; i <= 11; i++) {
             actualG = ConvertToMidi.NoteToMidi(g, i.toString(), null);
-            expectedG = 7 + i * 12;
+            expectedG = i != 0 ? 7 + (i+1) * 12 : 7;
             assertEquals(expectedG, actualG);
         }
         
@@ -135,7 +135,7 @@ public class ConvertToMidiTest {
         int expectedA;
         for(Integer i = 0; i <= 11; i++) {
             actualA = ConvertToMidi.NoteToMidi(a, i.toString(), null);
-            expectedA = 9 + i * 12;
+            expectedA = i != 0 ? 9 + (i+1) * 12 : 9;
             assertEquals(expectedA, actualA);
         }
         
@@ -145,7 +145,7 @@ public class ConvertToMidiTest {
         int expectedB;
         for(Integer i = 0; i <= 11; i++) {
             actualB = ConvertToMidi.NoteToMidi(b, i.toString(), null);
-            expectedB = 11 + i * 12;
+            expectedB = i != 0 ? 11 + (i+1) * 12 : 11;
             assertEquals(expectedB, actualB);
         }
     }

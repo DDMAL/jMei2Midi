@@ -5,6 +5,8 @@
  */
 package org.ddmal.jmei2midi;
 
+import java.util.List;
+import javax.sound.midi.InvalidMidiDataException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,33 +37,55 @@ public class MeiStatTrackerTest {
     /**
      * Test of getFileName method, of class MeiStatTracker.
      */
-    @Ignore
     @Test
     public void testGetFileName() {
+        String expectedfilename = "test.mei";
+        MeiStatTracker test = new MeiStatTracker(expectedfilename);
+        String actualfile = test.getFileName();
+        boolean hasFile = test.getAllFiles().containsKey(expectedfilename);
+        assertEquals("test.mei",actualfile);
+        assertTrue(hasFile);
     }
 
     /**
      * Test of setFileName method, of class MeiStatTracker.
      */
-    @Ignore
     @Test
     public void testSetFileName() {
+        String expectedfilename = "test.mei";
+        MeiStatTracker test = new MeiStatTracker();
+        test.setFileName(expectedfilename);
+        String actualfile = test.getFileName();
+        boolean hasFile = test.getAllFiles().containsKey(expectedfilename);
+        assertEquals("test.mei",actualfile);
+        assertTrue(hasFile);
     }
 
     /**
      * Test of getIncorrectFiles method, of class MeiStatTracker.
      */
-    @Ignore
     @Test
     public void testGetIncorrectFiles() {
+        String expectedfilename = "test.mei";
+        MeiStatTracker test = new MeiStatTracker("test.mei");
+        test.addInvalidInstrument("wronginstrument");
+        boolean actualfile = test.getIncorrectFiles().containsKey("test.mei");
+        assertTrue(actualfile);
     }
 
     /**
      * Test of getInvalidInstruments method, of class MeiStatTracker.
+     * @throws javax.sound.midi.InvalidMidiDataException
      */
-    @Ignore
     @Test
-    public void testGetInvalidInstruments() {
+    public void testGetInvalidInstruments() throws InvalidMidiDataException {
+        String expectedfilename = "/Users/dinamix/Documents/music-encoding/"
+                + "samples/MEI2013/Music/Complete examples/Altenburg_concerto_C_major.mei";
+        MeiStatTracker stats = new MeiStatTracker(expectedfilename);
+        MeiSequence sequence = new MeiSequence(expectedfilename, stats);
+        List<String> invalidInstruments = stats.getInvalidInstruments().get(expectedfilename);
+        assertTrue(invalidInstruments.contains("prinzipal-chor 1"));
+        assertTrue(invalidInstruments.contains("prinzipal-2.chor"));
     }
 
     /**
@@ -72,29 +96,36 @@ public class MeiStatTrackerTest {
         String expectedfilename = "test.mei";
         MeiStatTracker test = new MeiStatTracker("test.mei");
         test.addInvalidInstrument("sitar");
-        test.addInvalidTempo("rubatissimo");
         boolean actualfile = test.getIncorrectFiles().containsKey("test.mei");
         assertTrue(actualfile);
-        System.out.println(test);
-        //Check for exception so we did not add incorrect file twice
-        //exception.expect(IndexOutOfBoundsException.class);
-        //String notaddedfile = test.getIncorrectFiles().get(1);
+        assertTrue(test.getInvalidInstruments().get(expectedfilename).contains("sitar"));
     }
 
     /**
      * Test of getInvalidTempos method, of class MeiStatTracker.
+     * @throws javax.sound.midi.InvalidMidiDataException
      */
-    @Ignore
     @Test
-    public void testGetInvalidTempos() {
+    public void testGetInvalidTempos() throws InvalidMidiDataException {
+        String expectedfilename = "/Users/dinamix/Documents/music-encoding/"
+                + "samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei";
+        MeiStatTracker stats = new MeiStatTracker(expectedfilename);
+        MeiSequence sequence = new MeiSequence(expectedfilename, stats);
+        List<String> invalidTempos = stats.getInvalidTempos().get(expectedfilename);
+        assertTrue(invalidTempos.contains("undefined"));
     }
 
     /**
      * Test of addInvalidTempos method, of class MeiStatTracker.
      */
-    @Ignore
     @Test
     public void testAddInvalidTempos() {
+        String expectedfilename = "test.mei";
+        MeiStatTracker test = new MeiStatTracker(expectedfilename);
+        test.addInvalidTempo("rubatissimo");
+        boolean actualfile = test.getIncorrectFiles().containsKey("test.mei");
+        assertTrue(actualfile);
+        assertTrue(test.getInvalidTempos().get(expectedfilename).contains("rubatissimo"));
     }
     
 }

@@ -197,7 +197,7 @@ public class ConvertToMidiWithStats {
         else if(instr.contains("bassoon")) {
             midiInstr = 70;
         }
-        else if(instr.contains("clarinet")) {
+        else if(instr.contains("clarin")) {
             midiInstr = 71;
         }
         else if(instr.contains("piccolo")) {
@@ -321,7 +321,13 @@ public class ConvertToMidiWithStats {
     public static int NoteToMidi(String pname, String oct, String accid) {
         //difference between accid and accid.ges?
         int midiNote = 0; //start with C0
-        int octave = Integer.parseInt(oct)*12;//get proper octave
+        int octave = 1;
+        if(oct != null && !oct.equals("0")) {
+                octave = (Integer.parseInt(oct)+1)*12;//get proper octave
+        }
+        else {
+                octave = 0;
+        }
         
         //Get midi base note
         if(pname.equalsIgnoreCase("c")) {
@@ -348,18 +354,18 @@ public class ConvertToMidiWithStats {
         
         //Account for accidentals if not null
         if(accid != null) {
-            if(accid.equalsIgnoreCase("s")) {
-                midiNote++;    
-            }
-            else if(accid.equalsIgnoreCase("ss") ||
+            if(accid.equalsIgnoreCase("ss") ||
                     accid.equalsIgnoreCase("x")) {
                 midiNote += 2;
             }
-            else if(accid.equalsIgnoreCase("f")) {
-                midiNote--;
-            }
             else if(accid.equalsIgnoreCase("ff")) {
                 midiNote -= 2;
+            }
+            else if(accid.contains("s")) {
+                midiNote++;    
+            }
+            else if(accid.contains("f")) {
+                midiNote--;
             }
         }
         return midiNote + octave;

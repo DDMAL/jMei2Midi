@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-//SHOULD PROBABLY CONNECT FILENAME TO INVALID INSTRUMENTS/TEMPOS
-//ALSO CHECK CONTAINS IF NOT GOING TO ADD
-
 /**
  * This class is used before the mei file parsing
  * and passed to the parse in order to keep track of any
@@ -19,27 +16,48 @@ import java.util.List;
  * Processing happens within the running code and not in this class.
  * @author dinamix
  */
-public class MeiStatTracker {
+public final class MeiStatTracker {
     //Maintain current filename being parsed
     private String fileName;
     
+    //Stores all file names in key
+    private final HashMap<String,List<String>> allFiles;
+    
     //Stores the incorrect filename as key
     //and incorrect file info as value
-    private HashMap<String,List<String>> incorrectFiles;
+    private final HashMap<String,List<String>> incorrectFiles;
+    
+    //Stores invalid instruments related to incorrect files
+    private final HashMap<String,List<String>> invalidInstruments;
+    
+    //Stores invalid tempos related to incorrect files
+    private final HashMap<String,List<String>> invalidTempos;
 
     /**
      * New MeiStatTracker which will keep track of invalid mei2midi inputs
-     * such as invalid instruments and tempos.
-     * @param filename 
+     * such as invalid instruments and tempos. DEFAULT
      */
-    public MeiStatTracker(String filename) {
-        //MAY NOT NEED FILENAME WHEN USING FOR MULTIPLE FILES
-        this.fileName = filename;
+    public MeiStatTracker() {
+        allFiles = new HashMap<>();
         incorrectFiles = new HashMap<>();
+        invalidInstruments = new HashMap<>();
+        invalidTempos = new HashMap<>();
     }
     
     /**
-     * 
+     * New MeiStatTracker which will keep track of invalid mei2midi inputs
+     * such as invalid instruments and tempos. WITH FILENAME
+     * @param filename
+     */
+    public MeiStatTracker(String filename) {
+        allFiles = new HashMap<>();
+        incorrectFiles = new HashMap<>();
+        invalidInstruments = new HashMap<>();
+        invalidTempos = new HashMap<>();
+        setFileName(filename);
+    }
+    
+    /**
      * @return the current filename
      */
     public String getFileName() {
@@ -52,6 +70,16 @@ public class MeiStatTracker {
      */
     public void setFileName(String filename) {
         this.fileName = filename;
+        if(!allFiles.containsKey(filename)) {
+            allFiles.put(filename, new ArrayList<String>());
+        }
+    }
+    
+    /**
+     * @return all filenames
+     */
+    public HashMap<String,List<String>> getAllFiles() {
+        return allFiles;
     }
     
     /**
@@ -62,13 +90,17 @@ public class MeiStatTracker {
     }
     
     /**
-     * Add incorrect to the list of incorrect files.
-     * @param incorrect
+     * @return invalidInstruments
      */
-    private void addIncorrectFile(String incorrect) {
-        if(!incorrectFiles.containsKey(incorrect)) {
-            incorrectFiles.put(fileName, new ArrayList<String>());
-        }
+    public HashMap<String,List<String>> getInvalidInstruments() {
+        return invalidInstruments;
+    }
+    
+    /**
+     * @return invalidTempos 
+     */
+    public HashMap<String,List<String>> getInvalidTempos() {
+        return invalidTempos;
     }
     
     /**
@@ -88,18 +120,53 @@ public class MeiStatTracker {
     }
     
     /**
+     * Add incorrect to each has as long as the incorrect file has
+     * not already been added.
+     * @param incorrect
+     */
+    private void addIncorrectFile(String incorrect) {
+        if(!incorrectFiles.containsKey(incorrect)) {
+            incorrectFiles.put(fileName, new ArrayList<String>());
+            invalidInstruments.put(fileName, new ArrayList<String>());
+            invalidTempos.put(fileName, new ArrayList<String>());
+        }
+    }
+    
+    /**
      * Add a generic stat given the stat type.
-     * This will valide the stat and the file name
+     * This will validate the stat and the file name
      * to make sure they are not iterating more than once.
      * @param type
      * @param stat 
      */
     private void addStat(String type, String stat) {
         addIncorrectFile(this.getFileName());
-        String newStat = type + ": " + stat;
+        List<String> thisHash = getStatHash(type).get(fileName);
         List<String> thisFile = incorrectFiles.get(fileName);
+        String newStat = type + ": " + stat;
+
         if(!thisFile.contains(newStat)) {
             thisFile.add(newStat);
+        }
+        if(!thisHash.contains(stat)) {
+            thisHash.add(stat);
+        }
+    }
+    
+    /**
+     * Add a specific stat and type to its appropriate hash.
+     * This validates file existence from the call in addStat().
+     * @param type
+     * @param stat 
+     */
+    private HashMap<String,List<String>> getStatHash(String type) {
+        switch (type) {
+            case "Tempo":
+                return invalidTempos;
+            case "Instrument":
+                return invalidInstruments;
+            default :
+                return new HashMap<>();
         }
     }
     

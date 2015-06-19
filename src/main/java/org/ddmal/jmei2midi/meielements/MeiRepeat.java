@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ddmal.jmei2midi;
+package org.ddmal.jmei2midi.meielements;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.Stack;
@@ -16,13 +16,18 @@ import java.util.Stack;
  */
 public class MeiRepeat {
     private Stack<String> startRepeats;
+    private String startRepeat;
     private String endRepeat;
     private boolean inRepeat;
     
+    private String ending;
+    
     public MeiRepeat() {
         startRepeats = new Stack<>();
+        startRepeat = null;
         endRepeat = null;
         inRepeat = false;
+        ending = null;
     }
     
     public void checkRepeatInMeasure(MeiElement measure) {
@@ -44,30 +49,63 @@ public class MeiRepeat {
     private void processRepeat(String repeat, MeiElement measure) {
         if(repeat.equals("rptstart")) {
             startRepeats.push(measure.getId());
+            startRepeat = measure.getId();
         }
         else if(repeat.equals("rptend")) {
             endRepeat = measure.getId();
         }
     }
     
-    public String getStartRepeat() {
+    public String getStartRepeats() {
         return startRepeats.peek();
     }
     
-    public String removeStartRepeat() {
+    public String removeStartRepeats() {
         return startRepeats.pop();
     }
     
-    public boolean hasStartRepeat() {
+    public boolean hasStartRepeats() {
         return !startRepeats.empty();
+    }
+    
+    public String getStartRepeat() {
+        return startRepeat;
+    }
+    
+    public boolean hasStartRepeat() {
+        return startRepeat != null;
+    }
+    
+    public void resetStartRepeat() {
+        startRepeat = null;
     }
     
     public String getEndRepeat() {
         return endRepeat;
     }
     
+    public boolean hasEndRepeat() {
+        return endRepeat != null;
+    }
+    
     public void resetEndRepeat() {
         endRepeat = null;
+    }
+    
+    public void setEnding(MeiElement ending) {
+        this.ending = ending.getId();
+    }
+    
+    public void resetEnding() {
+        ending = null;
+    }
+    
+    public String getEnding() {
+        return ending;
+    }
+    
+    public boolean hasEnding() {
+        return ending != null;
     }
     
     //If there is an end repeat then we are currently performing a repeat
@@ -96,23 +134,26 @@ public class MeiRepeat {
     //CHECK FROM START REPEATS
     public boolean toProcess(MeiElement measure) {
         boolean process;
-        if(!inRepeat()) {
+        if(!inRepeat) {
             checkRepeatInMeasure(measure);
             process = true;
         }
-        else if(getEndRepeat() != null && hasStartRepeat()) {
-            if(!getStartRepeat().equals(measure.getId())) {
-                process = false;
-            }
-            removeStartRepeat();
-            process = true;
-        }
-        else if(inRepeat && getEndRepeat() == null) {
+        else if(inRepeat && !hasEndRepeat()) {
             process = false;
         }
         else if(inRepeat && getEndRepeat().equals(measure.getId())) {
             resetEndRepeat();
             process = true;
+        }
+        else if(inRepeat && hasStartRepeat() && hasEndRepeat()) {
+            if(getStartRepeat().equals(measure.getId())) {
+                removeStartRepeats();
+                resetStartRepeat();
+                process = true;
+            }
+            else {
+                process = false;
+            }
         }
         else {
             process = true;

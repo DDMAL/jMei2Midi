@@ -5,6 +5,10 @@
  */
 package org.ddmal.jmei2midi;
 
+import org.ddmal.jmei2midi.meielements.MeiWork;
+import org.ddmal.jmei2midi.meielements.MeiStaff;
+import org.ddmal.jmei2midi.meielements.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.MeiRepeat;
 import ca.mcgill.music.ddmal.mei.MeiAttribute;
 import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
@@ -105,6 +109,9 @@ public class MeiSequence {
         //So far we need 5 values for:
         //tempo, meter.count, meter.unit, key.sig and key.mode
         works = new HashMap<>();
+        
+        //Instantiate new MeiRepeat to store all repeats
+        repeats = new MeiRepeat();
         
         //Update a stats object by reference
         this.stats = stats;
@@ -243,6 +250,11 @@ public class MeiSequence {
         //Get children of section which will probably be <measure>
         else if(element.getName().equals("section")) {
             processParent(element);
+        }
+        //Get children of ending which will probably be measure
+        //And process to ensure that repeat is dealth with
+        else if(element.getName().equals("ending")) {
+            processEnding(element);
         }
         //Get children of measure which will probably be <staff>
         else if(element.getName().equals("measure")) {
@@ -584,6 +596,7 @@ public class MeiSequence {
     }
     
     /**
+     * NOTE STATS ARE USED IN HERE
      * MeiStaff object populated with new values in new staffDef.
      * When a staff already exists but a new staffDef is found with the
      * same n attribute then the given attributes are changed accordingly.
@@ -616,10 +629,11 @@ public class MeiSequence {
         if(attributeExists(unit)) {
             thisStaff.setMeterUnit(unit);
         }
-        int midiInstr = ConvertToMidiWithStats.instrToMidi(label, stats);
-        int percInstr = ConvertToMidiWithStats.instrToPerc(label, stats);
+        //Check if label exists and if it is a valid instrument
+        int midiInstr = ConvertToMidiWithStats.instrToMidi(label,stats);
+        int percInstr = (midiInstr > -1) ? 0 : ConvertToMidiWithStats.instrToPerc(label,stats);
         if(midiInstr > -1) {
-            thisStaff.setLabelInstr(label, midiInstr);
+            thisStaff.setLabelInstr(label,midiInstr);
         }
         else if(percInstr > -1) {
             thisStaff.setLabelPerc(label, percInstr);
@@ -638,6 +652,7 @@ public class MeiSequence {
     }
     
     /**
+     * NOTE STATS ARE USED IN HERE
      * MeiStaff object created when n attribute is not given.
      * This should not happen but maybe with only 1 staff
      * the composer may assume that there is no n attribute.
@@ -659,8 +674,8 @@ public class MeiSequence {
         MeiWork work = works.get(currentMovement);
         MeiStaff newStaff = new MeiStaff(n);
         
+        ConvertToMidiWithStats.tempoToBpm(tempo, stats); //check invalid
         if(attributeExists(tempo)) {
-            //ConvertToMidiWithStats.tempoToBpm(tempo, stats);
             newStaff.setTempo(tempo);
         }
         if(attributeExists(count)) {
@@ -676,8 +691,8 @@ public class MeiSequence {
             newStaff.setMeterUnit(work.getMeterUnit());
         }
         //Check if label exists and if it is a valid instrument
-        int midiInstr = ConvertToMidiWithStats.instrToMidi(label, stats);
-        int percInstr = ConvertToMidiWithStats.instrToPerc(label, stats);
+        int midiInstr = ConvertToMidiWithStats.instrToMidi(label,stats);
+        int percInstr = (midiInstr > -1) ? 0 : ConvertToMidiWithStats.instrToPerc(label,stats);
         if(midiInstr > -1) {
             newStaff.setLabelInstr(label,midiInstr);
         }
@@ -822,6 +837,26 @@ public class MeiSequence {
     }
     
     /**
+     * Ending measure is used for alternative repeats and so a check is made
+     * in order to not repeat the ending on the second repeat but the regular
+     * repeat pattern of "rptstart" and "rptend" are used for the actual
+     * repeating mechanism.
+     * @param ending 
+     */
+    private void processEnding(MeiElement ending) {
+        //If we are not on an ending, then go through and repeat
+        if(!repeats.hasEnding()) {
+            repeats.setEnding(ending);
+            processParent(ending);
+            repeats.resetEnding();
+        }
+        //If we are already on a repeat then check if it is the same ending
+        else if(repeats.getEnding().equals(ending.getId())) {
+            repeats.resetEndRepeat();
+        }
+    }
+    
+    /**
      * MEI measure will be processed so that tick offsets between
      * staffs will be the same and to also fetch measure children such as
      * tupletSpan and tie elements to be processed sequentially later.
@@ -852,7 +887,7 @@ public class MeiSequence {
                 thisStaff.setTickLayer(0);
             }
         
-            //Check for end repeats
+            //Check and perform a typical (non-ending) repeat
             if(repeats.compareEndID(measure) &&
                !repeats.inRepeat()) {
                 repeats.setInRepeat(); //in repeat
@@ -916,6 +951,12 @@ public class MeiSequence {
         }
         else if(name.equals("tuplet")) {
             processTuplet(child);
+        }
+        else if(name.equals("scoreDef")) {
+            processScoreDef(child);
+        }
+        else if(name.equals("staffDef")) {
+            processStaffDef(child);
         }
         //Maybe else is not the safest idea
         else {
@@ -1062,6 +1103,7 @@ public class MeiSequence {
         String oct = note.getAttribute("oct");
         String accid = note.getAttribute("accid");
         String dur = note.getAttribute("dur");
+        //Could add accidental child here
         
         //Get the proper pitch given accidental or key signature
         int nPitch;
@@ -1097,7 +1139,9 @@ public class MeiSequence {
                                   long endTick) {
         Track thisTrack = sequence.getTracks()[currentStaff.getN()-1];
         MeiElement chord = currentStaff.getLayerChild("chord");
+        String graceChord = (chord != null) ? chord.getAttribute("grace") : null;
         MeiElement note = currentStaff.getLayerChild("note");
+        String graceNote = note.getAttribute("grace");
         String tieAttribute = note.getAttribute("tie");
         String tieStartID = null;
         String tieEndID = null;
@@ -1108,7 +1152,14 @@ public class MeiSequence {
             tieEndID = (endTie != null) ? endTie.getAttribute("endid") : null;
         }
         
-        if(chord != null && tieAttribute != null) {
+        if(graceNote != null || graceChord != null) {
+            //If grace note then move backwards and start next note on beat
+            startTick = startTick - (endTick - startTick);
+            endTick = startTick;
+            addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
+            addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
+        }
+        else if(chord != null && tieAttribute != null) {
             addMidiTieNote(thisTrack, tieAttribute, nPitch, startTick, endTick);
         }
         else if(chord != null && tieStartID != null) {
@@ -1327,11 +1378,7 @@ public class MeiSequence {
         //For notes and rests with dur attributes
         else if(attributeExists(element.getAttribute("dur"))) {
             dur = element.getAttribute("dur");
-            String grace = element.getAttribute("grace");
             //GRACE NOTE DURATION CAN BE CHANGED HERE
-            if(grace != null) {
-                dur = "15";
-            }
         }
         else if(currentStaff.getLayerChild("chord") != null &&
                 currentStaff.getLayerChild("chord").getAttribute("dur") != null) {

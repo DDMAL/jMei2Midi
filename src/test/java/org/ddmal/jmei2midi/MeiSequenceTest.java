@@ -18,6 +18,8 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
+import org.ddmal.jmei2midi.meielements.MeiStaff;
+import org.ddmal.jmei2midi.meielements.MeiWork;
 import org.ddmal.midiUtilities.ConvertToMidi;
 import org.ddmal.midiUtilities.MidiBuildMessage;
 import org.junit.AfterClass;
@@ -1760,13 +1762,120 @@ public class MeiSequenceTest {
         expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm1n1, 0, 0));
         expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm1n1, 768, 0));
         
-        int ThreeRepeatsm2n2 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm2n2, 768, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm2n2, 1536, 0));
+        int ThreeRepeatsm2n1 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm2n1, 768, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm2n1, 1536, 0));
         
-        int ThreeRepeatsm3n3 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm3n3, 1536, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm3n3, 2304, 0));
+        int ThreeRepeatsm3n1 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm3n1, 1536, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm3n1, 2304, 0));
+        
+        int ThreeRepeatsm1n2 = ConvertToMidi.NoteToMidi("g", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm1n2, 2304, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm1n2, 3072, 0));
+        
+        int ThreeRepeatsm2n2 = ConvertToMidi.NoteToMidi("a", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm2n2, 3072, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm2n2, 3840, 0));
+        
+        int ThreeRepeatsm3n2 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm3n2, 3840, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm3n2, 4608, 0));
+        
+        int ThreeRepeatsm4n1 = ConvertToMidi.NoteToMidi("c", "5", null);
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm4n1, 4608, 0));
+        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm4n1, 5376, 0));
+        for(int x = 0; x < actualThreeRepeats.length; x++) {
+            for(int i = 0; i < actualThreeRepeats[x].size(); i++) {
+                byte[] actualbytes = actualThreeRepeats[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedThreeRepeats[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedThreeRepeats[x].get(i).getTick(), actualThreeRepeats[x].get(i).getTick());
+            }
+        }
+        for(int x = 0; x < expectedThreeRepeats.length; x++) {
+            for(int i = 0; i < expectedThreeRepeats[x].size(); i++) {
+                byte[] actualbytes = actualThreeRepeats[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedThreeRepeats[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedThreeRepeats[x].get(i).getTick(), actualThreeRepeats[x].get(i).getTick());
+            }
+        }
+        
+        //Test for repeats positioning
+        String filenameRepeatsPositioning = "/Users/dinamix/Documents/mei/"
+                + "mei-test-set/MEI/repeats/repeats-positioning.mei";
+        MeiSequence RepeatsPositioning = new MeiSequence(filenameRepeatsPositioning);
+        Track[] actualRepeatsPositioning = RepeatsPositioning.getSequence().getTracks();
+        Sequence sequenceRepeatsPositioning = new Sequence(Sequence.PPQ, 256, 1);
+        Track[] expectedRepeatsPositioning = sequenceRepeatsPositioning.getTracks();
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        
+        int RepeatsPositioningm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm1n1, 0, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm1n1, 768, 0));
+        
+        int RepeatsPositioningm2n1 = ConvertToMidi.NoteToMidi("f", "5", "s");
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm2n1, 768, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm2n1, 1536, 0));
+        
+        int RepeatsPositioningm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm1n2, 1536, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm1n2, 2304, 0));
+        
+        int RepeatsPositioningm2n2 = ConvertToMidi.NoteToMidi("f", "5", "s");
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm2n2, 2304, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm2n2, 3072, 0));
+        
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2f", "major", 3072));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 3072, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 3072));
+        
+        int RepeatsPositioningm3n1 = ConvertToMidi.NoteToMidi("f", "3", null);
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm3n1, 3072, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm3n1, 3840, 0));
+        
+        int RepeatsPositioningm5n1 = ConvertToMidi.NoteToMidi("b", "3", "f");
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm5n1, 3840, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm5n1, 4608, 0));
+        
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2f", "major", 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 4608));
+        
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2s", "major", 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 4608));
+        
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2f", "major", 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 4608));
+        
+        int RepeatsPositioningm3n2 = ConvertToMidi.NoteToMidi("f", "3", null);
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm3n2, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm3n2, 5376, 0));
+        
+        int RepeatsPositioningm5n2 = ConvertToMidi.NoteToMidi("b", "3", "f");
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm5n2, 5376, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm5n2, 6144, 0));
+        for(int x = 0; x < actualRepeatsPositioning.length; x++) {
+            for(int i = 0; i < actualRepeatsPositioning[x].size(); i++) {
+                byte[] actualbytes = actualRepeatsPositioning[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedRepeatsPositioning[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedRepeatsPositioning[x].get(i).getTick(), actualRepeatsPositioning[x].get(i).getTick());
+            }
+        }
+        for(int x = 0; x < expectedRepeatsPositioning.length; x++) {
+            for(int i = 0; i < expectedRepeatsPositioning[x].size(); i++) {
+                byte[] actualbytes = actualRepeatsPositioning[x].get(i).getMessage().getMessage();
+                byte[] expectedbytes = expectedRepeatsPositioning[x].get(i).getMessage().getMessage();
+                assertArrayEquals(expectedbytes, actualbytes);
+                assertEquals(expectedRepeatsPositioning[x].get(i).getTick(), actualRepeatsPositioning[x].get(i).getTick());
+            }
+        }
     }
 
     /**

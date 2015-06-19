@@ -131,7 +131,7 @@ public class ConvertToMidi {
         else if(instr.contains("bassoon")) {
             midiInstr = 70;
         }
-        else if(instr.contains("clarinet")) {
+        else if(instr.contains("clarin")) {
             midiInstr = 71;
         }
         else if(instr.contains("piccolo")) {
@@ -248,8 +248,13 @@ public class ConvertToMidi {
         int midiNote = 0; //start with C0
         int octave = 1;
         try {
-            //ADD +1 TO OCTAVE HERE AND CHECK TESTS!!!
-            octave = Integer.parseInt(oct)*12;//get proper octave
+            //ADD +1 TO OCTAVE HERE BECAUSE C5 in MIDI is C4 normally
+            if(oct != null && !oct.equals("0")) {
+                octave = (Integer.parseInt(oct)+1)*12;//get proper octave
+            }
+            else {
+                octave = 0;
+            }
         }
         catch(NumberFormatException nfe) {
             System.out.println("oct is " + oct);
@@ -286,18 +291,18 @@ public class ConvertToMidi {
         //Account for accidentals if not null
         //If accid = "n" then nothing will happen
         if(accid != null) {
-            if(accid.contains("s")) {
-                midiNote++;    
-            }
-            else if(accid.equalsIgnoreCase("ss") ||
-                    accid.equalsIgnoreCase("x")) {
+            if(accid.equalsIgnoreCase("ss") ||
+               accid.equalsIgnoreCase("x")) {
                 midiNote += 2;
-            }
-            else if(accid.contains("f")) {
-                midiNote--;
             }
             else if(accid.equalsIgnoreCase("ff")) {
                 midiNote -= 2;
+            }
+            else if(accid.contains("s")) {
+                midiNote++;    
+            }
+            else if(accid.contains("f")) {
+                midiNote--;
             }
         }
         return midiNote + octave;
