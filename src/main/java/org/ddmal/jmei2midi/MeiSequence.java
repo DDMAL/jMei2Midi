@@ -1359,8 +1359,6 @@ public class MeiSequence {
      * Fetches the appropriate duration of a given Mei element depending on
      * whether it's a note, a chord or a rest/space.
      * If no duration is found, then a dur = "0" is returned.
-     * ASSUMPTION
-     * Grace notes are considered to be 1 ticks now.
      * @param element
      * @return duration of element in string form
      */
