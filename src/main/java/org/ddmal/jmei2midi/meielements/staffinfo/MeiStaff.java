@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ddmal.jmei2midi.meielements;
+package org.ddmal.jmei2midi.meielements.staffinfo;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.HashMap;

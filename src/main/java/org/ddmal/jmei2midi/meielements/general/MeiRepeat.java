@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ddmal.jmei2midi.meielements;
+package org.ddmal.jmei2midi.meielements.general;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.Stack;
@@ -14,7 +14,7 @@ import java.util.Stack;
  * All comparisons are made by the MEI element ID.
  * @author dinamix
  */
-public class MeiRepeat {
+public class MeiRepeat extends MeiGeneral {
     private Stack<String> startRepeats;
     private String startRepeat;
     private String endRepeat;

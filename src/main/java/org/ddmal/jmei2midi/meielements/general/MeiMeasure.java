@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ddmal.jmei2midi.meielements;
+package org.ddmal.jmei2midi.meielements.general;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author dinamix
  */
-public class MeiMeasure {
+public class MeiMeasure extends MeiGeneral {
     //Will be used to keep track of tupletSpans
     private HashMap<String,MeiElement> tupletSpansStart;
     private HashMap<String,MeiElement> tupletSpansEnd;

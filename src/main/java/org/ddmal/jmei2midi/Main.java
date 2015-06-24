@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
+import org.ddmal.jmei2midi.meielements.layerchild.LayerChildEnum;
 import org.ddmal.midiUtilities.MidiIO;
 
 
@@ -21,17 +22,17 @@ import org.ddmal.midiUtilities.MidiIO;
  */
 public class Main {
     public static void main(String[] args) throws InvalidMidiDataException {
-        String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/grace-notes/";
+        /*String root = "/Users/dinamix/Documents/mei/mei-test-set/MEI/grace-notes/";
         File rootFile = new File(root);
         for(String filename : rootFile.list()) {
             MeiSequence test = new MeiSequence(root + filename);
             MidiIO.write(test.getSequence(), "midi/MEI/grace-notes/" 
                                             + filename.replace("mei", "midi"));
-        }
+        }*/
         
-        /*String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Debussy_Golliwogg'sCakewalk.mei";
+        String file = "/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Handel_Arie.mei";
         MeiSequence test = new MeiSequence(file);
-        MidiIO.write(test.getSequence(), "midi/MEI/Complete examples/Debussy_Golliwogg'sCakewalk.midi");*/
+        MidiIO.write(test.getSequence(), "midi/MEI/Complete examples/Handel_Arie.midi");
         
         /*MeiDocument doc = MeiXmlReader.loadFile("/Users/dinamix/Documents/mei/music-encoding/samples/MEI2013/Music/Complete examples/Czerny_op603_6.mei");
         List<MeiElement> measures = doc.getElementsByName("measure");
