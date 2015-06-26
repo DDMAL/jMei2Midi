@@ -15,7 +15,7 @@ import javax.sound.midi.Sequence;
  * @author dinamix
  */
 public class MidiIO {
-    //Maybe should create my own exception to deal with Midi IO
+    //Might be good to delete file if rebuilt... or not
     public static void write(Sequence sequence, String filename) {
         try {
             MidiSystem.write(sequence, 1, new File(filename));

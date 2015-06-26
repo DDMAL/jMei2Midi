@@ -357,7 +357,16 @@ public class MeiSequence {
         String nString = staff.getAttribute("n");
         
         int staffN = (nString != null) ? Integer.parseInt(nString) : currentStaff.getN() + 1;
-        currentStaff = staffs.get(staffN);
+        
+        //This is a check for if the null n attribute was encoded incorrectly
+        MeiStaff newStaff;
+        if(staffs.containsKey(staffN)) {
+            newStaff = staffs.get(staffN);
+        }
+        else {
+            newStaff = currentStaff;
+        }
+        currentStaff = newStaff;
         
         processParent(staff);
     }
@@ -368,8 +377,14 @@ public class MeiSequence {
      * @param layer 
      */
     private void processLayer(MeiElement layer) {
-        //Reset tick layer offset every time we have a new layer
-        currentStaff.setTickLayer(0);
+        //Try-catch is for when mei encoding is inconsistent
+        //try {
+            //Reset tick layer offset every time we have a new layer
+            currentStaff.setTickLayer(0);
+        /*}
+        catch(NullPointerException npe) {
+            System.out.println("There is a problem with the staff elements.");
+        }*/
         //Process the layer
         processParent(layer);
     }

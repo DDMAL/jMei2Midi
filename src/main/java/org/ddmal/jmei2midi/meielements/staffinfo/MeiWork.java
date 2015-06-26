@@ -27,11 +27,11 @@ public class MeiWork {
     
     public MeiWork(int n) {
         this.n = n;
-        this.keyName = null;
-        this.keyMode = null;
-        this.keysig = null;
-        this.meterCount = null;
-        this.meterUnit = null;
+        this.keyName = "c";
+        this.keyMode = "major";
+        this.keysig = "0";
+        this.meterCount = "4";
+        this.meterUnit = "4";
         this.tempo = "default"; //default for now
         instrVoice = new HashMap<>();
     }
@@ -76,7 +76,9 @@ public class MeiWork {
      * @param keyName the keyName to set
      */
     public void setKeyName(String keyName) {
-        this.keyName = keyName;
+        if(MeiStaffMidiLogic.attributeExists(keyName)) {
+            this.keyName = keyName;
+        }
     }
 
     /**
@@ -90,7 +92,9 @@ public class MeiWork {
      * @param keyMode the keyMode to set
      */
     public void setKeyMode(String keyMode) {
-        this.keyMode = keyMode;
+        if(MeiStaffMidiLogic.attributeExists(keysig)) {
+            this.keyMode = keyMode;
+        }
     }
 
     /**
@@ -104,7 +108,9 @@ public class MeiWork {
      * @param keysig the keysig to set
      */
     public void setKeysig(String keysig) {
-        this.keysig = keysig;
+        if(MeiStaffMidiLogic.attributeExists(keysig)) {
+            this.keysig = keysig;
+        }
     }
 
     /**
@@ -118,7 +124,9 @@ public class MeiWork {
      * @param meterCount the meterCount to set
      */
     public void setMeterCount(String meterCount) {
-        this.meterCount = meterCount;
+        if(MeiStaffMidiLogic.attributeExists(meterCount)) {
+            this.meterCount = meterCount;
+        }
     }
 
     /**
@@ -132,7 +140,9 @@ public class MeiWork {
      * @param meterUnit the meterUnit to set
      */
     public void setMeterUnit(String meterUnit) {
-        this.meterUnit = meterUnit;
+        if(MeiStaffMidiLogic.attributeExists(meterUnit)) {
+            this.meterUnit = meterUnit;
+        }
     }
 
     /**

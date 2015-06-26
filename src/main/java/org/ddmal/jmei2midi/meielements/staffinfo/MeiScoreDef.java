@@ -38,9 +38,6 @@ public class MeiScoreDef extends MeiStaffBuilder {
         //Keep default key.sig and then use
         //staff def key.sig on other staffs
         MeiWork work = works.get(currentMdiv.getCurrentMovement());
-        if(work == null) {
-            System.out.println("NULL WORK!!!");
-        }
         String count = scoreDef.getAttribute("meter.count");
         String unit = scoreDef.getAttribute("meter.unit");
         String keysig = scoreDef.getAttribute("key.sig");

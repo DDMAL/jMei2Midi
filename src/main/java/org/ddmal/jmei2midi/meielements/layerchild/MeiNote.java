@@ -6,6 +6,7 @@
 package org.ddmal.jmei2midi.meielements.layerchild;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
+import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
@@ -151,8 +152,8 @@ public class MeiNote extends LayerChild {
                                                          currentStaff.getChannel()));
         }
         catch(InvalidMidiDataException imde) {
-            imde.printStackTrace();
-            System.exit(1); 
+            System.out.println("Invalid note " + note);
+            System.exit(1);
         }
     }
     
@@ -173,7 +174,7 @@ public class MeiNote extends LayerChild {
                                                           currentStaff.getChannel()));
         }
         catch(InvalidMidiDataException imde) {
-            imde.printStackTrace();
+            System.out.println("Invalid note " + note);
             System.exit(1); 
         }
     }
@@ -212,13 +213,11 @@ public class MeiNote extends LayerChild {
         //Attributes taken here to be processed here
         String pname = note.getAttribute("pname");
         String oct = note.getAttribute("oct");
-        String accid = note.getAttribute("accid");
+        String accid = getAccidental();
         String dur = note.getAttribute("dur");
-        //Could add accidental child here
-        
         //Get the proper pitch given accidental or key signature
         int nPitch;
-        if(attributeExists(accid)) {
+        if(attributeExists(accid) && attributeExists(oct)) {
             nPitch = ConvertToMidi.NoteToMidi(pname, oct, accid);
             currentMeasure.setAccidental(pname, accid);
             currentMeasure.setOct(oct);
@@ -233,6 +232,26 @@ public class MeiNote extends LayerChild {
                                     currentStaff.getKeysigMap().get(pname));
         }
         return nPitch;
+    }
+    
+    /**
+     * Get appropriate accidental depending on if we have an accid
+     * attribute or an accid child, else returns null.
+     * @return accid
+     */
+    private String getAccidental() {
+        String accidAttr = note.getAttribute("accid");
+        List<MeiElement> accidChild = note.getChildrenByName("accid");
+        
+        if(attributeExists(accidAttr)) {
+            return accidAttr;
+        }
+        else if(!accidChild.isEmpty()){
+            return accidChild.get(0).getAttribute("accid");
+        }
+        else {
+            return null;
+        }
     }
     
     @Override
@@ -269,7 +288,9 @@ public class MeiNote extends LayerChild {
         //For notes and rests with dur attributes
         if(attributeExists(note.getAttribute("dur"))) {
             dur = note.getAttribute("dur");
-            //GRACE NOTE DURATION CAN BE CHANGED HERE
+            if(dur.contains("breve") || dur.contains("long")) {
+                dur = "0.5";
+            }
         }
         else if(currentStaff.getLayerChild("chord") != null &&
                 currentStaff.getLayerChild("chord").getAttribute("dur") != null) {

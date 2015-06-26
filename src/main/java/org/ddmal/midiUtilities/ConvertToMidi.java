@@ -60,7 +60,7 @@ public class ConvertToMidi {
         else if(instr.contains("violin")) {
             midiInstr = 40;
         }
-        else if(instr.contains("viola")) {
+        else if(instr.contains("viol")) {
             midiInstr = 41;
         }
         else if(instr.contains("contrabass")) {
@@ -121,7 +121,7 @@ public class ConvertToMidi {
         else if(instr.contains("sax")) {
             midiInstr = 65;
         }
-        else if(instr.contains("oboe")) {
+        else if(instr.contains("obo")) {
             midiInstr = 68;
         }
         else if(instr.contains("english") ||
@@ -137,7 +137,8 @@ public class ConvertToMidi {
         else if(instr.contains("piccolo")) {
             midiInstr = 72;
         }
-        else if(instr.contains("flute")) {
+        else if(instr.contains("flute") ||
+                instr.contains("flaut")) {
             midiInstr = 73;
         }
         else if(instr.contains("recorder")) {
@@ -316,7 +317,7 @@ public class ConvertToMidi {
      * @return 
      */
     public static long durToTick(String dur, int num, int numbase, int dot) {
-        if(dur.equals("0")) {
+        if( dur == null || dur.equals("0")) {
             return 0;
         }
         else {

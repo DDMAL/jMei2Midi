@@ -36,6 +36,7 @@ public class MeiMeasure extends MeiGeneral {
         accidentals = new HashMap<>();
         num = 1;
         numbase = 1;
+        oct = ""; //initialize to avoid null pointer exception
         getEndElements(measure);
     }
     

@@ -1821,6 +1821,14 @@ public class MeiSequenceTest {
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm2n1, 768, 0));
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm2n1, 1536, 0));
         
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("0", "major", 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 1536, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 1536));
+        
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2s", "major", 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 1536, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 1536));
+        
         int RepeatsPositioningm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm1n2, 1536, 0));
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm1n2, 2304, 0));
@@ -1841,7 +1849,7 @@ public class MeiSequenceTest {
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm5n1, 3840, 0));
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm5n1, 4608, 0));
         
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2f", "major", 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("0", "major", 4608));
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 4608, 0));
         expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 4608));
         
