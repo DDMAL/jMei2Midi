@@ -2,6 +2,8 @@
 .project
 .classpath
 .DS_Store
+nb-configuration.xml
 
 #My Test Files
 TestReflection
+/target/
