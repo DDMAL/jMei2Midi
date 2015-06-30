@@ -20,7 +20,7 @@ public class MainTest {
     /**
      * Test of main method, of class Main.
      */
-    @Test
+    //@Test
     public void testMain() throws Exception {
         System.out.println("main");
         String[] args = null;
@@ -32,7 +32,7 @@ public class MainTest {
     /**
      * Test of readWriteFile method, of class Main.
      */
-    @Test
+    //@Test
     public void testReadWriteFile() throws Exception {
         System.out.println("readWriteFile");
         String fileNameIn = "";
@@ -44,7 +44,7 @@ public class MainTest {
     /**
      * Test of readDirectory method, of class Main.
      */
-    @Test
+    //@Test
     public void testReadDirectory() throws Exception {
         System.out.println("readDirectory");
         String dirNameIn = "";
