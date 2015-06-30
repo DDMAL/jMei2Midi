@@ -25,7 +25,41 @@ public class Main {
     private static final String defaultOutput = "midi-test/CompleteExamples/";
     
     public static void main(String[] args) throws InvalidMidiDataException {
-        
+        if(args.length == 0) {
+            System.out.println("Converting from " + defaultInput + " to " + defaultOutput);
+            readDirectory(defaultInput, defaultOutput);
+            System.out.println("Finished!");
+        }
+        else if(args.length == 1) {
+            try {
+                System.out.println("Converting from " + args[0]);
+                readWriteFile(args[0]);
+                System.out.println("Finished!");
+            }
+            catch(Exception ex) {
+                System.out.println("ERROR.\n"
+                        + "File note found " + args[0] + ".\n"
+                        + "Input should be of type : "
+                        + "java -jar " + jarName + " \"filenamein\"");
+            }
+        }
+        else if(args.length == 2) {
+            try {
+                System.out.println("Converting from " + args[0] + " to " + args[1]);
+                readDirectory(args[0], args[1]);
+                System.out.println("Finished!");
+            }
+            catch(Exception ex) {
+                System.out.println("ERROR.\n"
+                        + "File note found " + args[0] + " and " + args[1] + ".\n"
+                        + "Input should be of type : "
+                        + "java -jar " + jarName + " \"filenamein\" \"filenameout\"");
+            }
+        }
+        else {
+            System.out.println("Input should be of type : "
+                        + "java -jar " + jarName + " \"filenamein\" \"filenameout\"");
+        }
     }
     
     public static void readWriteFile(String fileNameIn) throws InvalidMidiDataException {
