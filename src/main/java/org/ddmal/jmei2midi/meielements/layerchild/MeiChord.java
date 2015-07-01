@@ -53,9 +53,6 @@ public class MeiChord extends LayerChild {
      * Converts given duration string to a long tick value for midi.
      * thiStaff can be populated with a tuplet or note which will then
      * be used to compute tuplet and dot values in the duration.
-     * ASSUMPTION
-     * This assumes that if not dur is given in element or chord
-     * then the note takes up a full measure.
      * @param dur
      * @return long tick value of dur string
      */

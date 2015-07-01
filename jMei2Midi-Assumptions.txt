@@ -1,0 +1,40 @@
+jMei2Midi Assumptions
+
+ConvertToMidi.java
+	NoteToMidi()
+		- note with no pname attribute is made into a C
+
+	tempoToBpm()
+		- no given tempo is assumed to be 90 bpm
+
+	durToTick()
+		- PPQ = 256 (like sibelius)
+
+LayerChild.java
+	getDurString()
+		- If no duration is found then note is given a 0 duration.
+
+	- stats could be passed here to get stats on unknown note values
+
+MeiWork.java
+	MeiWork()
+		- meter unit assumed to be 4
+		- meter count assumed to be 4
+		- key assumed to be c
+		- mode assumed to be major
+		- tempo assumed to be default
+
+MeiStaff.java
+	MeiStaff()
+		- meter unit assumed to be 4
+		- meter count assumed to be 4
+		- key assumed to be c
+		- mode assumed to be major
+		- tempo assumed to be default
+
+MeiStaffBuilder.java
+	processNewLabel()
+		- if no instrument is found, it uses work
+		- if we previously had an instrument use that
+		- if not label and previous instrument was piano, organ or harpsi then make it that
+		- if non of the above apply and we have 2 voices, use piano, or else use voice

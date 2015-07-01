@@ -17,7 +17,6 @@ public class MeiWork {
     private int n;
     private String keyName;
     private String keyMode;
-    //Could remove this altogether actually
     private String keysig; //Only used with scoredef, not work
                            //keysig is specific to MeiStaff, not MeiWork
     private String meterCount;

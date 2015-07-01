@@ -68,7 +68,7 @@ public class MeiStaff {
         this.tick = 0;
         this.layerOffset = 0;
         this.keysig = "0";
-        this.keymode = "major"; //Used in debussy mandolin
+        this.keymode = "major";
         this.computeKeysigMap();
         this.meterCount = "4";
         this.meterUnit = "4";
@@ -378,7 +378,6 @@ public class MeiStaff {
      * each note for any accidental in the given key.
      * HashMap holds key,value pair as the specified accidental in the key
      * signature also dependent on the current key.
-     * ***** Special case : C Major is null. *****
      * @param keysignature the value of the MEI key.sig 
      * @return 
      */
