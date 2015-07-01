@@ -31,15 +31,6 @@ public class MeiStaffTest {
     }
 
     /**
-     * Test of computeBpm method, of class MeiStaff.
-     */
-    @Ignore
-    @Test
-    public void testComputeBpm() {
-        
-    }
-
-    /**
      * Test of computeKey method, of class MeiStaff.
      */
     @Test

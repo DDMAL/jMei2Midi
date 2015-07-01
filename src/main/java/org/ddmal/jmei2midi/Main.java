@@ -62,6 +62,12 @@ public class Main {
         }
     }
     
+    /**
+     * Reads mei file from fileNameIn and outputs to the appropriate
+     * midi-test file which needs to be created by the user.
+     * @param fileNameIn
+     * @throws InvalidMidiDataException 
+     */
     public static void readWriteFile(String fileNameIn) throws InvalidMidiDataException {
         MeiSequence test = new MeiSequence(fileNameIn);
         String[] fileNameArray = fileNameIn.split("/");
@@ -70,12 +76,25 @@ public class Main {
                                         + fileName);
     }
     
+    /**
+     * Reads all mei files from dirNameIn and recursively calls any sub-directories
+     * and all files are put into the appropriate user-made midi-test files.
+     * @param dirNameIn
+     * @param dirNameOut
+     * @throws InvalidMidiDataException 
+     */
     public static void readDirectory(String dirNameIn, String dirNameOut) throws InvalidMidiDataException {
         File dirNameFile = new File(dirNameIn);
         for(String filename : dirNameFile.list()) {
+            File file = new File(filename);
+            if(file.isDirectory()) {
+                String path = file.getAbsolutePath();
+                readDirectory(path, path.replaceAll("mei-test", "midi-test"));
+            }
             if(!filename.contains(".mei")) {
                continue; //skip non mei files
             }
+     
             System.out.println("Converting file " + filename);
             MeiSequence mei = new MeiSequence(dirNameIn + filename);
             MidiIO.write(mei.getSequence(), dirNameOut 

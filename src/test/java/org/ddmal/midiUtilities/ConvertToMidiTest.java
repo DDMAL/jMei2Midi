@@ -27,13 +27,47 @@ public class ConvertToMidiTest {
     @AfterClass
     public static void tearDownClass() {
     }
-
+    
+    /**
+     * Test of instrToPerc method, of class ConvertToMidi.
+     */
+    @Test
+    public void testInstrToPerc() {
+        int nill = ConvertToMidi.instrToPerc(null);
+        assertEquals(-1, nill);
+        
+        int snare = ConvertToMidi.instrToPerc("snare");
+        assertEquals(38, snare);
+        
+        int defaul = ConvertToMidi.instrToPerc("default");
+        assertEquals(-1, defaul);
+    }
+    
+    /**
+     * Test of instrToMidi method, of class ConvertToMidi.
+     */
+    @Test
+    public void testInstrToMidi() {
+        int nill = ConvertToMidi.instrToMidi(null);
+        assertEquals(-1, nill);
+        
+        int piano = ConvertToMidi.instrToMidi("piano");
+        assertEquals(0, piano);
+        
+        int defaul = ConvertToMidi.instrToMidi("default");
+        assertEquals(-1, defaul);
+    }
+ 
     /**
      * Test of tempoToBpm method, of class ConvertToMidi.
      */
-    @Ignore
     @Test
     public void testTempoToBpm() {
+        int adagio = ConvertToMidi.tempoToBpm("adagio");
+        assertEquals(71, adagio);
+        
+        int defaul = ConvertToMidi.tempoToBpm("default");
+        assertEquals(90, defaul);
     }
     
     /**

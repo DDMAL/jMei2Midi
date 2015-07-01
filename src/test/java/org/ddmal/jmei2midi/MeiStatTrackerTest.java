@@ -11,7 +11,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
@@ -77,10 +76,9 @@ public class MeiStatTrackerTest {
      * Test of getInvalidInstruments method, of class MeiStatTracker.
      * @throws javax.sound.midi.InvalidMidiDataException
      */
-    //@Test
+    @Test
     public void testGetInvalidInstruments() throws InvalidMidiDataException {
-        String expectedfilename = "/Users/dinamix/Documents/music-encoding/"
-                + "samples/MEI2013/Music/Complete examples/Altenburg_concerto_C_major.mei";
+        String expectedfilename = "mei-test/CompleteExamples/Altenburg_concerto_C_major.mei";
         MeiStatTracker stats = new MeiStatTracker(expectedfilename);
         MeiSequence sequence = new MeiSequence(expectedfilename, stats);
         List<String> invalidInstruments = stats.getInvalidInstruments().get(expectedfilename);
@@ -105,10 +103,9 @@ public class MeiStatTrackerTest {
      * Test of getInvalidTempos method, of class MeiStatTracker.
      * @throws javax.sound.midi.InvalidMidiDataException
      */
-    //@Test
+    @Test
     public void testGetInvalidTempos() throws InvalidMidiDataException {
-        String expectedfilename = "/Users/dinamix/Documents/music-encoding/"
-                + "samples/MEI2013/Music/Complete examples/McFerrin_Don't_worry.mei";
+        String expectedfilename = "mei-test/CompleteExamples/McFerrin_Don't_worry.mei";
         MeiStatTracker stats = new MeiStatTracker(expectedfilename);
         MeiSequence sequence = new MeiSequence(expectedfilename, stats);
         List<String> invalidTempos = stats.getInvalidTempos().get(expectedfilename);
