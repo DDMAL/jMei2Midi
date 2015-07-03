@@ -12,6 +12,7 @@ import org.ddmal.jmei2midi.meielements.general.MeiRepeat;
 import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
+import ca.mcgill.music.ddmal.mei.MeiXmlReader.MeiXmlReadException;
 import java.io.File;
 import java.util.HashMap;
 import javax.sound.midi.InvalidMidiDataException;
@@ -65,7 +66,8 @@ public class MeiSequence {
      * @param filename  
      * @throws javax.sound.midi.InvalidMidiDataException 
      */
-    public MeiSequence(String filename) throws InvalidMidiDataException {
+    public MeiSequence(String filename) 
+            throws InvalidMidiDataException, MeiXmlReadException {
         
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(filename);
@@ -80,7 +82,8 @@ public class MeiSequence {
         documentToSequence();
     }
     
-    public MeiSequence(File file) throws InvalidMidiDataException {
+    public MeiSequence(File file) 
+            throws InvalidMidiDataException, MeiXmlReadException {
         
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(file);
@@ -103,7 +106,8 @@ public class MeiSequence {
      * @throws javax.sound.midi.InvalidMidiDataException 
      */
     public MeiSequence(String filename,
-                       MeiStatTracker stats) throws InvalidMidiDataException {
+                       MeiStatTracker stats) 
+            throws InvalidMidiDataException, MeiXmlReadException {
         
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(filename);
@@ -120,7 +124,8 @@ public class MeiSequence {
     }
     
     public MeiSequence(File file,
-                       MeiStatTracker stats) throws InvalidMidiDataException {
+                       MeiStatTracker stats) 
+            throws InvalidMidiDataException, MeiXmlReadException {
         
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(file);
