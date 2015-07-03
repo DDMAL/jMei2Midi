@@ -5,17 +5,10 @@
  */
 package org.ddmal.jmei2midi;
 
-import ca.mcgill.music.ddmal.mei.MeiAttribute;
-import ca.mcgill.music.ddmal.mei.MeiDocument;
-import ca.mcgill.music.ddmal.mei.MeiElement;
-import ca.mcgill.music.ddmal.mei.MeiXmlReader;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
@@ -23,7 +16,6 @@ import org.ddmal.jmei2midi.meielements.staffinfo.MeiWork;
 import org.ddmal.midiUtilities.ConvertToMidi;
 import org.ddmal.midiUtilities.MidiBuildMessage;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -89,8 +81,6 @@ public class MeiSequenceTest {
      */
     @Test
     public void testProcessWork() throws InvalidMidiDataException {
-        //This doesnt work strangely
-        //maybe debug from here
         //Test 1 : Czerny
         String filename = "mei-test/CompleteExamples/Czerny_op603_6.mei";       
         MeiSequence czerny = new MeiSequence(filename);
@@ -141,14 +131,13 @@ public class MeiSequenceTest {
         actualWorkB.put(4, actualB4);
         assertEquals(actualWorkB,beethoven.getWorks());
         
-        /*Test Grieg butterfly
-        //Bug with sameas needs to be changed
+        //Test Grieg butterfly
         String filenameG = "mei-test/CompleteExamples/Grieg_op.43_butterfly.mei";
         MeiSequence griegB = new MeiSequence(filenameG);
         MeiWork actualG = griegB.getWorks().get(1);
         MeiWork expectedG = new MeiWork(1, "a", "major", "4", "4", "Allegro grazioso");
         expectedG.addInstrVoice(1, "Piano");
-        assertEquals(expectedG,actualG);*/
+        assertEquals(expectedG,actualG);
         
         //Test Brahms String Quartet
         String filenameBrahms = "mei-test/CompleteExamples/Brahms_StringQuartet_Op51_No1.mei";
@@ -382,7 +371,7 @@ public class MeiSequenceTest {
         expectedCz.put(3, new MeiStaff(3, "default", "Organ", "1f", "minor", "4", "4"));
         assertEquals(expectedCz, actualCz);
         
-        /*Test 2 : Grieg butterfly
+        //Test 2 : Grieg butterfly
         String griegfile = "mei-test/CompleteExamples/Grieg_op.43_butterfly.mei";
         MeiSequence grieg = new MeiSequence(griegfile);
         HashMap<Integer,MeiStaff> actualGr = grieg.getStaffs();
@@ -393,7 +382,7 @@ public class MeiSequenceTest {
         HashMap<Integer,MeiStaff> expectedGr = new HashMap<>();
         expectedGr.put(1, new MeiStaff(1, "Allegro grazioso", "Piano", "3s", "major", "4", "4"));
         expectedGr.put(2, new MeiStaff(2, "Allegro grazioso", "Piano", "3s", "major", "4", "4"));
-        assertEquals(expectedGr, actualGr);*/
+        assertEquals(expectedGr, actualGr);
         
         //Test : Brahms String quartet
         String filenameBrahms = "mei-test/CompleteExamples/Brahms_StringQuartet_Op51_No1.mei";
@@ -941,22 +930,16 @@ public class MeiSequenceTest {
         expectedViv[4].add(MidiBuildMessage.createTrackTempo(184, 0));
         expectedViv[4].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < expectedViv.length; x++) {
-            //System.out.println(x + " New Track: ");
             for(int i = 0; i < expectedViv[x].size(); i++) {
                 byte[] actualbytes = actualViv[x].get(i).getMessage().getMessage();
-                //System.out.println(Arrays.toString(actualbytes));
                 byte[] expectedbytes = expectedViv[x].get(i).getMessage().getMessage();
-                //System.out.println(Arrays.toString(expectedbytes));
                 assertArrayEquals(expectedbytes, actualbytes);
             }
         }
         for(int x = 0; x < actualViv.length; x++) {
-            //System.out.println(x + " New Track: ");
             for(int i = 0; i < actualViv[x].size(); i++) {
                 byte[] actualbytes = actualViv[x].get(i).getMessage().getMessage();
-                //System.out.println(Arrays.toString(actualbytes));
                 byte[] expectedbytes = expectedViv[x].get(i).getMessage().getMessage();
-                //System.out.println(Arrays.toString(expectedbytes));
                 assertArrayEquals(expectedbytes, actualbytes);
             }
         }

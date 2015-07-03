@@ -87,6 +87,7 @@ public class Main {
         File dirNameFile = new File(dirNameIn);
         for(String filename : dirNameFile.list()) {
             File file = new File(filename);
+            //MAYBE REMOVE THIS CHECK
             if(file.isDirectory()) {
                 String path = file.getAbsolutePath();
                 readDirectory(path, path.replaceAll("mei-test", "midi-test"));
