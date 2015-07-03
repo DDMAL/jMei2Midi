@@ -12,6 +12,7 @@ import org.ddmal.jmei2midi.meielements.general.MeiRepeat;
 import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
+import java.io.File;
 import java.util.HashMap;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
@@ -69,24 +70,25 @@ public class MeiSequence {
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(filename);
         
-        //Instantiate staffs as ArrayList
-        staffs = new HashMap<>();
-        currentStaff = new MeiStaff(1); //in case there are no n attributes for 
-                                        //staffs within measures
-        
-        //Create mdiv to store current movement during parsing
-        currentMdiv = new MeiMdiv();
-        
-        //Create new defaults array for default values
-        //So far we need 5 values for:
-        //tempo, meter.count, meter.unit, key.sig and key.mode
-        works = new HashMap<>();
-        
-        //Instantiate new MeiRepeat to store all repeats
-        repeats = new MeiRepeat();
+        instantiateVariables();
         
         //Create a new MeiStatTracker
         stats = new MeiStatTracker(filename);
+        
+        //Turn the document into a MIDI sequence
+        //It is returned in the class sequence variable
+        documentToSequence();
+    }
+    
+    public MeiSequence(File file) throws InvalidMidiDataException {
+        
+        //Read in MEI XML file
+        document = MeiXmlReader.loadFile(file);
+        
+        instantiateVariables();
+        
+        //Create a new MeiStatTracker
+        stats = new MeiStatTracker(file.getAbsolutePath());
         
         //Turn the document into a MIDI sequence
         //It is returned in the class sequence variable
@@ -106,6 +108,38 @@ public class MeiSequence {
         //Read in MEI XML file
         document = MeiXmlReader.loadFile(filename);
         
+        instantiateVariables();
+        
+        //Update a stats object by reference
+        this.stats = stats;
+        stats.setFileName(filename);
+        
+        //Turn the document into a MIDI sequence
+        //It is returned in the class sequence variable
+        documentToSequence();
+    }
+    
+    public MeiSequence(File file,
+                       MeiStatTracker stats) throws InvalidMidiDataException {
+        
+        //Read in MEI XML file
+        document = MeiXmlReader.loadFile(file);
+        
+        instantiateVariables();
+        
+        //Update a stats object by reference
+        this.stats = stats;
+        stats.setFileName(file.getAbsolutePath());
+        
+        //Turn the document into a MIDI sequence
+        //It is returned in the class sequence variable
+        documentToSequence();
+    }
+    
+    /**
+     * Generic instantiation function for various constructors.
+     */
+    private void instantiateVariables() {
         //Instantiate staffs as ArrayList
         staffs = new HashMap<>();
         currentStaff = new MeiStaff(1); //in case there are no n attributes for
@@ -121,14 +155,6 @@ public class MeiSequence {
         
         //Instantiate new MeiRepeat to store all repeats
         repeats = new MeiRepeat();
-        
-        //Update a stats object by reference
-        this.stats = stats;
-        stats.setFileName(filename);
-        
-        //Turn the document into a MIDI sequence
-        //It is returned in the class sequence variable
-        documentToSequence();
     }
     
     /**

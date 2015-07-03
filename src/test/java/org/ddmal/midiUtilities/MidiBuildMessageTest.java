@@ -110,7 +110,6 @@ public class MidiBuildMessageTest {
         MidiEvent testEventActual = MidiBuildMessage.createTrackTempo(120, 0);
         byte[] expected = testEventExpect.getMessage().getMessage();
         byte[] actual = testEventActual.getMessage().getMessage();
-        System.out.println("actual : " + Arrays.toString(actual) + " expected : " + Arrays.toString(expected));
         
         assertArrayEquals(expected,actual);
         assertEquals(testEventExpect.getTick(),testEventActual.getTick());
