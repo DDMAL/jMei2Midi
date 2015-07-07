@@ -64,7 +64,7 @@ public class Main {
     
     /**
      * Reads mei file from fileNameIn and outputs to the appropriate
-     * midi-test file which needs to be created by the user.
+     * midi-test file in the same dir as the .rar.
      * @param fileNameIn
      * @throws InvalidMidiDataException 
      */
@@ -72,8 +72,7 @@ public class Main {
         MeiSequence test = new MeiSequence(fileNameIn);
         String[] fileNameArray = fileNameIn.split("/");
         String fileName = fileNameArray[fileNameArray.length - 1].replaceAll("mei", "midi");
-        MidiIO.write(test.getSequence(), "midi-test/CompleteExamples/"
-                                        + fileName);
+        MidiIO.write(test.getSequence(), fileName);
     }
     
     /**

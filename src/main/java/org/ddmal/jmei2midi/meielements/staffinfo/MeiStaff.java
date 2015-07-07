@@ -7,6 +7,7 @@ package org.ddmal.jmei2midi.meielements.staffinfo;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.HashMap;
+import java.util.Locale;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ddmal.midiUtilities.ConvertToMidi;
