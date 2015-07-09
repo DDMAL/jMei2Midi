@@ -41,7 +41,7 @@ public class MeiStatTrackerTest {
         String expectedfilename = "test.mei";
         MeiStatTracker test = new MeiStatTracker(expectedfilename);
         String actualfile = test.getFileName();
-        boolean hasFile = test.getAllFiles().containsKey(expectedfilename);
+        boolean hasFile = test.getAllFiles().contains(expectedfilename);
         assertEquals("test.mei",actualfile);
         assertTrue(hasFile);
     }
@@ -55,7 +55,7 @@ public class MeiStatTrackerTest {
         MeiStatTracker test = new MeiStatTracker();
         test.setFileName(expectedfilename);
         String actualfile = test.getFileName();
-        boolean hasFile = test.getAllFiles().containsKey(expectedfilename);
+        boolean hasFile = test.getAllFiles().contains(expectedfilename);
         assertEquals("test.mei",actualfile);
         assertTrue(hasFile);
     }

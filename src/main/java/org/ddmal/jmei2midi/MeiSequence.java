@@ -31,9 +31,7 @@ public class MeiSequence {
     
     private MeiDocument document;
     
-    
     private Sequence sequence;
-    
     
     private MeiStaff currentStaff;
     private HashMap<Integer,MeiStaff> staffs; //staffs store in hashmap
@@ -47,19 +45,27 @@ public class MeiSequence {
     //Current movement is set in the current mDiv object
     private MeiMdiv currentMdiv;
     
-    
     //Stores info specific to a certain measure such as
     //accidentals and tupletSpans
     private MeiMeasure currentMeasure;
     
-    
     //Store all mei repeat starts and ends
     private MeiRepeat repeats;
-    
     
     //This allows a sequence to generate some mei stats
     //Such as invalid tempo and invalid instruments
     private MeiStatTracker stats;
+    
+    /**
+     * Default private constructor to instantiate variables.
+     */
+    private MeiSequence() {
+        staffs = new HashMap<>();
+        currentStaff = new MeiStaff(1); //1 in case there are no n attributes for staffs within measures
+        works = new HashMap<>();
+        currentMdiv = new MeiMdiv();
+        repeats = new MeiRepeat();
+    }
     
     /**
      * Constructor that creates a MIDI Sequence given an MEI filename.
@@ -68,33 +74,17 @@ public class MeiSequence {
      */
     public MeiSequence(String filename) 
             throws InvalidMidiDataException, MeiXmlReadException {
-        
-        //Read in MEI XML file
+        this();
         document = MeiXmlReader.loadFile(filename);
-        
-        instantiateVariables();
-        
-        //Create a new MeiStatTracker
         stats = new MeiStatTracker(filename);
-        
-        //Turn the document into a MIDI sequence
-        //It is returned in the class sequence variable
         documentToSequence();
     }
     
     public MeiSequence(File file) 
             throws InvalidMidiDataException, MeiXmlReadException {
-        
-        //Read in MEI XML file
+        this();
         document = MeiXmlReader.loadFile(file);
-        
-        instantiateVariables();
-        
-        //Create a new MeiStatTracker
         stats = new MeiStatTracker(file.getAbsolutePath());
-        
-        //Turn the document into a MIDI sequence
-        //It is returned in the class sequence variable
         documentToSequence();
     }
     
@@ -108,58 +98,21 @@ public class MeiSequence {
     public MeiSequence(String filename,
                        MeiStatTracker stats) 
             throws InvalidMidiDataException, MeiXmlReadException {
-        
-        //Read in MEI XML file
+        this();
         document = MeiXmlReader.loadFile(filename);
-        
-        instantiateVariables();
-        
-        //Update a stats object by reference
         this.stats = stats;
         stats.setFileName(filename);
-        
-        //Turn the document into a MIDI sequence
-        //It is returned in the class sequence variable
         documentToSequence();
     }
     
     public MeiSequence(File file,
                        MeiStatTracker stats) 
             throws InvalidMidiDataException, MeiXmlReadException {
-        
-        //Read in MEI XML file
+        this();
         document = MeiXmlReader.loadFile(file);
-        
-        instantiateVariables();
-        
-        //Update a stats object by reference
         this.stats = stats;
         stats.setFileName(file.getAbsolutePath());
-        
-        //Turn the document into a MIDI sequence
-        //It is returned in the class sequence variable
         documentToSequence();
-    }
-    
-    /**
-     * Generic instantiation function for various constructors.
-     */
-    private void instantiateVariables() {
-        //Instantiate staffs as ArrayList
-        staffs = new HashMap<>();
-        currentStaff = new MeiStaff(1); //in case there are no n attributes for
-                                        //staffs within measures
-        
-        //Create new defaults array for default values
-        //So far we need 5 values for:
-        //tempo, meter.count, meter.unit, key.sig and key.mode
-        works = new HashMap<>();
-        
-        //Create mdiv to store current movement during parsing
-        currentMdiv = new MeiMdiv();
-        
-        //Instantiate new MeiRepeat to store all repeats
-        repeats = new MeiRepeat();
     }
     
     /**
@@ -174,7 +127,7 @@ public class MeiSequence {
      * RETURN STRING[] DEFAULTS FOR TESTING PURPOSES
      * @return 
      */
-    public HashMap<Integer,MeiWork> getWorks() {
+    protected HashMap<Integer,MeiWork> getWorks() {
         return this.works;
     }
     
@@ -182,7 +135,7 @@ public class MeiSequence {
      * RETURN HASHMAP\<MEISTAFF\> STAFFS FOR TESTING PURPOSES
      * @return 
      */
-    public HashMap<Integer,MeiStaff> getStaffs() {
+    protected HashMap<Integer,MeiStaff> getStaffs() {
         return this.staffs;
     }
     
@@ -198,24 +151,15 @@ public class MeiSequence {
      * Converts given MEI document to MIDI sequence object.
      * mei is the root element of any mei document.
      * mei children will be meiHead and music.
-     * meiHead is for tempo and music is for notes and other changes.
      * @throws javax.sound.midi.InvalidMidiDataException
      */
     private void documentToSequence() throws InvalidMidiDataException {
-        try {
-            sequence = new Sequence(Sequence.PPQ, 256);
-        }
-        catch(InvalidMidiDataException imde) {
-            throw new InvalidMidiDataException(
-                    "Problem with instantiating Java Sequence.");
-        }
+        sequence = new Sequence(Sequence.PPQ, 256);
         recursiveDFS(document.getRootElement());
     }
     
     /**
      * Recursive DFS through MEI document.
-     * Sequentially goes through all tags 
-     * then either processParent() or processElement() is called.
      * @param root 
      */
     private void recursiveDFS(MeiElement root) {
@@ -296,7 +240,7 @@ public class MeiSequence {
                 break;
                 
             case "incip":
-                break;
+                break; //used to skip over incip music in metadata
                 
             default:
                 processParent(element);
@@ -407,15 +351,7 @@ public class MeiSequence {
      * @param layer 
      */
     private void processLayer(MeiElement layer) {
-        //Try-catch is for when mei encoding is inconsistent
-        //try {
-            //Reset tick layer offset every time we have a new layer
-            currentStaff.setTickLayer(0);
-        /*}
-        catch(NullPointerException npe) {
-            System.out.println("There is a problem with the staff elements.");
-        }*/
-        //Process the layer
+        currentStaff.setTickLayer(0);
         processParent(layer);
     }
     
@@ -475,14 +411,5 @@ public class MeiSequence {
             currentMeasure.setNum(1);
             currentMeasure.setNumBase(1);
         }
-    }
-    
-    /**
-     * Helper method to standardize if an attribute exists within an element.
-     * @param attribute
-     * @return true if attribute exists
-     */
-    private boolean attributeExists(String attribute) {
-        return attribute != null;
     }
 }
