@@ -7,12 +7,16 @@ package org.ddmal.jmei2midi;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import javax.sound.midi.InvalidMidiDataException;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 /**
  *
@@ -20,6 +24,8 @@ import org.junit.Before;
  */
 public class MainTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
     
     /**
      * Reassign output stream to new print stream so system output can be tested.
@@ -32,6 +38,11 @@ public class MainTest {
     @After
     public void cleanupStreams() {
         System.setOut(null);
+    }
+    
+    @After
+    public void cleanupTempFolder() {
+        tempFolder.delete();
     }
 
     /**
@@ -62,6 +73,9 @@ public class MainTest {
                         + "Input should be of type : "
                         + "java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\" \"filenameout\"",
                     outContent.toString().trim());
+        
+        //Reset System.out to standard output
+        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
     }
 
     /**
@@ -73,8 +87,10 @@ public class MainTest {
         System.out.println("readWriteFile");
         String fileNameIn = "mei-test/CompleteExamples/Ives_TheCage.mei";
         Main.readWriteFile(fileNameIn);
-        File ives = new File("midi-test/CompleteExamples/Ives_TheCage.midi");
+        File ives = new File("Ives_TheCage.midi");
         assertTrue(ives.isFile());
+        File file = new File("Ives_TheCage.midi");
+        file.deleteOnExit();
     }
 
     /**
@@ -82,39 +98,28 @@ public class MainTest {
      * Currently is tested with all mei files given in complete examples.
      * @throws javax.sound.midi.InvalidMidiDataException
      */
-    //@Test
+    @Test
     public void testReadDirectory() throws InvalidMidiDataException {
+        //Build temporary directory for midi
+        File tempDir = tempFolder.newFolder("CompleteExamples");
+        String tempDirName = tempDir.getPath();
+        
         //Test Complete Examples
-        System.out.println("readDirectory CompleteExamples");
         String CEIn = "mei-test/CompleteExamples/";
-        String CEOut = "midi-test/CompleteExamples/";
-        Main.readDirectory(CEIn, CEOut);
+        Main.readDirectory(CEIn, tempDirName);
         
+        //Get all mei files in CompleteExamples
         File dirFileNameIn = new File(CEIn);
-        File[] fileArrayIn = dirFileNameIn.listFiles();
+        MusicFileFilter fileFilter = new MusicFileFilter();
+        File[] fileArrayIn = dirFileNameIn.listFiles(fileFilter);
         
-        File dirFileNameOut = new File(CEOut);
-        File[] fileArrayOut = dirFileNameOut.listFiles();
+        //Get all midi files in temp directory
+        File[] fileArrayOut = tempDir.listFiles();
         
         assertEquals(fileArrayIn.length, fileArrayOut.length);
-        
         for(int i = 0; i < fileArrayIn.length; i++) {
-            assertEquals(fileArrayIn[i].toString().replaceAll("mei", ""),
-                         fileArrayOut[i].toString().replaceAll("midi", ""));
+            assertEquals(fileArrayIn[i].getName().replaceAll("mei", ""),
+                         fileArrayOut[i].getName().replaceAll("midi", ""));
         }
-        
-        //Test mei-test-set
-        System.out.println("readDirectory mei-test-set");
-        String testIn = "mei-test/mei-test-set/";
-        String testOut = "midi-test/mei-test-set/";
-        Main.readDirectory(testIn, testOut);
-        
-        File dirTestIn = new File(testIn);
-        File[] dirTestArrayIn = dirTestIn.listFiles();
-        
-        File dirTestOut = new File(testOut);
-        File[] dirTestArrayOut = dirTestOut.listFiles();
-        
-        assertEquals(dirTestArrayIn.length, dirTestArrayOut.length);
     }
 }

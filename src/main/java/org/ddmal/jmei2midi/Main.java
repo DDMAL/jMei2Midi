@@ -47,7 +47,7 @@ public class Main {
             try {
                 System.out.println("Converting from " + args[0] + " to " + args[1]);
                 readDirectory(args[0], args[1]);
-                System.out.println("Finished!");
+                System.out.println("Finished Successfully!");
             }
             catch(Exception ex) {
                 System.out.println("ERROR.\n"
@@ -86,18 +86,12 @@ public class Main {
         File dirNameFile = new File(dirNameIn);
         for(String filename : dirNameFile.list()) {
             File file = new File(filename);
-            //MAYBE REMOVE THIS CHECK
-            if(file.isDirectory()) {
-                String path = file.getAbsolutePath();
-                readDirectory(path, path.replaceAll("mei-test", "midi-test"));
-            }
             if(!filename.contains(".mei")) {
                continue; //skip non mei files
             }
-     
             System.out.println("Converting file " + filename);
             MeiSequence mei = new MeiSequence(dirNameIn + filename);
-            MidiIO.write(mei.getSequence(), dirNameOut 
+            MidiIO.write(mei.getSequence(), dirNameOut + File.separator
                                             + filename.replace("mei", "midi"));
         }    
     }

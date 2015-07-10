@@ -40,7 +40,6 @@ public class MeiSequence {
     //This will contain metdata and be related to mdivs and scoreDefs
     //If no other information is given then defaults will be used
     private HashMap<Integer,MeiWork> works; //this accounts for changes in <scoreDef>
-                                            //that may or may not need to be global
     
     //Current movement is set in the current mDiv object
     private MeiMdiv currentMdiv;
@@ -57,62 +56,40 @@ public class MeiSequence {
     private MeiStatTracker stats;
     
     /**
-     * Default private constructor to instantiate variables.
+     * Constructor that creates a MIDI Sequence given an MEI filename and
+     * also keeps track of some mei stats using MeiStatTracker reference.
+     * @param file 
+     * @param stats 
+     * @throws javax.sound.midi.InvalidMidiDataException 
+     * @throws MeiXmlReader.MeiXmlReadException
      */
-    private MeiSequence() {
-        staffs = new HashMap<>();
-        currentStaff = new MeiStaff(1); //1 in case there are no n attributes for staffs within measures
-        works = new HashMap<>();
-        currentMdiv = new MeiMdiv();
-        repeats = new MeiRepeat();
+    public MeiSequence(File file, MeiStatTracker stats) 
+            throws InvalidMidiDataException, MeiXmlReadException {
+        this.staffs = new HashMap<>();
+        this.currentStaff = new MeiStaff(1); //1 in case there are no n attributes for staffs within measures
+        this.works = new HashMap<>();
+        this.currentMdiv = new MeiMdiv();
+        this.repeats = new MeiRepeat();
+        
+        this.document = MeiXmlReader.loadFile(file);
+        this.stats = stats;
+        stats.setFileName(file.getPath());
+        documentToSequence();
     }
     
-    /**
-     * Constructor that creates a MIDI Sequence given an MEI filename.
-     * @param filename  
-     * @throws javax.sound.midi.InvalidMidiDataException 
-     */
     public MeiSequence(String filename) 
             throws InvalidMidiDataException, MeiXmlReadException {
-        this();
-        document = MeiXmlReader.loadFile(filename);
-        stats = new MeiStatTracker(filename);
-        documentToSequence();
+        this(new File(filename),new MeiStatTracker(filename));
     }
     
     public MeiSequence(File file) 
             throws InvalidMidiDataException, MeiXmlReadException {
-        this();
-        document = MeiXmlReader.loadFile(file);
-        stats = new MeiStatTracker(file.getAbsolutePath());
-        documentToSequence();
+        this(file, new MeiStatTracker(file.getPath()));
     }
     
-    /**
-     * Constructor that creates a MIDI Sequence given an MEI filename and
-     * also keeps track of some mei stats using MeiStatTracker reference.
-     * @param filename 
-     * @param stats 
-     * @throws javax.sound.midi.InvalidMidiDataException 
-     */
-    public MeiSequence(String filename,
-                       MeiStatTracker stats) 
+    public MeiSequence(String filename, MeiStatTracker stats) 
             throws InvalidMidiDataException, MeiXmlReadException {
-        this();
-        document = MeiXmlReader.loadFile(filename);
-        this.stats = stats;
-        stats.setFileName(filename);
-        documentToSequence();
-    }
-    
-    public MeiSequence(File file,
-                       MeiStatTracker stats) 
-            throws InvalidMidiDataException, MeiXmlReadException {
-        this();
-        document = MeiXmlReader.loadFile(file);
-        this.stats = stats;
-        stats.setFileName(file.getAbsolutePath());
-        documentToSequence();
+        this(new File(filename),stats);
     }
     
     /**
