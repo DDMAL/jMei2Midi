@@ -33,12 +33,12 @@ public class MainTest {
      */
     @Before
     public void setUpStreams() {
-        System.setOut(new PrintStream(outContent));
+        System.setErr(new PrintStream(outContent));
     }
     
     @After
     public void cleanupStreams() {
-        System.setOut(null);
+        System.setErr(null);
     }
     
     @After
@@ -60,7 +60,7 @@ public class MainTest {
         
         String[] args2 = {"1","2"};
         Main.main(args2);
-        assertEquals("Converting from 1 to 2\nERROR.\n"
+        assertEquals("ERROR.\n"
                         + "File note found " + args[0] + " and " + args[1] + ".\n"
                         + "Input should be of type : "
                         + "java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\" \"filenameout\"",
