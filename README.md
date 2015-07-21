@@ -7,7 +7,8 @@ API
 Notes: Constructor can be given a String or a File object.
        Also a stat tracker can be given as a second parameter for
        multiple files and if not given one is instantiated automatically.
-		MeiStatTracker stats = sampleMeiSequence.getStats();
+
+	MeiStatTracker stats = sampleMeiSequence.getStats();
 
 Commmand Line Interface
 =======================
