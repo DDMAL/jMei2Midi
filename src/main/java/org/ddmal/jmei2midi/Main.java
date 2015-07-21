@@ -9,6 +9,7 @@ import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import org.ddmal.midiUtilities.MidiIO;
@@ -21,44 +22,45 @@ import org.ddmal.midiUtilities.MidiIO;
 public class Main {
     
     private static final String jarName = "jMei2Midi-1.0-jar-with-dependencies.jar";
-    private static final String defaultInput = "mei-test/CompleteExamples/";
-    private static final String defaultOutput = "midi-test/CompleteExamples/";
     
     public static void main(String[] args) throws InvalidMidiDataException {
-        if(args.length == 0) {
-            System.out.println("Converting from " + defaultInput + " to " + defaultOutput);
-            readDirectory(defaultInput, defaultOutput);
-            System.out.println("Finished!");
-        }
-        else if(args.length == 1) {
-            try {
-                System.out.println("Converting from " + args[0]);
-                readWriteFile(args[0]);
-                System.out.println("Finished!");
-            }
-            catch(Exception ex) {
-                System.out.println("ERROR.\n"
-                        + "File note found " + args[0] + ".\n"
-                        + "Input should be of type : "
-                        + "java -jar " + jarName + " \"filenamein\"");
-            }
-        }
-        else if(args.length == 2) {
+        if(args.length == 2) {
             try {
                 System.out.println("Converting from " + args[0] + " to " + args[1]);
-                readDirectory(args[0], args[1]);
+                checkFileType(args);
                 System.out.println("Finished Successfully!");
             }
-            catch(Exception ex) {
-                System.out.println("ERROR.\n"
+            catch(InvalidMidiDataException | FileNotFoundException ex) {
+                System.err.println("ERROR.\n"
                         + "File note found " + args[0] + " and " + args[1] + ".\n"
                         + "Input should be of type : "
                         + "java -jar " + jarName + " \"filenamein\" \"filenameout\"");
             }
         }
         else {
-            System.out.println("Input should be of type : "
-                        + "java -jar " + jarName + " \"filenamein\" \"filenameout\"");
+            System.err.println("Input should be of type : "
+                  + "java -jar " + jarName + " \"filenamein\" \"filenameout\"");
+        }
+    }
+    
+    /**
+     * Check if the input is a file or a directory.
+     * @param args 
+     * @throws javax.sound.midi.InvalidMidiDataException 
+     * @throws java.io.FileNotFoundException 
+     */
+    public static void checkFileType(String[] args) 
+            throws InvalidMidiDataException, FileNotFoundException {
+        File args0 = new File(args[0]);
+        File args1 = new File(args[1]);
+        if(args0.isFile() && args1.isFile()) {
+            readWriteFile(args[0],args[1]);
+        }
+        else if(args0.isDirectory() && args1.isDirectory()) {
+            readDirectory(args[0], args[1]);
+        }
+        else {
+            throw new FileNotFoundException();
         }
     }
     
@@ -66,13 +68,15 @@ public class Main {
      * Reads mei file from fileNameIn and outputs to the appropriate
      * midi-test file in the same dir as the .rar.
      * @param fileNameIn
+     * @param fileNameOut
      * @throws InvalidMidiDataException 
      */
-    public static void readWriteFile(String fileNameIn) throws InvalidMidiDataException {
+    public static void readWriteFile(String fileNameIn, String fileNameOut) 
+            throws InvalidMidiDataException {
         MeiSequence test = new MeiSequence(fileNameIn);
         String[] fileNameArray = fileNameIn.split("/");
         String fileName = fileNameArray[fileNameArray.length - 1].replaceAll("mei", "midi");
-        MidiIO.write(test.getSequence(), fileName);
+        MidiIO.write(test.getSequence(), fileNameOut);
     }
     
     /**

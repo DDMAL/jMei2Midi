@@ -15,6 +15,7 @@ import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
@@ -55,17 +56,8 @@ public class MainTest {
         Main.main(args);
         assertEquals("Input should be of type : java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\" \"filenameout\"".trim()
                      ,outContent.toString().trim());
-        
         outContent.reset();
-        String[] args1 = {"1"};
-        Main.main(args1);
-        assertEquals("Converting from 1\nERROR.\n"
-                        + "File note found " + args[0] + ".\n"
-                        + "Input should be of type : "
-                        + "java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\"",
-                    outContent.toString().trim());
         
-        outContent.reset();
         String[] args2 = {"1","2"};
         Main.main(args2);
         assertEquals("Converting from 1 to 2\nERROR.\n"
@@ -86,7 +78,7 @@ public class MainTest {
     public void testReadWriteFile() throws InvalidMidiDataException {
         System.out.println("readWriteFile");
         String fileNameIn = "mei-test/CompleteExamples/Ives_TheCage.mei";
-        Main.readWriteFile(fileNameIn);
+        Main.readWriteFile(fileNameIn,"Ives_TheCage.midi");
         File ives = new File("Ives_TheCage.midi");
         assertTrue(ives.isFile());
         File file = new File("Ives_TheCage.midi");
