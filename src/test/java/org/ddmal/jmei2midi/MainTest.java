@@ -24,7 +24,7 @@ import org.junit.rules.TemporaryFolder;
  * @author Tristano
  */
 public class MainTest {
-    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
 
     @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
     
@@ -33,7 +33,7 @@ public class MainTest {
      */
     @Before
     public void setUpStreams() {
-        System.setErr(new PrintStream(outContent));
+        System.setErr(new PrintStream(errContent));
     }
     
     @After
@@ -55,8 +55,8 @@ public class MainTest {
         String[] args = {"1","2","3"};
         Main.main(args);
         assertEquals("Input should be of type : java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\" \"filenameout\"".trim()
-                     ,outContent.toString().trim());
-        outContent.reset();
+                     ,errContent.toString().trim());
+        errContent.reset();
         
         String[] args2 = {"1","2"};
         Main.main(args2);
@@ -64,7 +64,7 @@ public class MainTest {
                         + "File note found " + args[0] + " and " + args[1] + ".\n"
                         + "Input should be of type : "
                         + "java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\" \"filenameout\"",
-                    outContent.toString().trim());
+                    errContent.toString().trim());
         
         //Reset System.out to standard output
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
