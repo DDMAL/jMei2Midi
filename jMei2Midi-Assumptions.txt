@@ -12,12 +12,13 @@ ConvertToMidi.java
 
 LayerChild.java
 	getDurString()
-		- If no duration is found then note is given a 0 duration.
+		- If no duration is found in dur attribute then note is given a 0 duration.
 
 	- stats could be passed here to get stats on unknown note values
 
 MeiWork.java
 	MeiWork()
+		The following values are assumed if not given in the meta data work
 		- meter unit assumed to be 4
 		- meter count assumed to be 4
 		- key assumed to be c
@@ -26,6 +27,7 @@ MeiWork.java
 
 MeiStaff.java
 	MeiStaff()
+		The following values are assumed if not given in the scoreDef or staffDef
 		- meter unit assumed to be 4
 		- meter count assumed to be 4
 		- key assumed to be c
@@ -34,7 +36,8 @@ MeiStaff.java
 
 MeiStaffBuilder.java
 	processNewLabel()
-		- if no instrument is found, it uses work
-		- if we previously had an instrument use that
-		- if not label and previous instrument was piano, organ or harpsi then make it that
+		Precedence for where to fetch instrument information if non is given in label
+		- if no label is found and previous instrument was piano, organ or harpsi then use previous instrument
+		- if the above does not apply, use instrument from work info
+		- if the above does not apply but we previously had an instrument in this staff, then use that
 		- if non of the above apply and we have 2 voices, use piano, or else use voice

@@ -10,17 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * MeiStatTracker stores a List<String> of all files that
+ * MeiStatTracker stores a List(String) of all files that
  * have been processed together with HashMaps of
  * incorrectFiles, invalidInstrument and invalidTempos.
  * Each HashMap contains files as keys with the corresponding
- * incorrect List<String> as a value.
+ * incorrect List(String) as a value.
  * 
  * USAGE:
  * An MeiStatTracker should be instantiated before analyzing
  * a set of MEI files. It should then be passed through
  * the instantiation of an MeiSequence object.
- * Not passing a reference will result in a new ArrayList<String>
+ * Not passing a reference will result in a new ArrayList(String)
  * for the current file.
  * 
  * This class is used before the mei file parsing
@@ -60,7 +60,7 @@ public final class MeiStatTracker {
     /**
      * New MeiStatTracker which will keep track of invalid mei2midi inputs
      * such as invalid instruments and tempos. WITH FILENAME
-     * @param filename
+     * @param filename The name of the file passed to the stat tracker.
      */
     public MeiStatTracker(String filename) {
         allFiles = new ArrayList<>();
@@ -79,7 +79,7 @@ public final class MeiStatTracker {
     
     /**
      * Set new filename.
-     * @param filename 
+     * @param filename The name of the new file this stat tracker is seeing.
      */
     public void setFileName(String filename) {
         this.fileName = filename;
@@ -89,8 +89,8 @@ public final class MeiStatTracker {
     }
     
     /**
-     * A List<String> of all files that this object has seen.
-     * @return all filenames
+     * A List(String) of all files that this object has seen.
+     * @return allFiles A List(String) of all files this has seen.
      */
     public List<String> getAllFiles() {
         return allFiles;
@@ -98,7 +98,8 @@ public final class MeiStatTracker {
     
     /**
      * A HashMap of all incorrect files this object has seen.
-     * @return the incorrectFiles
+     * @return incorrectFiles A HashMap(String,List(String)) with key as filename
+     *                        and value as list of all incorrect elements in file.
      */
     public HashMap<String,List<String>> getIncorrectFiles() {
         return incorrectFiles;
@@ -108,7 +109,8 @@ public final class MeiStatTracker {
      * A HashMap of all invalid instruments this object has seen.
      * Each list of invalid instruments (value) corresponds to the
      * appropriate file (key).
-     * @return invalidInstruments
+     * @return invalidInstruments A HashMap(String,List(String)) with key as filename
+     *                        and value as list of all invalid instruments in file.
      */
     public HashMap<String,List<String>> getInvalidInstruments() {
         return invalidInstruments;
@@ -118,7 +120,8 @@ public final class MeiStatTracker {
      * A HashMap of all invalid tempos this object has seen.
      * Each list of invalid tempos (value) corresponds to the
      * appropriate file (key).
-     * @return invalidTempos 
+     * @return invalidTempos A HashMap(String,List(String)) with key as filename
+     *                        and value as list of all invalid tempos in file.
      */
     public HashMap<String,List<String>> getInvalidTempos() {
         return invalidTempos;
@@ -126,7 +129,7 @@ public final class MeiStatTracker {
     
     /**
      * Add invalid instrument for the current file.
-     * @param invalid 
+     * @param invalid Add an invalid instrument for the current file.
      */
     public void addInvalidInstrument(String invalid) {
         addStat("Instrument",invalid);
@@ -134,7 +137,7 @@ public final class MeiStatTracker {
     
     /**
      * Add invalid tempo for the current file.
-     * @param invalid 
+     * @param invalid Add an invalid tempo for the current file.
      */
     public void addInvalidTempo(String invalid) {
         addStat("Tempo", invalid);
@@ -143,13 +146,13 @@ public final class MeiStatTracker {
     /**
      * Add incorrect to each has as long as the incorrect file has
      * not already been added.
-     * @param incorrect
+     * @param incorrect Incorrect file name.
      */
     private void addIncorrectFile(String incorrect) {
         if(!incorrectFiles.containsKey(incorrect)) {
-            incorrectFiles.put(fileName, new ArrayList<String>());
-            invalidInstruments.put(fileName, new ArrayList<String>());
-            invalidTempos.put(fileName, new ArrayList<String>());
+            incorrectFiles.put(fileName, new ArrayList<>());
+            invalidInstruments.put(fileName, new ArrayList<>());
+            invalidTempos.put(fileName, new ArrayList<>());
         }
     }
     
@@ -157,8 +160,8 @@ public final class MeiStatTracker {
      * Add a generic stat given the stat type.
      * This will validate the stat and the file name
      * to make sure they are not iterating more than once.
-     * @param type
-     * @param stat 
+     * @param type Type of error.
+     * @param stat Stat to be added.
      */
     private void addStat(String type, String stat) {
         addIncorrectFile(this.getFileName());
@@ -177,8 +180,8 @@ public final class MeiStatTracker {
     /**
      * Add a specific stat and type to its appropriate hash.
      * This validates file existence from the call in addStat().
-     * @param type
-     * @param stat 
+     * @param type Type of error.
+     * @param stat Stat to be added.
      */
     private HashMap<String,List<String>> getStatHash(String type) {
         switch (type) {
@@ -191,6 +194,11 @@ public final class MeiStatTracker {
         }
     }
     
+    /**
+     * To String method.
+     * @return string A string which contains all invalid elements associated
+     *                with the appropriate file name.
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -28,6 +28,10 @@ public class MeiMeasure extends MeiGeneral {
     private HashMap<String,String> accidentals;
     private String oct;
     
+    /**
+     * Constructor given an MeiElement measure.
+     * @param measure MEI measure element to be passed.
+     */
     public MeiMeasure(MeiElement measure) {
         tupletSpansStart = new HashMap<>();
         tupletSpansEnd = new HashMap<>();
@@ -40,30 +44,68 @@ public class MeiMeasure extends MeiGeneral {
         getEndElements(measure);
     }
     
+    /**
+     * Get the start of id of the given element name (name
+     * specified in getHashMap()).
+     * @param elementName Element name as given in case statement from getHashMap().
+     * @param id ID that we want to get.
+     * @return the mei element at the given id if it exists
+     */
     public MeiElement getStart(String elementName, String id) {
         HashMap<String,MeiElement> temp = getHashMap("start",elementName);
         return temp.get(id.replaceAll("#", ""));
     }
      
+    /**
+     * Add a start id with start element to the specified element name (name
+     * specified in getHashMap()).
+     * @param elementName Name of the element being added.
+     * @param element Object element being added.
+     */
     public void setStart(String elementName, MeiElement element) {
         HashMap<String,MeiElement> temp = getHashMap("start", elementName);
         temp.put(element.getAttribute("startid"), element);
     }
     
+    /**
+     * Set the start of id of the given element name (name
+     * specified in getHashMap()).
+     * @param elementName Element name as given in case statement from getHashMap().
+     * @param id ID that we want to set.
+     * @return the mei element at the given id if it exists
+     */
     public MeiElement getEnd(String elementName, String id) {
         HashMap<String,MeiElement> temp = getHashMap("end",elementName);
         return temp.get(id.replaceAll("#", ""));
     }
      
+    /**
+     * Add an end id with end element to the specified element name (name
+     * specified in getHashMap()).
+     * @param elementName Name of the element wanted.
+     * @param element Object mei element being set.
+     */
     public void setEnd(String elementName, MeiElement element) {
         HashMap<String,MeiElement> temp = getHashMap("end", elementName);
         temp.put(element.getAttribute("endid"), element);
     }
     
+    /**
+     * Check to see if current measure has a specified type of element as given
+     * in the switch statement in getHashMap().
+     * @param mapName Name of element to be checked.
+     * @return true if element does currently exist.
+     */
     public boolean has(String mapName) {
         return getHashMap("start",mapName).size() > 0;
     }
     
+    /**
+     * Get HashMap of specified place and element name as given in switch statement.
+     * @param place
+     * @param elementName
+     * @return HashMap specified hashMap if it exists or else returns and empty HashMap.
+     */
     public HashMap<String,MeiElement> getHashMap(String place, String elementName) {
         HashMap<String,MeiElement> temp = new HashMap<>();
         if(elementName.equals("tupletSpan") &&
@@ -85,22 +127,44 @@ public class MeiMeasure extends MeiGeneral {
         return temp;
     }
     
+    /**
+     * Get num attribute of current tupletSpan.
+     * @return num Attribute of current tupletSpan.
+     */
     public int getNum() {
         return num;
     }
     
+    /**
+     * Set num attribute of current tupletSpan.
+     * @param num Set num of current tupletSpan.
+     */
     public void setNum(int num) {
         this.num = num;
     }
     
+    /**
+     * Get numbase attribute of current tupletSpan.
+     * @return numbase Attribute of current tupletSpan.
+     */
     public int getNumBase() {
         return numbase;
     }
     
+    /**
+     * Set numBase attribute of current tupletSpan.
+     * @param numBase Set num of current tupletSpan.
+     */
     public void setNumBase(int numBase) {
         this.numbase = numBase;
     }
     
+    /**
+     * Sets the appropriate accidental with accidental name in the accidentals
+     * hashmap.
+     * @param accidName Name of name that has accidental.
+     * @param accid Type of accidental, similar to MEI accid attribute.
+     */
     public void setAccidental(String accidName, String accid) {
         if(accid.equals("n") &&
            accidentals.containsKey(accidName)) {
@@ -112,18 +176,36 @@ public class MeiMeasure extends MeiGeneral {
         }
     }
     
+    /**
+     * Get accidental of given note name.
+     * @param accidName Note name of accidental being checked.
+     * @return Type of accidental for given note name.
+     */
     public String getAccidental(String accidName) {
         return accidentals.get(accidName);
     }
     
+    /**
+     * Check if the specified note has an accidental.
+     * @param accidName Note name of accidental being checked.
+     * @return Whether or not specified note name has accidental.
+     */
     public boolean hasAccidental(String accidName) {
         return accidentals.containsKey(accidName);
     }
     
+    /**
+     * Get the current octave that this measures accidentals are on.
+     * @return this measures current octave
+     */
     public String getOct() {
         return oct;
     }
     
+    /**
+     * Set the current octave that this measures accidentals are on.
+     * @param oct the octave that this measure's accidentals are on
+     */
     public void setOct(String oct) {
         this.oct = oct;
     }

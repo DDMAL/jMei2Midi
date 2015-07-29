@@ -8,33 +8,45 @@ package org.ddmal.jmei2midi;
 import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
+import ca.mcgill.music.ddmal.mei.MeiXmlReader.MeiXmlReadException;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.sound.midi.InvalidMidiDataException;
 import org.ddmal.midiUtilities.MidiIO;
 
 
 /**
- * 
+ * Command Line UI to convert either a file or a folder of MEI files to MIDI.
+ * A folder will be traversed and will convert any file
+ * ending with .mei into a .midi file.
+ * If a folder input is used, then a folder output must be used.
  * @author dinamix
  */
 public class Main {
     
+    //This is the automatic name of the jar build
     private static final String jarName = "jMei2Midi-1.0-jar-with-dependencies.jar";
     
-    public static void main(String[] args) throws InvalidMidiDataException {
+    /**
+     * Start Command line from here. 
+     */
+    public static void main(String[] args) {
+        List<String> errorLog = new ArrayList<>();
         if(args.length == 2) {
-            try {
-                System.out.println("Converting from " + args[0] + " to " + args[1]);
-                checkFileType(args);
+            System.out.println("Converting from " + args[0] + " to " + args[1]);
+            checkFileType(args,errorLog);
+            if(errorLog.isEmpty()) {
                 System.out.println("Finished Successfully!");
             }
-            catch(InvalidMidiDataException | FileNotFoundException ex) {
-                System.err.println("ERROR.\n"
-                        + "File note found " + args[0] + " and " + args[1] + ".\n"
-                        + "Input should be of type : "
-                        + "java -jar " + jarName + " \"filenamein\" \"filenameout\"");
+            else {
+                System.out.println(Arrays.toString(errorLog.<String>toArray()));
             }
         }
         else {
@@ -45,56 +57,77 @@ public class Main {
     
     /**
      * Check if the input is a file or a directory.
-     * @param args 
-     * @throws javax.sound.midi.InvalidMidiDataException 
-     * @throws java.io.FileNotFoundException 
+     * @param errorLog List(String) to log errors.
      */
-    public static void checkFileType(String[] args) 
-            throws InvalidMidiDataException, FileNotFoundException {
+    public static void checkFileType(String[] args, List<String> errorLog) {
         File args0 = new File(args[0]);
         File args1 = new File(args[1]);
-        if(args0.isFile() && args1.isFile()) {
-            readWriteFile(args[0],args[1]);
+        if(args0.isFile()) {
+            readWriteFile(args[0],args[1],errorLog);
         }
         else if(args0.isDirectory() && args1.isDirectory()) {
-            readDirectory(args[0], args[1]);
+            readDirectory(args[0], args[1],errorLog);
         }
         else {
-            throw new FileNotFoundException();
+            errorLog.add("Input should be of type : "
+                  + "java -jar " + jarName + " \"filenamein\" \"filenameout\"");
         }
     }
     
     /**
      * Reads mei file from fileNameIn and outputs to the appropriate
      * midi-test file in the same dir as the .rar.
-     * @param fileNameIn
-     * @param fileNameOut
-     * @throws InvalidMidiDataException 
+     * @param fileNameIn File name to be converted.
+     * @param fileNameOut File name converted to.
+     * @param errorLog List(String) to log errors.
      */
-    public static void readWriteFile(String fileNameIn, String fileNameOut) 
-            throws InvalidMidiDataException {
-        MeiSequence test = new MeiSequence(fileNameIn);
-        String[] fileNameArray = fileNameIn.split("/");
-        String fileName = fileNameArray[fileNameArray.length - 1].replaceAll("mei", "midi");
-        MidiIO.write(test.getSequence(), fileNameOut);
+    public static void readWriteFile(String fileNameIn, String fileNameOut, List<String> errorLog) {
+        MeiSequence test;
+        try {
+            test = new MeiSequence(fileNameIn);
+            String[] fileNameArray = fileNameIn.split("/");
+            String fileName = fileNameArray[fileNameArray.length - 1].replaceAll("mei", "midi");
+            MidiIO.write(test.getSequence(), fileNameOut);
+        }
+        catch(InvalidMidiDataException | MeiXmlReadException ex) {
+            errorLog.add("Error found in file : " + fileNameIn + ". Error Message : " + ex.getMessage());
+        }
     }
     
     /**
      * Reads all mei files from dirNameIn and recursively calls any sub-directories
      * and all files are put into the appropriate user-made midi-test files.
-     * @param dirNameIn
-     * @param dirNameOut
-     * @throws InvalidMidiDataException 
+     * @param dirNameIn Directory name to be converted.
+     * @param dirNameOut Directory to be converted to.
+     * @param errorLog List(String) to log errors.
      */
-    public static void readDirectory(String dirNameIn, String dirNameOut) throws InvalidMidiDataException {
-        File dirNameFile = new File(dirNameIn);
-        for(String filename : dirNameFile.list()) {
-            File file = new File(filename);
-            if(!filename.contains(".mei")) {
-               continue; //skip non mei files
-            }
+    public static void readDirectory(String dirNameIn, String dirNameOut, List<String> errorLog) {
+        List<Path> meiList;
+        try {
+            meiList = Files.walk(Paths.get(dirNameIn))
+                           .filter(name -> name.toString().endsWith(".mei"))
+                           .collect(Collectors.toList());
+        }
+        catch(IOException ioe) {
+            //Exception will only be thrown at the start of Paths.get()
+            errorLog.add("Error with starting file in : " + dirNameIn);
+            meiList = new ArrayList<>();
+        }
+        
+        for(Path meiPath : meiList) {
+            String filename = meiPath.getFileName().toString();
             System.out.println("Converting file " + filename);
-            MeiSequence mei = new MeiSequence(dirNameIn + filename);
+            
+            MeiSequence mei;
+            try {
+                mei = new MeiSequence(dirNameIn + filename);
+            }
+            catch(InvalidMidiDataException | MeiXmlReadException ex) {
+                errorLog.add("Error found in file : " + filename 
+                           + ". Error Message : " + ex.getMessage());
+                continue;
+            }
+            
             MidiIO.write(mei.getSequence(), dirNameOut + File.separator
                                             + filename.replace("mei", "midi"));
         }    

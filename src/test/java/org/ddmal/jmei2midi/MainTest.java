@@ -10,12 +10,13 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.sound.midi.InvalidMidiDataException;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
@@ -56,15 +57,6 @@ public class MainTest {
         Main.main(args);
         assertEquals("Input should be of type : java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\" \"filenameout\"".trim()
                      ,errContent.toString().trim());
-        errContent.reset();
-        
-        String[] args2 = {"1","2"};
-        Main.main(args2);
-        assertEquals("ERROR.\n"
-                        + "File note found " + args[0] + " and " + args[1] + ".\n"
-                        + "Input should be of type : "
-                        + "java -jar jMei2Midi-1.0-jar-with-dependencies.jar \"filenamein\" \"filenameout\"",
-                    errContent.toString().trim());
         
         //Reset System.out to standard output
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
@@ -78,7 +70,7 @@ public class MainTest {
     public void testReadWriteFile() throws InvalidMidiDataException {
         System.out.println("readWriteFile");
         String fileNameIn = "mei-test/CompleteExamples/Ives_TheCage.mei";
-        Main.readWriteFile(fileNameIn,"Ives_TheCage.midi");
+        Main.readWriteFile(fileNameIn,"Ives_TheCage.midi", new ArrayList<>());
         File ives = new File("Ives_TheCage.midi");
         assertTrue(ives.isFile());
         File file = new File("Ives_TheCage.midi");
@@ -98,15 +90,17 @@ public class MainTest {
         
         //Test Complete Examples
         String CEIn = "mei-test/CompleteExamples/";
-        Main.readDirectory(CEIn, tempDirName);
+        Main.readDirectory(CEIn, tempDirName, new ArrayList<>());
         
         //Get all mei files in CompleteExamples
         File dirFileNameIn = new File(CEIn);
         MusicFileFilter fileFilter = new MusicFileFilter();
         File[] fileArrayIn = dirFileNameIn.listFiles(fileFilter);
+        Arrays.sort(fileArrayIn);
         
         //Get all midi files in temp directory
         File[] fileArrayOut = tempDir.listFiles();
+        Arrays.sort(fileArrayOut); //this is in case things are not sorted
         
         assertEquals(fileArrayIn.length, fileArrayOut.length);
         for(int i = 0; i < fileArrayIn.length; i++) {
