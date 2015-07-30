@@ -12,21 +12,34 @@ import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
 
 /**
- *
- * @author dinamix
+ * A full measure rest which creates a silence for an entire measure
+ * by simply incrementing the tick count appropriately.
+ * @author Tristano Tenaglia
  */
 public class MeiMrest extends LayerChild {
+	
+    /**
+     * The mei rest element. 
+     */
     private final MeiElement rest;
+    
+    /**
+     * The start tick of this rest. 
+     */
     private final long startTick;
+    
+    /**
+     * The end tick of this rest. 
+     */
     private final long endTick;
     
     /**
      * Process a rest by only adding to the layer tick count of currentStaff
      * without actually creating any midi events.
-     * @param currentStaff
-     * @param currentMeasure
-     * @param sequence
-     * @param rest
+     * @param currentStaff the current MeiStaff being processed
+     * @param currentMeasure the current MeiMeasure being processed
+     * @param sequence the current MIDI sequence being added to
+     * @param rest the mei rest element being processed
      */
     public MeiMrest(MeiStaff currentStaff, MeiMeasure currentMeasure, Sequence sequence,
                    MeiElement rest) {
@@ -48,12 +61,11 @@ public class MeiMrest extends LayerChild {
      * be used to compute tuplet and dot values in the duration.
      * ASSUMPTION
      * This assumes that if not dur is given in element or chord
-     * then the note takes up a full measure.
-     * @param dur
+     * then the note has a duration of "0".
      * @return long tick value of dur string
      */
-    protected long getDurToTick() {
-        //CHECK IN HERE FOR TUPLETS FROM tupletSpan
+    public long getDurToTick() {
+        //COULD CHECK IN HERE FOR TUPLETS FROM tupletSpan
         //If in tuplet then use that or else check tupletSpan
         int num = currentMeasure.getNum();
         int numbase = currentMeasure.getNumBase();
@@ -69,7 +81,7 @@ public class MeiMrest extends LayerChild {
      * If no duration is found, then a dur = "0" is returned.
      * @return duration of rest in string form
      */
-    protected String getDurString() {
+    public String getDurString() {
         double count = Integer.parseInt(currentStaff.getMeterCount());
         double unit = Integer.parseInt(currentStaff.getMeterUnit());
         String dur = String.valueOf(unit / count);
@@ -81,10 +93,9 @@ public class MeiMrest extends LayerChild {
      * Fetches the appropriate dots for the given mei element depending
      * on if it's a chord or a note.
      * If no dots are found, then a dots = 0 value is returned.
-     * @param element
      * @return number of corresponding dots for element
      */
-    protected int getDots() {
+    public int getDots() {
         int dots = getAttributeToInt("dots", rest, 0);
         return dots;
     }   

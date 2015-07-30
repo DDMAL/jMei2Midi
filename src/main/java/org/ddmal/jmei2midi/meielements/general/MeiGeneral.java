@@ -11,7 +11,7 @@ import ca.mcgill.music.ddmal.mei.MeiElement;
  * Interface to incorporate general MEI elements.
  * These are the elements which effect general aspects of MEI parsing
  * and also those which directly affect the recursive XML stack.
- * @author dinamix
+ * @author Tristano Tenaglia
  */
 public abstract class MeiGeneral {
     

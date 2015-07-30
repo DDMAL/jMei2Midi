@@ -54,7 +54,7 @@ public class MeiRest extends LayerChild {
      * @param dur
      * @return long tick value of dur string
      */
-    protected long getDurToTick() {
+    public long getDurToTick() {
         //CHECK IN HERE FOR TUPLETS FROM tupletSpan
         //If in tuplet then use that or else check tupletSpan
         int num = currentMeasure.getNum();
@@ -71,7 +71,7 @@ public class MeiRest extends LayerChild {
      * If no duration is found, then a dur = "0" is returned.
      * @return duration of rest in string form
      */
-    protected String getDurString() {
+    public String getDurString() {
         String dur;
         //Else assume it is an entire measure
         //Could replace this with 
@@ -101,7 +101,7 @@ public class MeiRest extends LayerChild {
      * @param element
      * @return number of corresponding dots for element
      */
-    protected int getDots() {
+    public int getDots() {
         int dots = getAttributeToInt("dots", rest, 0);
         return dots;
     }

@@ -16,39 +16,49 @@ import java.util.List;
  * Each HashMap contains files as keys with the corresponding
  * incorrect List(String) as a value.
  * 
- * USAGE:
+ * <p>USAGE:<br>
  * An MeiStatTracker should be instantiated before analyzing
  * a set of MEI files. It should then be passed through
  * the instantiation of an MeiSequence object.
  * Not passing a reference will result in a new ArrayList(String)
- * for the current file.
+ * for the current file.</p>
  * 
- * This class is used before the mei file parsing
+ * <p>This class is used before the mei file parsing
  * and passed to the parse in order to keep track of any
  * invalid files and other strange occurences.
- * Processing happens within the running code and not in this class.
- * @author dinamix
+ * Processing happens within the running code and not in this class.</p>
+ * @author Tristano Tenaglia
  */
 public final class MeiStatTracker {
-    //Maintain current filename being parsed
+    /**
+     * Maintain current filename being parsed.
+     */
     private String fileName;
     
-    //Stores all file names regardless of if correct
+    /**
+     * Stores all file names regardless of if correct.
+     */
     private final List<String> allFiles;
     
-    //Stores the incorrect filename as key
-    //and incorrect file info as value
+    /**
+     * Stores the incorrect filename as key
+     * and incorrect file info as value.
+     */
     private final HashMap<String,List<String>> incorrectFiles;
     
-    //Stores invalid instruments related to incorrect files
+    /**
+     * Stores invalid instruments related to incorrect files.
+     */
     private final HashMap<String,List<String>> invalidInstruments;
     
-    //Stores invalid tempos related to incorrect files
+    /**
+     * Stores invalid tempos related to incorrect files.
+     */
     private final HashMap<String,List<String>> invalidTempos;
 
     /**
      * New MeiStatTracker which will keep track of invalid mei2midi inputs
-     * such as invalid instruments and tempos. DEFAULT
+     * such as invalid instruments and tempos.
      */
     public MeiStatTracker() {
         allFiles = new ArrayList<>();
@@ -71,14 +81,14 @@ public final class MeiStatTracker {
     }
     
     /**
-     * @return the current filename
+     * @return The current filename that this stat tracker is or has seen.
      */
     public String getFileName() {
         return fileName;
     }
     
     /**
-     * Set new filename.
+     * Set new filename for this stat tracker to see.
      * @param filename The name of the new file this stat tracker is seeing.
      */
     public void setFileName(String filename) {

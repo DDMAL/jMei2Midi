@@ -55,17 +55,17 @@ public class MeiTuplet extends LayerChild {
     }
     
     @Override
-    protected long getDurToTick() {
+    public long getDurToTick() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected String getDurString() {
+    public String getDurString() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected int getDots() {
+    public int getDots() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

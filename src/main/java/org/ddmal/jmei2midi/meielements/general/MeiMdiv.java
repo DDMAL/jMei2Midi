@@ -10,7 +10,7 @@ import ca.mcgill.music.ddmal.mei.MeiElement;
 /**
  * MEI Element specific to mdiv elements.
  * Can be used to keep track of current movements.
- * @author dinamix
+ * @author Tristano Tenaglia
  */
 public final class MeiMdiv extends MeiGeneral {
     private int currentMovement;
@@ -24,15 +24,15 @@ public final class MeiMdiv extends MeiGeneral {
     
     /**
      * Constructor used with specified mdiv MeiElement given.
-     * @param mdiv 
+     * @param mdiv mdiv element to get current movement number from.
      */
     public MeiMdiv(MeiElement mdiv) {
         setCurrentMovement(mdiv);
     }
     
     /**
-     * Get current movement
-     * @return current movement
+     * Get current movement.
+     * @return current movement.
      */
     public int getCurrentMovement() {
         return currentMovement;

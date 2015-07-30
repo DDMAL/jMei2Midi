@@ -9,6 +9,7 @@ import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader.MeiXmlReadException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.sound.midi.InvalidMidiDataException;
+
 import org.ddmal.midiUtilities.MidiIO;
 
 
@@ -27,11 +30,13 @@ import org.ddmal.midiUtilities.MidiIO;
  * A folder will be traversed and will convert any file
  * ending with .mei into a .midi file.
  * If a folder input is used, then a folder output must be used.
- * @author dinamix
+ * @author Tristano Tenaglia
  */
 public class Main {
     
-    //This is the automatic name of the jar build
+    /**
+     * This is the automatic name of the jar build
+     */
     private static final String jarName = "jMei2Midi-1.0-jar-with-dependencies.jar";
     
     /**
@@ -133,8 +138,11 @@ public class Main {
         }    
     }
     
-    //This is for testing purposes only to help find
-    //strange bugs in mei encoding
+    /**
+     * This is for testing purposes only to help find
+     * strange bugs in mei encoding.
+     * @param fileName Name of the file to test.
+     */
     private static void findBugs(String fileName) {
         MeiDocument doc = MeiXmlReader.loadFile(fileName);
         List<MeiElement> measures = doc.getElementsByName("measure");

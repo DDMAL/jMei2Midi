@@ -16,8 +16,10 @@ import org.ddmal.midiUtilities.ConvertToMidi;
 import org.ddmal.midiUtilities.MidiBuildMessage;
 
 /**
- *
- * @author dinamix
+ * Converts an MEI note into a MIDI note depending on its
+ * parent elements and other appropriate elements in the document.
+ * <p>These other elements currently include ties, chords and grace notes.</p>
+ * @author Tristano Tenaglia
  */
 public class MeiNote extends LayerChild {
     private final MeiElement note;
@@ -35,10 +37,10 @@ public class MeiNote extends LayerChild {
      * Also, for chords, ticks are added at the end of the chord so that
      * each note within the chord starts at the same time. This is done
      * in processChord().
-     * @param currentStaff
-     * @param currentMeasure
-     * @param sequence
-     * @param note to add
+     * @param currentStaff the current staff to be processed
+     * @param currentMeasure the current measure to be processed
+     * @param sequence the current sequence to be added to
+     * @param note the mei note element to be processed
      */
     public MeiNote(MeiStaff currentStaff, MeiMeasure currentMeasure, 
                    Sequence sequence, MeiElement note) {
@@ -265,7 +267,7 @@ public class MeiNote extends LayerChild {
      * @param dur
      * @return long tick value of dur string
      */
-    protected long getDurToTick() {
+    public long getDurToTick() {
         //CHECK IN HERE FOR TUPLETS FROM tupletSpan
         //If in tuplet then use that or else check tupletSpan
         int num = currentMeasure.getNum();
@@ -283,7 +285,7 @@ public class MeiNote extends LayerChild {
      * @param element
      * @return duration of element in string form
      */
-    protected String getDurString() {
+    public String getDurString() {
         String dur;
         //For notes and rests with dur attributes
         if(attributeExists(note.getAttribute("dur"))) {
@@ -309,7 +311,7 @@ public class MeiNote extends LayerChild {
      * If no dots are found, then a dots = 0 value is returned.
      * @return number of corresponding dots for note
      */
-    protected int getDots() {
+    public int getDots() {
         int dots;
         if(currentStaff.getLayerChild("chord") != null &&
            currentStaff.getLayerChild("chord").getAttribute("dots") != null) {

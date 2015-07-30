@@ -10,21 +10,30 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
- * @author dinamix
+ * Mei Measure data which currently keeps track of tupletSpans,
+ * ties and accidental information.
+ * Ultimately, tupletSpans and ties should be removed and placed
+ * in their own classes.
+ * @author Tristano Tenaglia
  */
 public class MeiMeasure extends MeiGeneral {
-    //Will be used to keep track of tupletSpans
+    /**
+     * Will be used to keep track of tupletSpans
+     */
     private HashMap<String,MeiElement> tupletSpansStart;
     private HashMap<String,MeiElement> tupletSpansEnd;
     private int num; //used for intermediate tuplet notes
     private int numbase;
     
-    //Will be used to keep track of tie elements ( not attributes )
+    /**
+     * Will be used to keep track of tie elements ( not attributes )
+     */
     private HashMap<String,MeiElement> tieStart;
     private HashMap<String,MeiElement> tieEnd;
     
-    //Keeps track of accidentals in a measure
+    /**
+//     * Keeps track of accidentals in a measure.
+     */
     private HashMap<String,String> accidentals;
     private String oct;
     
@@ -49,7 +58,7 @@ public class MeiMeasure extends MeiGeneral {
      * specified in getHashMap()).
      * @param elementName Element name as given in case statement from getHashMap().
      * @param id ID that we want to get.
-     * @return the mei element at the given id if it exists
+     * @return the mei element at the given id if it exists.
      */
     public MeiElement getStart(String elementName, String id) {
         HashMap<String,MeiElement> temp = getHashMap("start",elementName);
@@ -102,8 +111,8 @@ public class MeiMeasure extends MeiGeneral {
     
     /**
      * Get HashMap of specified place and element name as given in switch statement.
-     * @param place
-     * @param elementName
+     * @param place Either start or end ids of the element given by elementName.
+     * @param elementName Either tie or tupletSpan currently.
      * @return HashMap specified hashMap if it exists or else returns and empty HashMap.
      */
     public HashMap<String,MeiElement> getHashMap(String place, String elementName) {
