@@ -8,24 +8,32 @@ package org.ddmal.jmei2midi.meielements.staffinfo;
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.HashMap;
-import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
-import javax.sound.midi.Track;
 import org.ddmal.jmei2midi.MeiStatTracker;
-import org.ddmal.midiUtilities.ConvertToMidi;
-import org.ddmal.midiUtilities.ConvertToMidiWithStats;
-import org.ddmal.midiUtilities.MidiBuildMessage;
 
 /**
  * MeiScoreDef will appropriately update works and staffs to account for
- * any changes in the current scoreDef element and will build and appropriate
+ * any changes in the current scoreDef element and will build any appropriate
  * MeiWork and MeiStaff.
  * @author dinamix
  */
 public class MeiScoreDef extends MeiStaffBuilder {
-    
+    /**
+     * The mei scoreDef element to be processed.
+     */
     private final MeiElement scoreDef;
-
+    
+    /**
+     * Constructor will set the appropriate elements of an meiWork objects and then
+     * update any meiStaff objects accordingly.
+     * @param sequence
+     * @param stats
+     * @param staffs
+     * @param works
+     * @param currentMdiv
+     * @param currentStaff
+     * @param scoreDef 
+     */
     public MeiScoreDef(Sequence sequence,
                        MeiStatTracker stats,
                        HashMap<Integer, MeiStaff> staffs, 
@@ -89,9 +97,5 @@ public class MeiScoreDef extends MeiStaffBuilder {
                                   keymode);
             }
         }
-       
-        //@TODO
-        //At the end we need to create or change MIDI tracks
-        //@TODO
     }
 }

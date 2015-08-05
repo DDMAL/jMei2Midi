@@ -9,64 +9,59 @@ import java.util.EnumSet;
 import java.util.HashSet;
 
 /**
- * This enum contains all mei elements that are children 
- * of the mei element layer, which currently subclass the LayerChild class.
- * All elements that subclass the LayerChild class should
- * be added to this enum.
+ * This enum contains all mei elements that are children of the mei element
+ * layer, which currently subclass the LayerChild class. All elements that
+ * subclass the LayerChild class should be added to this enum.
+ *
  * @author Tristano Tenaglia
  */
 public enum LayerChildEnum {
-    
-	/**
-	 * MEI note element
-	 */
-    note, 
-    
+
     /**
-     * MEI rest element 
+     * MEI note element
      */
-    rest, 
-    
+    note,
     /**
-     * MEI mRest element (i.e. a full measure rest) 
+     * MEI rest element
      */
-    mRest, 
-    
+    rest,
+    /**
+     * MEI mRest element (i.e. a full measure rest)
+     */
+    mRest,
     /**
      * MEI space element
      */
-    space, 
-    
+    space,
     /**
-     * MEI mSpace element (i.e. a full measure space) 
+     * MEI mSpace element (i.e. a full measure space)
      */
-    mSpace, 
-    
+    mSpace,
     /**
-     * MEI chord element 
+     * MEI chord element
      */
-    chord, 
-    
+    chord,
     /**
-     * MEI tuplet element 
+     * MEI tuplet element
      */
     tuplet;
-    
+
     private static final HashSet<String> layerChildHashNames = new HashSet<>();
-    
+
     static {
-        for(LayerChildEnum value : EnumSet.allOf(LayerChildEnum.class)) {
+        for (LayerChildEnum value : EnumSet.allOf(LayerChildEnum.class)) {
             layerChildHashNames.add(value.name());
         }
     }
-    
+
     /**
      * Check to see if this enum contains the given name.
+     *
      * @param name Name to be checked
      * @return true if the given name is part of this enum
      */
     public static boolean contains(String name) {
         return layerChildHashNames.contains(name);
     }
-    
+
 }

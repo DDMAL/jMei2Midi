@@ -15,7 +15,7 @@ import org.ddmal.midiUtilities.ConvertToMidi;
  * MeiRest accounts for rest, mRest, space and mSpace.
  * Will increase the tick count of the appropriate staff without
  * changing anything else in terms of midi info.
- * @author dinamix
+ * @author Tristano Tenaglia
  */
 public class MeiRest extends LayerChild {
     private final MeiElement rest;
@@ -25,10 +25,10 @@ public class MeiRest extends LayerChild {
     /**
      * Process a rest by only adding to the layer tick count of currentStaff
      * without actually creating any midi events.
-     * @param currentStaff
-     * @param currentMeasure
-     * @param sequence
-     * @param rest
+     * @param currentStaff the current staff to be processed
+     * @param currentMeasure the current measure to be processed
+     * @param sequence the current sequence to be added to
+     * @param rest the mei rest element to be processed
      */
     public MeiRest(MeiStaff currentStaff, MeiMeasure currentMeasure, Sequence sequence,
                    MeiElement rest) {
@@ -51,7 +51,6 @@ public class MeiRest extends LayerChild {
      * ASSUMPTION
      * This assumes that if not dur is given in element or chord
      * then the note takes up a full measure.
-     * @param dur
      * @return long tick value of dur string
      */
     public long getDurToTick() {
@@ -98,7 +97,6 @@ public class MeiRest extends LayerChild {
      * Fetches the appropriate dots for the given mei element depending
      * on if it's a chord or a note.
      * If no dots are found, then a dots = 0 value is returned.
-     * @param element
      * @return number of corresponding dots for element
      */
     public int getDots() {

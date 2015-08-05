@@ -12,7 +12,10 @@ import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
 
 /**
- *
+ * Class to process the mei tuplet element. It fetches all the children of this
+ * tuplet element and then changes their time values accordingly.
+ * WARNING
+ * tupletSpan element is processed elsewhere, namely in the MeiMeasure class.
  * @author dinamix
  */
 public class MeiTuplet extends LayerChild {
@@ -22,11 +25,13 @@ public class MeiTuplet extends LayerChild {
      * Process a tuplet element by using the num and numbase attribute.
      * NOTE
      * If the current measure has a tuplet span and a tuplet for the same
-     * notes then the remainder will be calculated twice.
-     * @param currentStaff
-     * @param currentMeasure
-     * @param sequence
-     * @param tuplet 
+     * notes then the remainder will be calculated twice. This will be corrected
+     * at the end of each measure by the processeMeasure(MeiElement) function 
+     * in MeiSequence class.
+     * @param currentStaff the current staff to be processed
+     * @param currentMeasure the current measure to be processed
+     * @param sequence the current sequence to be added to
+     * @param tuplet the mei tuplet element to be processed 
      */
     public MeiTuplet(MeiStaff currentStaff, MeiMeasure currentMeasure, Sequence sequence,
                      MeiElement tuplet) {
@@ -55,16 +60,28 @@ public class MeiTuplet extends LayerChild {
     }
     
     @Override
+    /**
+     * UNSUPPORTED. WILL THROW UNSUPPORTEDOPERATIONEXCEPTION
+     * @return 
+     */
     public long getDurToTick() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
     @Override
+    /**
+     * UNSUPPORTED. WILL THROW UNSUPPORTEDOPERATIONEXCEPTION
+     * @return 
+     */
     public String getDurString() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
+    /**
+     * UNSUPPORTED. WILL THROW UNSUPPORTEDOPERATIONEXCEPTION
+     * @return 
+     */
     public int getDots() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

@@ -19,10 +19,6 @@ import org.ddmal.midiUtilities.ConvertToMidi;
  * and will set the tick count for each child appropriately.
  * @author Tristano Tenaglia
  */
-/**
- * @author dinamix
- *
- */
 public class MeiChord extends LayerChild {
     /**
      * This mei chord element.

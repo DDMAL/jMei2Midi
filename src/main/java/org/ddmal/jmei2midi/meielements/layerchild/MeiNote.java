@@ -68,11 +68,10 @@ public class MeiNote extends LayerChild {
      * Note check to see how the midi note should be processed depending on if
      * the note is within a chord or held by a tie.
      * ASSUMPTION
-     * This may need to be altered for tie attributes in chords if an examples
-     * is found.
-     * @param nPitch
-     * @param startTick
-     * @param endTick
+     * This may need to be altered for tie attributes in chords.
+     * @param nPitch the pitch of the current note begin processed
+     * @param startTick the start tick of the current note being processed
+     * @param endTick the end tick of the current note being processed+
      */
     private void checkNoteParents(int nPitch,
                                   long startTick,
@@ -136,13 +135,13 @@ public class MeiNote extends LayerChild {
         }
     }
 
-        /**
+    /**
      * Add the given midi note on event to the specified track.
      * This assumes that both a note-on and note-off even is required.
-     * @param thisTrack
-     * @param nPitch
-     * @param startTick
-     * @param endTick
+     * @param thisTrack the track to which this note on will be added
+     * @param nPitch the pitch of the note to be added to thisTrack
+     * @param startTick the start tick of the note to be added to thisTrack
+     * @param endTick the end tick of the note to be added to thisTrack
      */
     public void addMidiNoteOn(Track thisTrack,
                             int nPitch, 
@@ -161,10 +160,10 @@ public class MeiNote extends LayerChild {
     
     /**
      * Add the given midi note off event to the specified track.
-     * @param thisTrack
-     * @param nPitch
-     * @param startTick
-     * @param endTick
+     * @param thisTrack the track to which this note off will be added
+     * @param nPitch the pitch of the note to be added to thisTrack
+     * @param startTick the start tick of the note to be added to thisTrack
+     * @param endTick the end tick of the note to be added to thisTrack
      */
     public void addMidiNoteOff(Track thisTrack,
                             int nPitch, 
@@ -186,11 +185,11 @@ public class MeiNote extends LayerChild {
      * a given midi notes.
      * i will initialize the note and t will terminate the midi note.
      * if an m ( or other letter ) is found then nothing will be done
-     * @param thisTrack
-     * @param tie
-     * @param nPitch
-     * @param startTick
-     * @param endTick
+     * @param thisTrack the track to which this note will be added
+     * @param tie the type of tie given by mei tie attribute or element
+     * @param nPitch the pitch of the note to be added to thisTrack
+     * @param startTick the start tick of the note to be added to thisTrack
+     * @param endTick the end tick of the note to be added to thisTrack
      */
     public void addMidiTieNote(Track thisTrack,
                             String tie,
@@ -207,9 +206,8 @@ public class MeiNote extends LayerChild {
     
     /**
      * Convert the current mei element note to the appropriate midi
-     * integer pitch.
-     * @param note
-     * @return 
+     * integer pitch depending on the accidentals of the key and current measure.
+     * @return the appropriate midi integer value of the pitch
      */
     private int getMidiPitch() {
         //Attributes taken here to be processed here
@@ -239,7 +237,7 @@ public class MeiNote extends LayerChild {
     /**
      * Get appropriate accidental depending on if we have an accid
      * attribute or an accid child, else returns null.
-     * @return accid
+     * @return accid given as an mei letter from either accid attribute or element
      */
     private String getAccidental() {
         String accidAttr = note.getAttribute("accid");
@@ -264,7 +262,6 @@ public class MeiNote extends LayerChild {
      * ASSUMPTION
      * This assumes that if not dur is given in element or chord
      * then the note takes up a full measure.
-     * @param dur
      * @return long tick value of dur string
      */
     public long getDurToTick() {
@@ -282,7 +279,6 @@ public class MeiNote extends LayerChild {
      * Fetches the appropriate duration of a given Mei element depending on
      * whether it's a note, a chord or a rest/space.
      * If no duration is found, then a dur = "0" is returned.
-     * @param element
      * @return duration of element in string form
      */
     public String getDurString() {
