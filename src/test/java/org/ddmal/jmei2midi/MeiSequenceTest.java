@@ -6,19 +6,24 @@
 package org.ddmal.jmei2midi;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
+
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiWork;
 import org.ddmal.midiUtilities.ConvertToMidi;
-import org.ddmal.midiUtilities.MidiBuildMessage;
+import org.ddmal.midiUtilities.MidiBuildEvent;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.junit.Ignore;
 
 /**
@@ -50,13 +55,13 @@ public class MeiSequenceTest {
         Track[] actualtco = trebleclefout.getSequence().getTracks();
         Sequence sequence = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedtco = sequence.getTracks();
-        expectedtco[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedtco[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedtco[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedtco[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedtco[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedtco[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int note = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedtco[0].add(MidiBuildMessage.createNoteOnEvent(note, 0, 0));
-        expectedtco[0].add(MidiBuildMessage.createNoteOffEvent(note, 1024, 0));
+        expectedtco[0].add(MidiBuildEvent.createNoteOnEvent(note, 0, 0));
+        expectedtco[0].add(MidiBuildEvent.createNoteOffEvent(note, 1024, 0));
         expectedtco[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualtco.length; x++) {
             for(int i = 0; i < actualtco[x].size(); i++) {
@@ -124,7 +129,7 @@ public class MeiSequenceTest {
         MeiWork actualB4 = beethoven.getWorks().get(4);
         assertEquals(expectedB4, actualB4);
         
-        HashMap<Integer,MeiWork> actualWorkB = new HashMap<>();
+        Map<Integer,MeiWork> actualWorkB = new HashMap<>();
         actualWorkB.put(1, actualB);
         actualWorkB.put(2, actualB2);
         actualWorkB.put(3, actualB3);
@@ -162,7 +167,7 @@ public class MeiSequenceTest {
         //Test Vivaldi - switches scoreDef
         String filenameViv = "mei-test/CompleteExamples/Vivaldi_Op8_No.2.mei";
         MeiSequence viv = new MeiSequence(filenameViv);
-        HashMap<Integer,MeiWork> actualViv = viv.getWorks();
+        Map<Integer,MeiWork> actualViv = viv.getWorks();
         
         MeiWork expectedViv1 = new MeiWork(1, "g", "minor", "3", "8", "Allegro non molto");
         expectedViv1.addInstrVoice(1, "Violino Principale");
@@ -188,7 +193,7 @@ public class MeiSequenceTest {
         expectedViv3.addInstrVoice(5, "Organo e Violoncello");
         assertEquals(expectedViv3, actualViv.get(3));
         
-        HashMap<Integer,MeiWork> expectViv = new HashMap<>();
+        Map<Integer,MeiWork> expectViv = new HashMap<>();
         expectViv.put(1, expectedViv1);
         expectViv.put(2, expectedViv2);
         expectViv.put(3, expectedViv3);
@@ -311,7 +316,7 @@ public class MeiSequenceTest {
         catch(InvalidMidiDataException imde) {
             throw new InvalidMidiDataException("scoreDef MIDI error");
         }
-        HashMap<Integer,MeiStaff> expected = new HashMap<>();
+        Map<Integer,MeiStaff> expected = new HashMap<>();
         expected.put(1, new MeiStaff(1, "default", "Voice", "0", "major", "4", "4"));
         assertEquals(expected, trebleclefout.getStaffs());
         
@@ -328,7 +333,7 @@ public class MeiSequenceTest {
         catch(InvalidMidiDataException imde) {
             throw new InvalidMidiDataException("scoreDef MIDI error 2");
         }
-        HashMap<Integer,MeiStaff> expected2 = new HashMap<>();
+        Map<Integer,MeiStaff> expected2 = new HashMap<>();
         expected2.put(1, new MeiStaff(1, "Allegro.", "Violin I", "1f", "minor", "2", "4"));
         assertEquals(expected2.get(1), beethoven18.getStaffs().get(1));
         
@@ -345,7 +350,7 @@ public class MeiSequenceTest {
         catch(InvalidMidiDataException imde) {
             throw new InvalidMidiDataException("scoreDef MIDI error 2");
         }
-        HashMap<Integer,MeiStaff> expected3 = new HashMap<>();
+        Map<Integer,MeiStaff> expected3 = new HashMap<>();
         expected3.put(1, new MeiStaff(1, "Allegretto grazioso", "Tenor", "0", "major", "6", "8"));
         assertEquals(expected3.get(1), berlioz2.getStaffs().get(1));
     }
@@ -360,12 +365,12 @@ public class MeiSequenceTest {
         //Test 1 : Czerny (Organ w/ 3 staves)
         String czernyfile = "mei-test/CompleteExamples/Czerny_op603_6.mei";       
         MeiSequence czerny = new MeiSequence(czernyfile);
-        HashMap<Integer,MeiStaff> actualCz = czerny.getStaffs();
+        Map<Integer,MeiStaff> actualCz = czerny.getStaffs();
         for(MeiStaff staff : actualCz.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedCz = new HashMap<>();
+        Map<Integer,MeiStaff> expectedCz = new HashMap<>();
         expectedCz.put(1, new MeiStaff(1, "default", "Organ", "1f", "minor", "4", "4"));
         expectedCz.put(2, new MeiStaff(2, "default", "Organ", "1f", "minor", "4", "4"));
         expectedCz.put(3, new MeiStaff(3, "default", "Organ", "1f", "minor", "4", "4"));
@@ -374,12 +379,12 @@ public class MeiSequenceTest {
         //Test 2 : Grieg butterfly
         String griegfile = "mei-test/CompleteExamples/Grieg_op.43_butterfly.mei";
         MeiSequence grieg = new MeiSequence(griegfile);
-        HashMap<Integer,MeiStaff> actualGr = grieg.getStaffs();
+        Map<Integer,MeiStaff> actualGr = grieg.getStaffs();
         for(MeiStaff staff : actualGr.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedGr = new HashMap<>();
+        Map<Integer,MeiStaff> expectedGr = new HashMap<>();
         expectedGr.put(1, new MeiStaff(1, "Allegro grazioso", "Piano", "3s", "major", "4", "4"));
         expectedGr.put(2, new MeiStaff(2, "Allegro grazioso", "Piano", "3s", "major", "4", "4"));
         assertEquals(expectedGr, actualGr);
@@ -387,12 +392,12 @@ public class MeiSequenceTest {
         //Test : Brahms String quartet
         String filenameBrahms = "mei-test/CompleteExamples/Brahms_StringQuartet_Op51_No1.mei";
         MeiSequence brahmsS = new MeiSequence(filenameBrahms);
-        HashMap<Integer,MeiStaff> actualBS = brahmsS.getStaffs();
+        Map<Integer,MeiStaff> actualBS = brahmsS.getStaffs();
         for(MeiStaff staff : actualBS.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedBS = new HashMap<>();
+        Map<Integer,MeiStaff> expectedBS = new HashMap<>();
         expectedBS.put(1, new MeiStaff(1, "Poco Adagio.", "Violin I", "4f", "major", "3", "4"));
         expectedBS.put(2, new MeiStaff(2, "Poco Adagio.", "Violin II", "4f", "major", "3", "4"));
         expectedBS.put(3, new MeiStaff(3, "Poco Adagio.", "Viola", "4f", "major", "3", "4"));
@@ -404,12 +409,12 @@ public class MeiSequenceTest {
         //Test : Brahms Wie
         String filenameBrahmsW = "mei-test/CompleteExamples/Brahms_WieMelodienZiehtEsMir.mei";
         MeiSequence brahmsW = new MeiSequence(filenameBrahmsW);
-        HashMap<Integer,MeiStaff> actualBW = brahmsW.getStaffs();
+        Map<Integer,MeiStaff> actualBW = brahmsW.getStaffs();
         for(MeiStaff staff : actualBW.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedBW = new HashMap<>();
+        Map<Integer,MeiStaff> expectedBW = new HashMap<>();
         expectedBW.put(1, new MeiStaff(1, "default", "Voice", "3s", "major", "2", "2"));
         expectedBW.put(2, new MeiStaff(2, "default", "Piano", "3s", "major", "2", "2"));
         expectedBW.put(3, new MeiStaff(3, "default", "Piano", "3s", "major", "2", "2"));
@@ -418,12 +423,12 @@ public class MeiSequenceTest {
         //Test : Vivaldi
         String filenameViv = "mei-test/CompleteExamples/Vivaldi_Op8_No.2.mei";
         MeiSequence viv = new MeiSequence(filenameViv);
-        HashMap<Integer,MeiStaff> actualViv = viv.getStaffs();
+        Map<Integer,MeiStaff> actualViv = viv.getStaffs();
         for(MeiStaff staff : actualViv.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectViv = new HashMap<>();
+        Map<Integer,MeiStaff> expectViv = new HashMap<>();
         expectViv.put(1, new MeiStaff(1, "Presto", "Violino Principale", "2f", "minor", "3", "4"));
         expectViv.put(2, new MeiStaff(2, "Presto", "Violino Primo", "2f", "minor", "3", "4"));
         expectViv.put(3, new MeiStaff(3, "Presto", "Violino Secondo", "2f", "minor", "3", "4"));
@@ -434,12 +439,12 @@ public class MeiSequenceTest {
         //Test : JSB
         String filenameJSB = "mei-test/CompleteExamples/JSB_BWV1047_2.mei";
         MeiSequence JSB = new MeiSequence(filenameJSB);
-        HashMap<Integer,MeiStaff> actualJSB = JSB.getStaffs();
+        Map<Integer,MeiStaff> actualJSB = JSB.getStaffs();
         for(MeiStaff staff : actualJSB.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectJSB = new HashMap<>();
+        Map<Integer,MeiStaff> expectJSB = new HashMap<>();
         expectJSB.put(1, new MeiStaff(1, "Andante", "Flute", "1f", "major", "3", "4"));
         expectJSB.put(2, new MeiStaff(2, "Andante", "Oboe", "1f", "major", "3", "4"));
         expectJSB.put(3, new MeiStaff(3, "Andante", "Violin", "1f", "major", "3", "4"));
@@ -449,12 +454,12 @@ public class MeiSequenceTest {
         //Test : Hummel - switch scoreDef
         String filenameHum = "mei-test/CompleteExamples/Hummel_op.67_No.11.mei";
         MeiSequence Hum = new MeiSequence(filenameHum);
-        HashMap<Integer,MeiStaff> actualHum = Hum.getStaffs();
+        Map<Integer,MeiStaff> actualHum = Hum.getStaffs();
         for(MeiStaff staff : actualHum.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedHum = new HashMap<>();
+        Map<Integer,MeiStaff> expectedHum = new HashMap<>();
         expectedHum.put(1, new MeiStaff(1, "Allegro", "Piano", "5s", "major", "9", "4"));
         expectedHum.put(2, new MeiStaff(2, "Allegro", "Piano", "5s", "major", "9", "4"));
         assertEquals(expectedHum, actualHum);
@@ -462,12 +467,12 @@ public class MeiSequenceTest {
         //Test Joplin Elite - switch scoreDef key.sig
         String filenameJop = "mei-test/CompleteExamples/Joplin_Elite_Syncopations.mei";  
         MeiSequence Jop = new MeiSequence(filenameJop);
-        HashMap<Integer,MeiStaff> actualJop = Jop.getStaffs();
+        Map<Integer,MeiStaff> actualJop = Jop.getStaffs();
         for(MeiStaff staff : actualJop.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedJop = new HashMap<>();
+        Map<Integer,MeiStaff> expectedJop = new HashMap<>();
         expectedJop.put(1, new MeiStaff(1, "Not fast", "Piano", "2f", "major", "2", "4"));
         expectedJop.put(2, new MeiStaff(2, "Not fast", "Piano", "2f", "major", "2", "4"));
         assertEquals(expectedJop, actualJop);
@@ -475,12 +480,12 @@ public class MeiSequenceTest {
         //Test Debussy Mandolin
         String filenameDeb = "mei-test/CompleteExamples/Debussy_Mandoline.mei";  
         MeiSequence Deb = new MeiSequence(filenameDeb);
-        HashMap<Integer,MeiStaff> actualDeb = Deb.getStaffs();
+        Map<Integer,MeiStaff> actualDeb = Deb.getStaffs();
         for(MeiStaff staff : actualDeb.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedDeb = new HashMap<>();
+        Map<Integer,MeiStaff> expectedDeb = new HashMap<>();
         //Voice good because label is chant and so since chant is not valid
         //we take voice in meihead as the instrument instead
         expectedDeb.put(1, new MeiStaff(1, "Allegretto vivace", "Voice", "0", "major", "6", "8"));
@@ -492,12 +497,12 @@ public class MeiSequenceTest {
         //Test Chopin Etude
         String filenameChopin = "mei-test/CompleteExamples/Chopin_Etude_op.10_no.9_2013.mei";  
         MeiSequence Chopin = new MeiSequence(filenameChopin);
-        HashMap<Integer,MeiStaff> actualChopin = Chopin.getStaffs();
+        Map<Integer,MeiStaff> actualChopin = Chopin.getStaffs();
         for(MeiStaff staff : actualChopin.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedChopin = new HashMap<>();
+        Map<Integer,MeiStaff> expectedChopin = new HashMap<>();
         expectedChopin.put(1, new MeiStaff(1, "Allegro molto agitato", "Piano", "4f", "minor", "6", "8"));
         expectedChopin.put(2, new MeiStaff(2, "Allegro molto agitato", "Piano", "4f", "minor", "6", "8"));
         assertEquals(expectedChopin, actualChopin);
@@ -505,12 +510,12 @@ public class MeiSequenceTest {
         //Test Gluck
         String filenameGluck = "mei-test/CompleteExamples/Gluck_CheFaroSenzaEuridice.mei";  
         MeiSequence Gluck = new MeiSequence(filenameGluck);
-        HashMap<Integer,MeiStaff> actualGluck = Gluck.getStaffs();
+        Map<Integer,MeiStaff> actualGluck = Gluck.getStaffs();
         for(MeiStaff staff : actualGluck.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedGluck = new HashMap<>();
+        Map<Integer,MeiStaff> expectedGluck = new HashMap<>();
         expectedGluck.put(1, new MeiStaff(1, "Andante con moto", "Soprano", "0", "major", "4", "4"));
         expectedGluck.put(2, new MeiStaff(2, "Andante con moto", "Violin I", "0", "major", "4", "4"));
         expectedGluck.put(3, new MeiStaff(3, "Andante con moto", "Violin II", "0", "major", "4", "4"));
@@ -523,12 +528,12 @@ public class MeiSequenceTest {
         //Test Beethoven Hymn to joe
         String filenameBHJ = "mei-test/CompleteExamples/Beethoven_Hymn_to_joy.mei";
         MeiSequence BHJ = new MeiSequence(filenameBHJ);
-        HashMap<Integer,MeiStaff> actualBHJ = BHJ.getStaffs();
+        Map<Integer,MeiStaff> actualBHJ = BHJ.getStaffs();
         for(MeiStaff staff : actualBHJ.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedBHJ = new HashMap<>();
+        Map<Integer,MeiStaff> expectedBHJ = new HashMap<>();
         expectedBHJ.put(1, new MeiStaff(1, "Allegro assai", "Soprano", "2s", "major", "4", "4"));
         expectedBHJ.put(2, new MeiStaff(2, "Allegro assai", "Alto", "2s", "major", "4", "4"));
         expectedBHJ.put(3, new MeiStaff(3, "Allegro assai", "Tenor", "2s", "major", "4", "4"));
@@ -558,24 +563,24 @@ public class MeiSequenceTest {
         //Test McFerrin
         String filenameMcFerrin = "mei-test/CompleteExamples/McFerrin_Don't_worry.mei";
         MeiSequence McFerrin = new MeiSequence(filenameMcFerrin);
-        HashMap<Integer,MeiStaff> actualMcFerrin = McFerrin.getStaffs();
+        Map<Integer,MeiStaff> actualMcFerrin = McFerrin.getStaffs();
         for(MeiStaff staff : actualMcFerrin.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedMcFerrin = new HashMap<>();
+        Map<Integer,MeiStaff> expectedMcFerrin = new HashMap<>();
         expectedMcFerrin.put(1, new MeiStaff(1, "undefined", "Voice", "0", "major", "4", "4"));
         assertEquals(expectedMcFerrin, actualMcFerrin);
         
         //Test Telemann
         String filenameTelemann = "mei-test/CompleteExamples/Telemann_Concert.mei";
         MeiSequence Telemann = new MeiSequence(filenameTelemann);
-        HashMap<Integer,MeiStaff> actualTelemann = Telemann.getStaffs();
+        Map<Integer,MeiStaff> actualTelemann = Telemann.getStaffs();
         for(MeiStaff staff : actualTelemann.values()) {
                 staff.setTick(0);
                 staff.setTickLayer(0);
         }
-        HashMap<Integer,MeiStaff> expectedTelemann = new HashMap<>();
+        Map<Integer,MeiStaff> expectedTelemann = new HashMap<>();
         expectedTelemann.put(1, new MeiStaff(1, "Adagio", "Trumpet in C 1", "2s", "major", "6", "8"));
         expectedTelemann.put(2, new MeiStaff(2, "Adagio", "Trumpet in C 2", "2s", "major", "6", "8"));
         expectedTelemann.put(3, new MeiStaff(3, "Adagio", "Trumpet in C 3", "2s", "major", "6", "8"));
@@ -607,7 +612,7 @@ public class MeiSequenceTest {
         }
         MeiStaff actual = trebleclefout.getStaffs().get(1);
         MeiStaff expected = new MeiStaff(1, "default", "Voice", "0", "major", "4", "4");
-        HashMap<Integer,MeiStaff> expectedMap = new HashMap<>();
+        Map<Integer,MeiStaff> expectedMap = new HashMap<>();
         expectedMap.put(1, expected);
         assertEquals(expected,actual);
         assertEquals(expectedMap, trebleclefout.getStaffs());
@@ -631,9 +636,9 @@ public class MeiSequenceTest {
         Sequence sequence = new Sequence(Sequence.PPQ, 256);
         sequence.createTrack();
         Track[] expectedtco = sequence.getTracks();
-        expectedtco[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedtco[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedtco[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedtco[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedtco[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedtco[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedtco[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualtco.length; x++) {
             for(int i = 0; i < actualtco[x].size(); i++) {
@@ -656,17 +661,17 @@ public class MeiSequenceTest {
         Track[] actualCzerny = Czerny.getSequence().getTracks();
         Sequence sequenceCzerny = new Sequence(Sequence.PPQ, 256,3);
         Track[] expectedCzerny = sequenceCzerny.getTracks();
-        expectedCzerny[0].add(MidiBuildMessage.createKeySignature("1f", "minor", 0));
-        expectedCzerny[0].add(MidiBuildMessage.createProgramChange(19, 0, 0));
-        expectedCzerny[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedCzerny[0].add(MidiBuildEvent.createKeySignature("1f", "minor", 0));
+        expectedCzerny[0].add(MidiBuildEvent.createProgramChange(19, 0, 0));
+        expectedCzerny[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedCzerny[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedCzerny[1].add(MidiBuildMessage.createKeySignature("1f", "minor", 0));
-        expectedCzerny[1].add(MidiBuildMessage.createProgramChange(19, 0, 1));
-        expectedCzerny[1].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedCzerny[1].add(MidiBuildEvent.createKeySignature("1f", "minor", 0));
+        expectedCzerny[1].add(MidiBuildEvent.createProgramChange(19, 0, 1));
+        expectedCzerny[1].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedCzerny[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedCzerny[2].add(MidiBuildMessage.createKeySignature("1f", "minor", 0));
-        expectedCzerny[2].add(MidiBuildMessage.createProgramChange(19, 0, 2));
-        expectedCzerny[2].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedCzerny[2].add(MidiBuildEvent.createKeySignature("1f", "minor", 0));
+        expectedCzerny[2].add(MidiBuildEvent.createProgramChange(19, 0, 2));
+        expectedCzerny[2].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedCzerny[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualCzerny.length; x++) {
             for(int i = 0; i < actualCzerny[x].size(); i++) {
@@ -689,13 +694,13 @@ public class MeiSequenceTest {
         Track[] actualChopin = Chopin.getSequence().getTracks();
         Sequence sequenceChopin = new Sequence(Sequence.PPQ, 256,2);
         Track[] expectedChopin = sequenceChopin.getTracks();
-        expectedChopin[0].add(MidiBuildMessage.createKeySignature("4f", "minor", 0));
-        expectedChopin[0].add(MidiBuildMessage.createProgramChange(0, 0, 0));
-        expectedChopin[0].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedChopin[0].add(MidiBuildEvent.createKeySignature("4f", "minor", 0));
+        expectedChopin[0].add(MidiBuildEvent.createProgramChange(0, 0, 0));
+        expectedChopin[0].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedChopin[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedChopin[1].add(MidiBuildMessage.createKeySignature("4f", "minor", 0));
-        expectedChopin[1].add(MidiBuildMessage.createProgramChange(0, 0, 1));
-        expectedChopin[1].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedChopin[1].add(MidiBuildEvent.createKeySignature("4f", "minor", 0));
+        expectedChopin[1].add(MidiBuildEvent.createProgramChange(0, 0, 1));
+        expectedChopin[1].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedChopin[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualChopin.length; x++) {
             for(int i = 0; i < actualChopin[x].size(); i++) {
@@ -719,21 +724,21 @@ public class MeiSequenceTest {
         assertEquals(2, actualJoplin.length);
         Sequence sequenceJoplin = new Sequence(Sequence.PPQ, 256,2);
         Track[] expectedJoplin = sequenceJoplin.getTracks();
-        expectedJoplin[0].add(MidiBuildMessage.createKeySignature("1f", "major", 0));
-        expectedJoplin[0].add(MidiBuildMessage.createProgramChange(0, 0, 0));
-        expectedJoplin[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedJoplin[0].add(MidiBuildEvent.createKeySignature("1f", "major", 0));
+        expectedJoplin[0].add(MidiBuildEvent.createProgramChange(0, 0, 0));
+        expectedJoplin[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedJoplin[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedJoplin[1].add(MidiBuildMessage.createKeySignature("1f", "major", 0));
-        expectedJoplin[1].add(MidiBuildMessage.createProgramChange(0, 0, 1));
-        expectedJoplin[1].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedJoplin[1].add(MidiBuildEvent.createKeySignature("1f", "major", 0));
+        expectedJoplin[1].add(MidiBuildEvent.createProgramChange(0, 0, 1));
+        expectedJoplin[1].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedJoplin[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedJoplin[0].add(MidiBuildMessage.createKeySignature("2f", "major", 0));
-        expectedJoplin[0].add(MidiBuildMessage.createProgramChange(0, 0, 0));
-        expectedJoplin[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedJoplin[0].add(MidiBuildEvent.createKeySignature("2f", "major", 0));
+        expectedJoplin[0].add(MidiBuildEvent.createProgramChange(0, 0, 0));
+        expectedJoplin[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedJoplin[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedJoplin[1].add(MidiBuildMessage.createKeySignature("2f", "major", 0));
-        expectedJoplin[1].add(MidiBuildMessage.createProgramChange(0, 0, 1));
-        expectedJoplin[1].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedJoplin[1].add(MidiBuildEvent.createKeySignature("2f", "major", 0));
+        expectedJoplin[1].add(MidiBuildEvent.createProgramChange(0, 0, 1));
+        expectedJoplin[1].add(MidiBuildEvent.createTrackTempo(90, 0));
         expectedJoplin[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualJoplin.length; x++) {
             for(int i = 0; i < actualJoplin[x].size(); i++) {
@@ -777,21 +782,21 @@ public class MeiSequenceTest {
         assertEquals(4, actualJSB.length);
         Sequence sequenceJSB = new Sequence(Sequence.PPQ, 256,4);
         Track[] expectedJSB = sequenceJSB.getTracks();
-        expectedJSB[0].add(MidiBuildMessage.createKeySignature("1f", "major", 0));
-        expectedJSB[0].add(MidiBuildMessage.createProgramChange(73, 0, 0));
-        expectedJSB[0].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedJSB[0].add(MidiBuildEvent.createKeySignature("1f", "major", 0));
+        expectedJSB[0].add(MidiBuildEvent.createProgramChange(73, 0, 0));
+        expectedJSB[0].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedJSB[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedJSB[1].add(MidiBuildMessage.createKeySignature("1f", "major", 0));
-        expectedJSB[1].add(MidiBuildMessage.createProgramChange(68, 0, 1));
-        expectedJSB[1].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedJSB[1].add(MidiBuildEvent.createKeySignature("1f", "major", 0));
+        expectedJSB[1].add(MidiBuildEvent.createProgramChange(68, 0, 1));
+        expectedJSB[1].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedJSB[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedJSB[2].add(MidiBuildMessage.createKeySignature("1f", "major", 0));
-        expectedJSB[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
-        expectedJSB[2].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedJSB[2].add(MidiBuildEvent.createKeySignature("1f", "major", 0));
+        expectedJSB[2].add(MidiBuildEvent.createProgramChange(40, 0, 2));
+        expectedJSB[2].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedJSB[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
-        expectedJSB[3].add(MidiBuildMessage.createKeySignature("1f", "major", 0));
-        expectedJSB[3].add(MidiBuildMessage.createProgramChange(42, 0, 3));
-        expectedJSB[3].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedJSB[3].add(MidiBuildEvent.createKeySignature("1f", "major", 0));
+        expectedJSB[3].add(MidiBuildEvent.createProgramChange(42, 0, 3));
+        expectedJSB[3].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedJSB[3].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualJSB.length; x++) {
             for(int i = 0; i < actualJSB[x].size(); i++) {
@@ -815,119 +820,119 @@ public class MeiSequenceTest {
         Track[] actualViv = Viv.getSequence().getTracks();
         Sequence sequenceViv = new Sequence(Sequence.PPQ, 256,5);
         Track[] expectedViv = sequenceViv.getTracks();
-        expectedViv[0].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[0].add(MidiBuildMessage.createProgramChange(40, 0, 0));
-        expectedViv[0].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[0].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[0].add(MidiBuildEvent.createProgramChange(40, 0, 0));
+        expectedViv[0].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[0].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[0].add(MidiBuildMessage.createProgramChange(40, 0, 0));
-        expectedViv[0].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[0].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[0].add(MidiBuildEvent.createProgramChange(40, 0, 0));
+        expectedViv[0].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[0].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[0].add(MidiBuildMessage.createProgramChange(40, 0, 0));
-        expectedViv[0].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[0].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[0].add(MidiBuildEvent.createProgramChange(40, 0, 0));
+        expectedViv[0].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[0].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[0].add(MidiBuildMessage.createProgramChange(40, 0, 0));
-        expectedViv[0].add(MidiBuildMessage.createTrackTempo(71, 0));
+        expectedViv[0].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[0].add(MidiBuildEvent.createProgramChange(40, 0, 0));
+        expectedViv[0].add(MidiBuildEvent.createTrackTempo(71, 0));
         
-        expectedViv[0].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[0].add(MidiBuildMessage.createProgramChange(40, 0, 0));
-        expectedViv[0].add(MidiBuildMessage.createTrackTempo(184, 0));
+        expectedViv[0].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[0].add(MidiBuildEvent.createProgramChange(40, 0, 0));
+        expectedViv[0].add(MidiBuildEvent.createTrackTempo(184, 0));
         expectedViv[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedViv[1].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[1].add(MidiBuildMessage.createProgramChange(40, 0, 1));
-        expectedViv[1].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[1].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[1].add(MidiBuildEvent.createProgramChange(40, 0, 1));
+        expectedViv[1].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[1].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[1].add(MidiBuildMessage.createProgramChange(40, 0, 1));
-        expectedViv[1].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[1].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[1].add(MidiBuildEvent.createProgramChange(40, 0, 1));
+        expectedViv[1].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[1].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[1].add(MidiBuildMessage.createProgramChange(40, 0, 1));
-        expectedViv[1].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[1].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[1].add(MidiBuildEvent.createProgramChange(40, 0, 1));
+        expectedViv[1].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[1].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[1].add(MidiBuildMessage.createProgramChange(40, 0, 1));
-        expectedViv[1].add(MidiBuildMessage.createTrackTempo(71, 0));
+        expectedViv[1].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[1].add(MidiBuildEvent.createProgramChange(40, 0, 1));
+        expectedViv[1].add(MidiBuildEvent.createTrackTempo(71, 0));
         
-        expectedViv[1].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[1].add(MidiBuildMessage.createProgramChange(40, 0, 1));
-        expectedViv[1].add(MidiBuildMessage.createTrackTempo(184, 0));
+        expectedViv[1].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[1].add(MidiBuildEvent.createProgramChange(40, 0, 1));
+        expectedViv[1].add(MidiBuildEvent.createTrackTempo(184, 0));
         expectedViv[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedViv[2].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
-        expectedViv[2].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[2].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[2].add(MidiBuildEvent.createProgramChange(40, 0, 2));
+        expectedViv[2].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[2].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
-        expectedViv[2].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[2].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[2].add(MidiBuildEvent.createProgramChange(40, 0, 2));
+        expectedViv[2].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[2].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
-        expectedViv[2].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[2].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[2].add(MidiBuildEvent.createProgramChange(40, 0, 2));
+        expectedViv[2].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[2].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
-        expectedViv[2].add(MidiBuildMessage.createTrackTempo(71, 0));
+        expectedViv[2].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[2].add(MidiBuildEvent.createProgramChange(40, 0, 2));
+        expectedViv[2].add(MidiBuildEvent.createTrackTempo(71, 0));
         
-        expectedViv[2].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
-        expectedViv[2].add(MidiBuildMessage.createTrackTempo(184, 0));
+        expectedViv[2].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[2].add(MidiBuildEvent.createProgramChange(40, 0, 2));
+        expectedViv[2].add(MidiBuildEvent.createTrackTempo(184, 0));
         expectedViv[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedViv[3].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[3].add(MidiBuildMessage.createProgramChange(41, 0, 3));
-        expectedViv[3].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[3].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[3].add(MidiBuildEvent.createProgramChange(41, 0, 3));
+        expectedViv[3].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[3].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[3].add(MidiBuildMessage.createProgramChange(41, 0, 3));
-        expectedViv[3].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[3].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[3].add(MidiBuildEvent.createProgramChange(41, 0, 3));
+        expectedViv[3].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[3].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[3].add(MidiBuildMessage.createProgramChange(41, 0, 3));
-        expectedViv[3].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[3].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[3].add(MidiBuildEvent.createProgramChange(41, 0, 3));
+        expectedViv[3].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[3].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[3].add(MidiBuildMessage.createProgramChange(41, 0, 3));
-        expectedViv[3].add(MidiBuildMessage.createTrackTempo(71, 0));
+        expectedViv[3].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[3].add(MidiBuildEvent.createProgramChange(41, 0, 3));
+        expectedViv[3].add(MidiBuildEvent.createTrackTempo(71, 0));
         
-        expectedViv[3].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[3].add(MidiBuildMessage.createProgramChange(41, 0, 3));
-        expectedViv[3].add(MidiBuildMessage.createTrackTempo(184, 0));
+        expectedViv[3].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[3].add(MidiBuildEvent.createProgramChange(41, 0, 3));
+        expectedViv[3].add(MidiBuildEvent.createTrackTempo(184, 0));
         expectedViv[3].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
-        expectedViv[4].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[4].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[4].add(MidiBuildEvent.createProgramChange(42, 0, 4));
+        expectedViv[4].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
-        expectedViv[4].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[4].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[4].add(MidiBuildEvent.createProgramChange(42, 0, 4));
+        expectedViv[4].add(MidiBuildEvent.createTrackTempo(144, 0));
         
-        expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
-        expectedViv[4].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedViv[4].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[4].add(MidiBuildEvent.createProgramChange(42, 0, 4));
+        expectedViv[4].add(MidiBuildEvent.createTrackTempo(144, 0));
         
         //Doubles occur here because of violencello and so code does not think
         //that it is the same. Could try with contain maybe
-        expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
-        expectedViv[4].add(MidiBuildMessage.createTrackTempo(71, 0));
+        expectedViv[4].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[4].add(MidiBuildEvent.createProgramChange(42, 0, 4));
+        expectedViv[4].add(MidiBuildEvent.createTrackTempo(71, 0));
         
-        expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
-        expectedViv[4].add(MidiBuildMessage.createTrackTempo(71, 0));
+        expectedViv[4].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[4].add(MidiBuildEvent.createProgramChange(42, 0, 4));
+        expectedViv[4].add(MidiBuildEvent.createTrackTempo(71, 0));
         
-        expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
-        expectedViv[4].add(MidiBuildMessage.createTrackTempo(184, 0));
+        expectedViv[4].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[4].add(MidiBuildEvent.createProgramChange(42, 0, 4));
+        expectedViv[4].add(MidiBuildEvent.createTrackTempo(184, 0));
         
-        expectedViv[4].add(MidiBuildMessage.createKeySignature("2f", "minor", 0));
-        expectedViv[4].add(MidiBuildMessage.createProgramChange(42, 0, 4));
-        expectedViv[4].add(MidiBuildMessage.createTrackTempo(184, 0));
+        expectedViv[4].add(MidiBuildEvent.createKeySignature("2f", "minor", 0));
+        expectedViv[4].add(MidiBuildEvent.createProgramChange(42, 0, 4));
+        expectedViv[4].add(MidiBuildEvent.createTrackTempo(184, 0));
         expectedViv[4].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < expectedViv.length; x++) {
             for(int i = 0; i < expectedViv[x].size(); i++) {
@@ -950,39 +955,39 @@ public class MeiSequenceTest {
         Track[] actualGluck = Gluck.getSequence().getTracks();
         Sequence sequenceGluck = new Sequence(Sequence.PPQ, 256,7);
         Track[] expectedGluck = sequenceGluck.getTracks();
-        expectedGluck[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedGluck[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedGluck[0].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedGluck[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedGluck[0].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedGluck[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedGluck[1].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedGluck[1].add(MidiBuildMessage.createProgramChange(40, 0, 1));
-        expectedGluck[1].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[1].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedGluck[1].add(MidiBuildEvent.createProgramChange(40, 0, 1));
+        expectedGluck[1].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedGluck[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedGluck[2].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedGluck[2].add(MidiBuildMessage.createProgramChange(40, 0, 2));
-        expectedGluck[2].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[2].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedGluck[2].add(MidiBuildEvent.createProgramChange(40, 0, 2));
+        expectedGluck[2].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedGluck[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedGluck[3].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedGluck[3].add(MidiBuildMessage.createProgramChange(41, 0, 3));
-        expectedGluck[3].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[3].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedGluck[3].add(MidiBuildEvent.createProgramChange(41, 0, 3));
+        expectedGluck[3].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedGluck[3].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedGluck[4].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedGluck[4].add(MidiBuildMessage.createProgramChange(6, 0, 4));
-        expectedGluck[4].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[4].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedGluck[4].add(MidiBuildEvent.createProgramChange(6, 0, 4));
+        expectedGluck[4].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedGluck[4].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedGluck[5].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedGluck[5].add(MidiBuildMessage.createProgramChange(6, 0, 5));
-        expectedGluck[5].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[5].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedGluck[5].add(MidiBuildEvent.createProgramChange(6, 0, 5));
+        expectedGluck[5].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedGluck[5].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         
-        expectedGluck[6].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedGluck[6].add(MidiBuildMessage.createProgramChange(42, 0, 6));
-        expectedGluck[6].add(MidiBuildMessage.createTrackTempo(92, 0));
+        expectedGluck[6].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedGluck[6].add(MidiBuildEvent.createProgramChange(42, 0, 6));
+        expectedGluck[6].add(MidiBuildEvent.createTrackTempo(92, 0));
         expectedGluck[6].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < expectedGluck.length; x++) {
             for(int i = 0; i < expectedGluck[x].size(); i++) {
@@ -1007,124 +1012,124 @@ public class MeiSequenceTest {
         Sequence sequenceBHJ = new Sequence(Sequence.PPQ, 256,24);
         Track[] expectedBHJ = sequenceBHJ.getTracks();
         //Soprano
-        expectedBHJ[0].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedBHJ[0].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[0].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedBHJ[0].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Alto
-        expectedBHJ[1].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[1].add(MidiBuildMessage.createProgramChange(54, 0, 1));
-        expectedBHJ[1].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[1].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[1].add(MidiBuildEvent.createProgramChange(54, 0, 1));
+        expectedBHJ[1].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[1].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Tenor
-        expectedBHJ[2].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[2].add(MidiBuildMessage.createProgramChange(54, 0, 2));
-        expectedBHJ[2].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[2].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[2].add(MidiBuildEvent.createProgramChange(54, 0, 2));
+        expectedBHJ[2].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[2].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Baritone
-        expectedBHJ[3].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[3].add(MidiBuildMessage.createProgramChange(54, 0, 3));
-        expectedBHJ[3].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[3].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[3].add(MidiBuildEvent.createProgramChange(54, 0, 3));
+        expectedBHJ[3].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[3].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Bass
-        expectedBHJ[4].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[4].add(MidiBuildMessage.createProgramChange(54, 0, 4));
-        expectedBHJ[4].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[4].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[4].add(MidiBuildEvent.createProgramChange(54, 0, 4));
+        expectedBHJ[4].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[4].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Piccolo
-        expectedBHJ[5].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[5].add(MidiBuildMessage.createProgramChange(72, 0, 5));
-        expectedBHJ[5].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[5].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[5].add(MidiBuildEvent.createProgramChange(72, 0, 5));
+        expectedBHJ[5].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[5].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Flute
-        expectedBHJ[6].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[6].add(MidiBuildMessage.createProgramChange(73, 0, 6));
-        expectedBHJ[6].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[6].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[6].add(MidiBuildEvent.createProgramChange(73, 0, 6));
+        expectedBHJ[6].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[6].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Oboe
-        expectedBHJ[7].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[7].add(MidiBuildMessage.createProgramChange(68, 0, 7));
-        expectedBHJ[7].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[7].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[7].add(MidiBuildEvent.createProgramChange(68, 0, 7));
+        expectedBHJ[7].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[7].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Bassoon
-        expectedBHJ[8].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[8].add(MidiBuildMessage.createProgramChange(70, 0, 8));
-        expectedBHJ[8].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[8].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[8].add(MidiBuildEvent.createProgramChange(70, 0, 8));
+        expectedBHJ[8].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[8].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Clarinet in B
-        expectedBHJ[9].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
-        expectedBHJ[9].add(MidiBuildMessage.createProgramChange(71, 0, 10));
-        expectedBHJ[9].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[9].add(MidiBuildEvent.createKeySignature("4s", "major", 0));
+        expectedBHJ[9].add(MidiBuildEvent.createProgramChange(71, 0, 10));
+        expectedBHJ[9].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[9].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Bass Clarinet
-        expectedBHJ[10].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
-        expectedBHJ[10].add(MidiBuildMessage.createProgramChange(71, 0, 11));
-        expectedBHJ[10].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[10].add(MidiBuildEvent.createKeySignature("4s", "major", 0));
+        expectedBHJ[10].add(MidiBuildEvent.createProgramChange(71, 0, 11));
+        expectedBHJ[10].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[10].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Alto sax
-        expectedBHJ[11].add(MidiBuildMessage.createKeySignature("5s", "major", 0));
-        expectedBHJ[11].add(MidiBuildMessage.createProgramChange(65, 0, 12));
-        expectedBHJ[11].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[11].add(MidiBuildEvent.createKeySignature("5s", "major", 0));
+        expectedBHJ[11].add(MidiBuildEvent.createProgramChange(65, 0, 12));
+        expectedBHJ[11].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[11].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Tenor sax
-        expectedBHJ[12].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
-        expectedBHJ[12].add(MidiBuildMessage.createProgramChange(66, 0, 13));
-        expectedBHJ[12].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[12].add(MidiBuildEvent.createKeySignature("4s", "major", 0));
+        expectedBHJ[12].add(MidiBuildEvent.createProgramChange(66, 0, 13));
+        expectedBHJ[12].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[12].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Baritone sax
-        expectedBHJ[13].add(MidiBuildMessage.createKeySignature("5s", "major", 0));
-        expectedBHJ[13].add(MidiBuildMessage.createProgramChange(67, 0, 14));
-        expectedBHJ[13].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[13].add(MidiBuildEvent.createKeySignature("5s", "major", 0));
+        expectedBHJ[13].add(MidiBuildEvent.createProgramChange(67, 0, 14));
+        expectedBHJ[13].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[13].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Trumpet in B
-        expectedBHJ[14].add(MidiBuildMessage.createKeySignature("4s", "major", 0));
-        expectedBHJ[14].add(MidiBuildMessage.createProgramChange(56, 0, 15));
-        expectedBHJ[14].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[14].add(MidiBuildEvent.createKeySignature("4s", "major", 0));
+        expectedBHJ[14].add(MidiBuildEvent.createProgramChange(56, 0, 15));
+        expectedBHJ[14].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[14].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Horn in F 1
-        expectedBHJ[15].add(MidiBuildMessage.createKeySignature("3s", "major", 0));
-        expectedBHJ[15].add(MidiBuildMessage.createProgramChange(69, 0, 15));
-        expectedBHJ[15].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[15].add(MidiBuildEvent.createKeySignature("3s", "major", 0));
+        expectedBHJ[15].add(MidiBuildEvent.createProgramChange(69, 0, 15));
+        expectedBHJ[15].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[15].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Trombone
-        expectedBHJ[16].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[16].add(MidiBuildMessage.createProgramChange(57, 0, 15));
-        expectedBHJ[16].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[16].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[16].add(MidiBuildEvent.createProgramChange(57, 0, 15));
+        expectedBHJ[16].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[16].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Bass Trombone
-        expectedBHJ[17].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[17].add(MidiBuildMessage.createProgramChange(57, 0, 15));
-        expectedBHJ[17].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[17].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[17].add(MidiBuildEvent.createProgramChange(57, 0, 15));
+        expectedBHJ[17].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[17].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Euphonium
-        expectedBHJ[18].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[18].add(MidiBuildMessage.createProgramChange(58, 0, 15));
-        expectedBHJ[18].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[18].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[18].add(MidiBuildEvent.createProgramChange(58, 0, 15));
+        expectedBHJ[18].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[18].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Tuba
-        expectedBHJ[19].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[19].add(MidiBuildMessage.createProgramChange(58, 0, 15));
-        expectedBHJ[19].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[19].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[19].add(MidiBuildEvent.createProgramChange(58, 0, 15));
+        expectedBHJ[19].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[19].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Timpani
-        expectedBHJ[20].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[20].add(MidiBuildMessage.createProgramChange(49, 0, 15));
-        expectedBHJ[20].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[20].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[20].add(MidiBuildEvent.createProgramChange(49, 0, 15));
+        expectedBHJ[20].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[20].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Tubular Bells
-        expectedBHJ[21].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[21].add(MidiBuildMessage.createProgramChange(16, 0, 15));
-        expectedBHJ[21].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[21].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[21].add(MidiBuildEvent.createProgramChange(16, 0, 15));
+        expectedBHJ[21].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[21].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Glockenspiel
-        expectedBHJ[22].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[22].add(MidiBuildMessage.createProgramChange(11, 0, 15));
-        expectedBHJ[22].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[22].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[22].add(MidiBuildEvent.createProgramChange(11, 0, 15));
+        expectedBHJ[22].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[22].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         //Snare
-        expectedBHJ[23].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedBHJ[23].add(MidiBuildMessage.createProgramChange(38, 0, 9));
-        expectedBHJ[23].add(MidiBuildMessage.createTrackTempo(144, 0));
+        expectedBHJ[23].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedBHJ[23].add(MidiBuildEvent.createProgramChange(38, 0, 9));
+        expectedBHJ[23].add(MidiBuildEvent.createTrackTempo(144, 0));
         expectedBHJ[23].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualBHJ.length; x++) {
             for(int i = 0; i < actualBHJ[x].size(); i++) {
@@ -1153,57 +1158,57 @@ public class MeiSequenceTest {
         Track[] actualbeamP = beamP.getSequence().getTracks();
         Sequence sequenceBeamP = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedbeamP = sequenceBeamP.getTracks();
-        expectedbeamP[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedbeamP[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedbeamP[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int beam1note1 = ConvertToMidi.NoteToMidi("e", "6", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam1note1, 0, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam1note1, 128, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam1note1, 0, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam1note1, 128, 0));
 
         int beam1note2 = ConvertToMidi.NoteToMidi("d", "6", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam1note2, 128, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam1note2, 256, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam1note2, 128, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam1note2, 256, 0));
         
         int beam1note3 = ConvertToMidi.NoteToMidi("b", "5", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam1note3, 256, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam1note3, 384, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam1note3, 256, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam1note3, 384, 0));
         
         int beam1note4 = ConvertToMidi.NoteToMidi("e", "5", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam1note4, 384, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam1note4, 512, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam1note4, 384, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam1note4, 512, 0));
         
         int beam1note5 = ConvertToMidi.NoteToMidi("g", "5", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam1note5, 512, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam1note5, 640, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam1note5, 512, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam1note5, 640, 0));
         
         int beam1note6 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam1note6, 640, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam1note6, 768, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam1note6, 640, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam1note6, 768, 0));
         
         int beam2note1 = ConvertToMidi.NoteToMidi("g", "3", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam2note1, 768, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam2note1, 896, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam2note1, 768, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam2note1, 896, 0));
         
         int beam2note2 = ConvertToMidi.NoteToMidi("c", "4", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam2note2, 896, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam2note2, 1024, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam2note2, 896, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam2note2, 1024, 0));
         
         int beam2note3 = ConvertToMidi.NoteToMidi("d", "4", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam2note3, 1024, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam2note3, 1152, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam2note3, 1024, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam2note3, 1152, 0));
         
         int beam2note4 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam2note4, 1152, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam2note4, 1280, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam2note4, 1152, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam2note4, 1280, 0));
         
         int beam2note5 = ConvertToMidi.NoteToMidi("f", "4", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam2note5, 1280, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam2note5, 1408, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam2note5, 1280, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam2note5, 1408, 0));
         
         int beam2note6 = ConvertToMidi.NoteToMidi("f", "5", null);
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOnEvent(beam2note6, 1408, 0));
-        expectedbeamP[0].add(MidiBuildMessage.createNoteOffEvent(beam2note6, 1536, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam2note6, 1408, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createNoteOffEvent(beam2note6, 1536, 0));
         expectedbeamP[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualbeamP.length; x++) {
             for(int i = 0; i < actualbeamP[x].size(); i++) {
@@ -1228,33 +1233,33 @@ public class MeiSequenceTest {
         Track[] actualDotted4 = Dotted4.getSequence().getTracks();
         Sequence sequenceDotted4 = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedDotted4 = sequenceDotted4.getTracks();
-        expectedDotted4[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedDotted4[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedDotted4[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedDotted4[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int dotted4m1n1 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m1n1, 0, 0));
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m1n1, 768, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOnEvent(dotted4m1n1, 0, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOffEvent(dotted4m1n1, 768, 0));
         
         int dotted4m1n2 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m1n2, 0, 0));
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m1n2, 512, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOnEvent(dotted4m1n2, 0, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOffEvent(dotted4m1n2, 512, 0));
         
         int dotted4m1n3 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m1n3, 512, 0));
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m1n3, 768, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOnEvent(dotted4m1n3, 512, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOffEvent(dotted4m1n3, 768, 0));
         
         int dotted4m2n1 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m2n1, 768, 0));
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m2n1, 1536, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOnEvent(dotted4m2n1, 768, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOffEvent(dotted4m2n1, 1536, 0));
         
         int dotted4m2n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m2n2, 768, 0));
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m2n2, 1280, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOnEvent(dotted4m2n2, 768, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOffEvent(dotted4m2n2, 1280, 0));
         
         int dotted4m2n3 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOnEvent(dotted4m2n3, 1280, 0));
-        expectedDotted4[0].add(MidiBuildMessage.createNoteOffEvent(dotted4m2n3, 1536, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOnEvent(dotted4m2n3, 1280, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createNoteOffEvent(dotted4m2n3, 1536, 0));
         expectedDotted4[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualDotted4.length; x++) {
             for(int i = 0; i < actualDotted4[x].size(); i++) {
@@ -1279,29 +1284,29 @@ public class MeiSequenceTest {
         Track[] actualSlurwRest = SlurwRest.getSequence().getTracks();
         Sequence sequenceSlurwRest = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedSlurwRest = sequenceSlurwRest.getTracks();
-        expectedSlurwRest[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedSlurwRest[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedSlurwRest[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int slurwrestm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n1, 0, 0));
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n1, 256, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOnEvent(slurwrestm1n1, 0, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOffEvent(slurwrestm1n1, 256, 0));
         
         int slurwrestm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n2, 512, 0));
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n2, 768, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOnEvent(slurwrestm1n2, 512, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOffEvent(slurwrestm1n2, 768, 0));
         
         int slurwrestm1n3 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n3, 896, 0));
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n3, 1024, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOnEvent(slurwrestm1n3, 896, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOffEvent(slurwrestm1n3, 1024, 0));
         
         int slurwrestm1n4 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n4, 1024, 0));
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n4, 1280, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOnEvent(slurwrestm1n4, 1024, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOffEvent(slurwrestm1n4, 1280, 0));
         
         int slurwrestm1n5 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOnEvent(slurwrestm1n5, 3072, 0));
-        expectedSlurwRest[0].add(MidiBuildMessage.createNoteOffEvent(slurwrestm1n5, 3328, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOnEvent(slurwrestm1n5, 3072, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createNoteOffEvent(slurwrestm1n5, 3328, 0));
         expectedSlurwRest[0].add(new MidiEvent(new MetaMessage(0x2F, new byte[0], 0), 0));
         for(int x = 0; x < actualSlurwRest.length; x++) {
             for(int i = 0; i < actualSlurwRest[x].size(); i++) {
@@ -1326,89 +1331,89 @@ public class MeiSequenceTest {
         Track[] actualTuplets2 = Tuplets2.getSequence().getTracks();
         Sequence sequenceTuplets2 = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedTuplets2 = sequenceTuplets2.getTracks();
-        expectedTuplets2[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int tuplets2m1n1 = ConvertToMidi.NoteToMidi("f", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m1n1, 768, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m1n1, 960, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m1n1, 768, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m1n1, 960, 0));
         
         int tuplets2m1n2 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m1n2, 960, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m1n2, 1152, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m1n2, 960, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m1n2, 1152, 0));
         
         int tuplets2m1n3 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m1n3, 1152, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m1n3, 1344, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m1n3, 1152, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m1n3, 1344, 0));
         
         int tuplets2m1n4 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m1n4, 1152, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m1n4, 1344, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m1n4, 1152, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m1n4, 1344, 0));
         
         int tuplets2m1n5 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m1n5, 1344, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m1n5, 1536, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m1n5, 1344, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m1n5, 1536, 0));
         
-        expectedTuplets2[0].add(MidiBuildMessage.createKeySignature("0", "major", 1536));
-        expectedTuplets2[0].add(MidiBuildMessage.createProgramChange(54, 1536, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createTrackTempo(90, 1536));
+        expectedTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 1536));
+        expectedTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
         
         int tuplets2m2n1 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m2n1, 1536, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m2n1, 1664, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m2n1, 1536, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m2n1, 1664, 0));
         
         int tuplets2m2n2 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m2n2, 1664, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m2n2, 1792, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m2n2, 1664, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m2n2, 1792, 0));
         
         int tuplets2m2n3 = ConvertToMidi.NoteToMidi("f", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m2n3, 1792, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m2n3, 1920, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m2n3, 1792, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m2n3, 1920, 0));
         
         int tuplets2m2n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m2n4, 1920, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m2n4, 2048, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m2n4, 1920, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m2n4, 2048, 0));
         
         int tuplets2m2n5 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m2n5, 2048, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m2n5, 2240, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m2n5, 2048, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m2n5, 2240, 0));
         
         int tuplets2m2n6 = ConvertToMidi.NoteToMidi("f", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m2n6, 2240, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m2n6, 2432, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m2n6, 2240, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m2n6, 2432, 0));
         
         int tuplets2m3n1 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n1, 2432, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n1, 2602, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m3n1, 2432, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m3n1, 2602, 0));
         
         int tuplets2m3n2 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n2, 2602, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n2, 2943, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m3n2, 2602, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m3n2, 2943, 0));
         
         int tuplets2m3n3 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n3, 2944, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n3, 3072, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m3n3, 2944, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m3n3, 3072, 0));
         
         int tuplets2m3n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m3n4, 3072, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m3n4, 3242, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m3n4, 3072, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m3n4, 3242, 0));
         
         int tuplets2m4n1 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n1, 3243, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n1, 3307, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m4n1, 3243, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m4n1, 3307, 0));
         
         int tuplets2m4n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n2, 3307, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n2, 3371, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m4n2, 3307, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m4n2, 3371, 0));
         
         int tuplets2m4n3 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n3, 3371, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n3, 3435, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m4n3, 3371, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m4n3, 3435, 0));
         
         int tuplets2m4n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(tuplets2m4n4, 3435, 0));
-        expectedTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(tuplets2m4n4, 3581, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m4n4, 3435, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(tuplets2m4n4, 3581, 0));
         for(int x = 0; x < actualTuplets2.length; x++) {
             for(int i = 0; i < actualTuplets2[x].size(); i++) {
                 byte[] actualbytes = actualTuplets2[x].get(i).getMessage().getMessage();
@@ -1432,89 +1437,89 @@ public class MeiSequenceTest {
         Track[] actualMyTuplets2 = MyTuplets2.getSequence().getTracks();
         Sequence sequenceMyTuplets2 = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedMyTuplets2 = sequenceMyTuplets2.getTracks();
-        expectedMyTuplets2[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int mytuplets2m1n1 = ConvertToMidi.NoteToMidi("f", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n1, 768, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n1, 960, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m1n1, 768, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m1n1, 960, 0));
         
         int mytuplets2m1n2 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n2, 960, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n2, 1152, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m1n2, 960, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m1n2, 1152, 0));
         
         int mytuplets2m1n3 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n3, 1152, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n3, 1344, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m1n3, 1152, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m1n3, 1344, 0));
         
         int mytuplets2m1n4 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n4, 1152, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n4, 1344, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m1n4, 1152, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m1n4, 1344, 0));
         
         int mytuplets2m1n5 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m1n5, 1344, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m1n5, 1536, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m1n5, 1344, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m1n5, 1536, 0));
         
-        expectedMyTuplets2[0].add(MidiBuildMessage.createKeySignature("0", "major", 1536));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createProgramChange(54, 1536, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createTrackTempo(90, 1536));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 1536));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
         
         int mytuplets2m2n1 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n1, 1536, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n1, 1664, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m2n1, 1536, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m2n1, 1664, 0));
         
         int mytuplets2m2n2 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n2, 1664, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n2, 1792, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m2n2, 1664, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m2n2, 1792, 0));
         
         int mytuplets2m2n3 = ConvertToMidi.NoteToMidi("f", "5", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n3, 1792, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n3, 1920, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m2n3, 1792, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m2n3, 1920, 0));
         
         int mytuplets2m2n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n4, 1920, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n4, 2048, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m2n4, 1920, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m2n4, 2048, 0));
         
         int mytuplets2m2n5 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n5, 2048, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n5, 2240, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m2n5, 2048, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m2n5, 2240, 0));
         
         int mytuplets2m2n6 = ConvertToMidi.NoteToMidi("f", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m2n6, 2240, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m2n6, 2432, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m2n6, 2240, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m2n6, 2432, 0));
         
         int mytuplets2m3n1 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n1, 2432, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n1, 2602, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m3n1, 2432, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m3n1, 2602, 0));
         
         int mytuplets2m3n2 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n2, 2602, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n2, 2943, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m3n2, 2602, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m3n2, 2943, 0));
         
         int mytuplets2m3n3 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n3, 2944, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n3, 3072, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m3n3, 2944, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m3n3, 3072, 0));
         
         int mytuplets2m3n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m3n4, 3072, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m3n4, 3242, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m3n4, 3072, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m3n4, 3242, 0));
         
         int mytuplets2m4n1 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n1, 3243, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n1, 3307, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m4n1, 3243, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m4n1, 3307, 0));
         
         int mytuplets2m4n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n2, 3307, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n2, 3371, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m4n2, 3307, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m4n2, 3371, 0));
         
         int mytuplets2m4n3 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n3, 3371, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n3, 3435, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m4n3, 3371, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m4n3, 3435, 0));
         
         int mytuplets2m4n4 = ConvertToMidi.NoteToMidi("d", "5", null);
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOnEvent(mytuplets2m4n4, 3435, 0));
-        expectedMyTuplets2[0].add(MidiBuildMessage.createNoteOffEvent(mytuplets2m4n4, 3581, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m4n4, 3435, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOffEvent(mytuplets2m4n4, 3581, 0));
         for(int x = 0; x < actualMyTuplets2.length; x++) {
             for(int i = 0; i < actualMyTuplets2[x].size(); i++) {
                 byte[] actualbytes = actualMyTuplets2[x].get(i).getMessage().getMessage();
@@ -1538,25 +1543,25 @@ public class MeiSequenceTest {
         Track[] actualTiesStems = TiesStems.getSequence().getTracks();
         Sequence sequenceTiesStems = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedTiesStems = sequenceTiesStems.getTracks();
-        expectedTiesStems[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedTiesStems[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedTiesStems[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int TiesStemsm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOnEvent(TiesStemsm1n1, 0, 0));
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOffEvent(TiesStemsm1n1, 384, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOnEvent(TiesStemsm1n1, 0, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOffEvent(TiesStemsm1n1, 384, 0));
         
         int TiesStemsm1n2 = ConvertToMidi.NoteToMidi("e", "5", null);
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOnEvent(TiesStemsm1n2, 384, 0));
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOffEvent(TiesStemsm1n2, 512, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOnEvent(TiesStemsm1n2, 384, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOffEvent(TiesStemsm1n2, 512, 0));
         
         int TiesStemsm1n3 = ConvertToMidi.NoteToMidi("f", "5", null);
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOnEvent(TiesStemsm1n3, 512, 0));
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOffEvent(TiesStemsm1n3, 896, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOnEvent(TiesStemsm1n3, 512, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOffEvent(TiesStemsm1n3, 896, 0));
         
         int TiesStemsm1n5 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOnEvent(TiesStemsm1n5, 512, 0));
-        expectedTiesStems[0].add(MidiBuildMessage.createNoteOffEvent(TiesStemsm1n5, 896, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOnEvent(TiesStemsm1n5, 512, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createNoteOffEvent(TiesStemsm1n5, 896, 0));
         for(int x = 0; x < actualTiesStems.length; x++) {
             for(int i = 0; i < actualTiesStems[x].size(); i++) {
                 byte[] actualbytes = actualTiesStems[x].get(i).getMessage().getMessage();
@@ -1580,17 +1585,17 @@ public class MeiSequenceTest {
         Track[] actualTiesUnison = TiesUnison.getSequence().getTracks();
         Sequence sequenceTiesUnison = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedTiesUnison = sequenceTiesUnison.getTracks();
-        expectedTiesUnison[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedTiesUnison[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedTiesUnison[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int TiesUnisonm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(TiesUnisonm1n1, 0, 0));
-        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(TiesUnisonm1n1, 640, 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createNoteOnEvent(TiesUnisonm1n1, 0, 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createNoteOffEvent(TiesUnisonm1n1, 640, 0));
         
         int TiesUnisonm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(TiesUnisonm1n2, 0, 0));
-        expectedTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(TiesUnisonm1n2, 640, 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createNoteOnEvent(TiesUnisonm1n2, 0, 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createNoteOffEvent(TiesUnisonm1n2, 640, 0));
         for(int x = 0; x < actualTiesUnison.length; x++) {
             for(int i = 0; i < actualTiesUnison[x].size(); i++) {
                 byte[] actualbytes = actualTiesUnison[x].get(i).getMessage().getMessage();
@@ -1614,17 +1619,17 @@ public class MeiSequenceTest {
         Track[] actualMyTiesUnison = MyTiesUnison.getSequence().getTracks();
         Sequence sequenceMyTiesUnison = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedMyTiesUnison = sequenceMyTiesUnison.getTracks();
-        expectedMyTiesUnison[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedMyTiesUnison[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedMyTiesUnison[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int MyTiesUnisonm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(MyTiesUnisonm1n1, 0, 0));
-        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(MyTiesUnisonm1n1, 640, 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createNoteOnEvent(MyTiesUnisonm1n1, 0, 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createNoteOffEvent(MyTiesUnisonm1n1, 640, 0));
         
         int MyTiesUnisonm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOnEvent(MyTiesUnisonm1n2, 0, 0));
-        expectedMyTiesUnison[0].add(MidiBuildMessage.createNoteOffEvent(MyTiesUnisonm1n2, 640, 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createNoteOnEvent(MyTiesUnisonm1n2, 0, 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createNoteOffEvent(MyTiesUnisonm1n2, 640, 0));
         for(int x = 0; x < actualMyTiesUnison.length; x++) {
             for(int i = 0; i < actualMyTiesUnison[x].size(); i++) {
                 byte[] actualbytes = actualMyTiesUnison[x].get(i).getMessage().getMessage();
@@ -1648,37 +1653,37 @@ public class MeiSequenceTest {
         Track[] actualThreeRepeats = ThreeRepeats.getSequence().getTracks();
         Sequence sequenceThreeRepeats = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedThreeRepeats = sequenceThreeRepeats.getTracks();
-        expectedThreeRepeats[0].add(MidiBuildMessage.createKeySignature("0", "major", 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int ThreeRepeatsm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm1n1, 0, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm1n1, 768, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm1n1, 0, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOffEvent(ThreeRepeatsm1n1, 768, 0));
         
         int ThreeRepeatsm2n1 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm2n1, 768, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm2n1, 1536, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm2n1, 768, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOffEvent(ThreeRepeatsm2n1, 1536, 0));
         
         int ThreeRepeatsm3n1 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm3n1, 1536, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm3n1, 2304, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm3n1, 1536, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOffEvent(ThreeRepeatsm3n1, 2304, 0));
         
         int ThreeRepeatsm1n2 = ConvertToMidi.NoteToMidi("g", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm1n2, 2304, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm1n2, 3072, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm1n2, 2304, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOffEvent(ThreeRepeatsm1n2, 3072, 0));
         
         int ThreeRepeatsm2n2 = ConvertToMidi.NoteToMidi("a", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm2n2, 3072, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm2n2, 3840, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm2n2, 3072, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOffEvent(ThreeRepeatsm2n2, 3840, 0));
         
         int ThreeRepeatsm3n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm3n2, 3840, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm3n2, 4608, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm3n2, 3840, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOffEvent(ThreeRepeatsm3n2, 4608, 0));
         
         int ThreeRepeatsm4n1 = ConvertToMidi.NoteToMidi("c", "5", null);
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOnEvent(ThreeRepeatsm4n1, 4608, 0));
-        expectedThreeRepeats[0].add(MidiBuildMessage.createNoteOffEvent(ThreeRepeatsm4n1, 5376, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm4n1, 4608, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOffEvent(ThreeRepeatsm4n1, 5376, 0));
         for(int x = 0; x < actualThreeRepeats.length; x++) {
             for(int i = 0; i < actualThreeRepeats[x].size(); i++) {
                 byte[] actualbytes = actualThreeRepeats[x].get(i).getMessage().getMessage();
@@ -1702,65 +1707,65 @@ public class MeiSequenceTest {
         Track[] actualRepeatsPositioning = RepeatsPositioning.getSequence().getTracks();
         Sequence sequenceRepeatsPositioning = new Sequence(Sequence.PPQ, 256, 1);
         Track[] expectedRepeatsPositioning = sequenceRepeatsPositioning.getTracks();
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2s", "major", 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 0, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 0));
         
         int RepeatsPositioningm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm1n1, 0, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm1n1, 768, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm1n1, 0, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm1n1, 768, 0));
         
         int RepeatsPositioningm2n1 = ConvertToMidi.NoteToMidi("f", "5", "s");
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm2n1, 768, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm2n1, 1536, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm2n1, 768, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm2n1, 1536, 0));
         
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("0", "major", 1536));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 1536, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("0", "major", 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
         
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2s", "major", 1536));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 1536, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2s", "major", 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
         
         int RepeatsPositioningm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm1n2, 1536, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm1n2, 2304, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm1n2, 1536, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm1n2, 2304, 0));
         
         int RepeatsPositioningm2n2 = ConvertToMidi.NoteToMidi("f", "5", "s");
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm2n2, 2304, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm2n2, 3072, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm2n2, 2304, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm2n2, 3072, 0));
         
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2f", "major", 3072));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 3072, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 3072));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2f", "major", 3072));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 3072, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 3072));
         
         int RepeatsPositioningm3n1 = ConvertToMidi.NoteToMidi("f", "3", null);
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm3n1, 3072, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm3n1, 3840, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm3n1, 3072, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm3n1, 3840, 0));
         
         int RepeatsPositioningm5n1 = ConvertToMidi.NoteToMidi("b", "3", "f");
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm5n1, 3840, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm5n1, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm5n1, 3840, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm5n1, 4608, 0));
         
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("0", "major", 4608));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 4608, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("0", "major", 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 4608));
         
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2s", "major", 4608));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 4608, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2s", "major", 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 4608));
         
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createKeySignature("2f", "major", 4608));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createProgramChange(54, 4608, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createTrackTempo(90, 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2f", "major", 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 4608));
         
         int RepeatsPositioningm3n2 = ConvertToMidi.NoteToMidi("f", "3", null);
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm3n2, 4608, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm3n2, 5376, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm3n2, 4608, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm3n2, 5376, 0));
         
         int RepeatsPositioningm5n2 = ConvertToMidi.NoteToMidi("b", "3", "f");
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOnEvent(RepeatsPositioningm5n2, 5376, 0));
-        expectedRepeatsPositioning[0].add(MidiBuildMessage.createNoteOffEvent(RepeatsPositioningm5n2, 6144, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm5n2, 5376, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOffEvent(RepeatsPositioningm5n2, 6144, 0));
         for(int x = 0; x < actualRepeatsPositioning.length; x++) {
             for(int i = 0; i < actualRepeatsPositioning[x].size(); i++) {
                 byte[] actualbytes = actualRepeatsPositioning[x].get(i).getMessage().getMessage();

@@ -9,14 +9,19 @@ import org.ddmal.jmei2midi.meielements.staffinfo.MeiWork;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
 import org.ddmal.jmei2midi.meielements.general.MeiRepeat;
+
 import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader.MeiXmlReadException;
+
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
+
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
+
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 import org.ddmal.jmei2midi.meielements.layerchild.LayerChildEnum;
 import org.ddmal.jmei2midi.meielements.layerchild.LayerChildFactory;
@@ -73,14 +78,14 @@ public class MeiSequence {
 	 * All staffs used throughout this MEI document. Key : n attribute or
 	 * sequential, Value : MeiStaff object
 	 */
-	private HashMap<Integer, MeiStaff> staffs;
+	private Map<Integer, MeiStaff> staffs;
 
 	/**
 	 * This will contain metadata and be related to mdiv and scoreDef tags. If
 	 * no other information is given then defaults will be used. This accounts
 	 * for changes in scoreDef tags as well.
 	 */
-	private HashMap<Integer, MeiWork> works;
+	private Map<Integer, MeiWork> works;
 
 	/**
 	 * Current movement is set in the current mDiv object.
@@ -187,14 +192,14 @@ public class MeiSequence {
 	/**
 	 * @return STRING[] DEFAULTS FOR TESTING PURPOSES
 	 */
-	protected HashMap<Integer, MeiWork> getWorks() {
+	protected Map<Integer, MeiWork> getWorks() {
 		return this.works;
 	}
 
 	/**
 	 * @return HASHMAP\<MEISTAFF\> STAFFS FOR TESTING PURPOSES
 	 */
-	protected HashMap<Integer, MeiStaff> getStaffs() {
+	protected Map<Integer, MeiStaff> getStaffs() {
 		return this.staffs;
 	}
 

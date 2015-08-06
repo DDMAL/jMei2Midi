@@ -5,22 +5,21 @@
  */
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
-import java.util.HashMap;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
-import org.ddmal.midiUtilities.ConvertToMidi;
-import org.ddmal.midiUtilities.MidiBuildMessage;
+import org.ddmal.midiUtilities.MidiBuildEvent;
 
 /**
- *
- * @author dinamix
+ * A final static class which contains some convenience methods for
+ * building midi data and checking for copies of data.
+ * @author Tristano Tenaglia
  */
-public class MeiStaffMidiLogic {
+public final class MeiStaffMidiLogic {
     
     /**
      * Helper method to standardize if an attribute exists within an element.
-     * @param attribute
+     * @param attribute attribute to be checked 
      * @return true if attribute exists
      */
     public static boolean attributeExists(String attribute) {
@@ -32,14 +31,15 @@ public class MeiStaffMidiLogic {
      * mei staff element are the same or if the new element
      * has only unnecessary information.
      * If they are the same they then return true or else it returns false.
-     * @param thisStaff
-     * @param count
-     * @param unit
-     * @param label
-     * @param keysig
-     * @param keymode
-     * @param tempo
-     * @return 
+     * @param thisStaff staff to be checked
+     * @param count meter count to be checked
+     * @param unit meter unit to be checked
+     * @param label label/instrument to be checked
+     * @param keysig key signature to be checked
+     * @param keymode key mode to be checked
+     * @param tempo tempo to be checked
+     * @return true if all above values are either equal to thisStaff's
+     * 		   similar elements or null, otherwise return false
      */
     public static boolean checkCopy(MeiStaff thisStaff,
                               String count,
@@ -57,7 +57,12 @@ public class MeiStaffMidiLogic {
     }
     
 
-     public static void buildMidiTrack(MeiStaff staff,
+     /**
+      * Build a midi track from staff to add to sequence.
+     * @param staff staff to be processed
+     * @param sequence sequence to be added to from staff data
+     */
+    public static void buildMidiTrack(MeiStaff staff,
                                  Sequence sequence) {
         Track newTrack;
         //The info that will be changed
@@ -87,16 +92,16 @@ public class MeiStaffMidiLogic {
     }
      
      /**
-     * Sends appropriate midi events to the specified track.
+     * Sends keysig, program change and tempo midi events to the specified track.
      * This could be optimized to check previous events and not send
      * if they are the same but they may be tricky.
-     * @param track
-     * @param channel
-     * @param tick
-     * @param key
-     * @param quality
-     * @param midiLabel
-     * @param bpm 
+     * @param track track to be added to
+     * @param channel chanell to be added to
+     * @param tick tick of the message being added
+     * @param key key signature to be added
+     * @param quality key quality to be added
+     * @param midiLabel label for program change to be added
+     * @param bpm bpm for track tempo to be added
      */
     public static void addEventsToTrack(Track track,
                                   int channel,
@@ -106,9 +111,9 @@ public class MeiStaffMidiLogic {
                                   int midiLabel,
                                   int bpm) {
         try {
-            track.add(MidiBuildMessage.createKeySignature(key, quality, tick));
-            track.add(MidiBuildMessage.createProgramChange(midiLabel, tick, channel));
-            track.add(MidiBuildMessage.createTrackTempo(bpm, tick));
+            track.add(MidiBuildEvent.createKeySignature(key, quality, tick));
+            track.add(MidiBuildEvent.createProgramChange(midiLabel, tick, channel));
+            track.add(MidiBuildEvent.createTrackTempo(bpm, tick));
         }
         catch(InvalidMidiDataException imde) {
             imde.printStackTrace();

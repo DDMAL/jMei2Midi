@@ -6,8 +6,10 @@
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
+
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.ddmal.midiUtilities.ConvertToMidi;
@@ -16,41 +18,86 @@ import org.ddmal.midiUtilities.ConvertToMidi;
  * MeiStaff will keep track of each staff element in an MEI document.
  * Specifically will hold attributes n (channel), label (instrument),
  * key.sig (keysig), meter.count (meter)...
- * @author dinamix
+ * @author Tristano Tenaglia
  */
 public class MeiStaff {
-    private int n; //n attribute in mei document
-    private int channel; //converted n attribute to fit in MIDI channels/tracks
+	
+    /**
+     * n attribute in mei document 
+     */
+    private int n;
+    /**
+     * converted n attribute to fit in MIDI channels/tracks
+     */
+    private int channel;
     
     
-    private String tempo; //given string tempo
-    private int bpm; //converted tempo to beats per minute
+    /**
+     * given string tempo from mei label in scoredef/staffdef
+     * or from mei work 
+     */
+    private String tempo;
+    /**
+     * converted tempo above to beats per minute
+     */
+    private int bpm;
     
+    /**
+     * current tick count of this staff
+     */
+    private long tick;
+    /**
+     * included to account for multiple layers
+     * starting at the same time,
+     * only need to use with 2 or more layers
+     */
+    private long layerOffset;   
     
-    private long tick; //current tick count of this staff
-    private long layerOffset; //included to account for multiple layers
-                             //starting at the same time
-                             //only need to use with 2 or more layers
+    /**
+     * major or minor
+     * only do once at the beginning
+     * dont keep updating throughout
+     */
+    private String keymode;
+    /**
+     * mei key signature from keysig attribute 
+     * like "2s" or "4f" or "0
+     */
+    private String keysig;
+    /**
+     * Associates key : note, value : accidental
+     * (i.e. key : f, value : s = g major) 
+     */
+    private Map<String,String> keysigMap;
     
-    
-    private String keymode; //major or minor
-                            //only do once at the beginning
-                            //dont keep updating throughout
-    private String keysig; //mei keysig like "2s" or "4f" or "0"
-    private HashMap<String,String> keysigMap; //current key / accidentals might need reference
-                                              //this is used to check each note
-    
-    private String label; //usually used for instrument name
+    /**
+     * usually used for instrument name in mei
+     */
+    private String label;
+    /**
+     * label converted to midi appropriate name if valid
+     */
     private int midiLabel;
     
     
-    private String meterCount; //need for things like mRest
+    /**
+     * the count of a meter,
+     * need for things like mRest
+     */
+    private String meterCount;
+    /**
+     * the unit of a meter
+     */
     private String meterUnit;
     
     
-    private HashMap<String,MeiElement> layerChild; //holds all layer children names
-                                                   //as keys with the element itself
-                                                   //as values
+    /**
+     * holds all layer children names
+     * as keys with the element itself
+     * as values.
+     * this could be removed if object hierarchy is perfected
+     */
+    private HashMap<String,MeiElement> layerChild;
     
     /**
      * Default MeiStaff Constructor.
@@ -59,6 +106,7 @@ public class MeiStaff {
      * some attributes in scoreDef or staffDef such as in
      * Debussy Mandoline where the keymode and keysig are "unclear".
      * Label and tempo will be adjusted accordingly.
+     * @param n the n value taken by mei or given to this staff
      */
     public MeiStaff(int n) {
         this.n = n;
@@ -78,13 +126,13 @@ public class MeiStaff {
     
     /**
      * General MeiStaff Constructor.
-     * @param n
-     * @param tempo
-     * @param label
-     * @param keysig
-     * @param keymode
-     * @param meterCount
-     * @param meterUnit
+     * @param n the n value taken by mei or given to this staff
+     * @param tempo the tempo given to this staff either by mei or default
+     * @param label usually the instrument name taken from label or mei work
+     * @param keysig the key signature given to this staff
+     * @param keymode the key mode given to this staff
+     * @param meterCount the meter count for this staff
+     * @param meterUnit the meter unit for this staff
      */
     public MeiStaff(int n, 
                     String tempo,  
@@ -132,8 +180,8 @@ public class MeiStaff {
        
     /**
      * Computes the appropriate MIDI channel given the MEI n attribute.
-     * Want to start from 0 but n start from 1.
-     * Want to add one if we have 9-15 so that we skip over channel 9.
+     * If n <= 9, channel - n-1.
+     * If 9 < n < 16 then channel = n.
      * If n is >= 16, then we use channel 15 for remaining tracks.
      * This is required for each instrument.
      */
@@ -156,6 +204,10 @@ public class MeiStaff {
         return label;
     }
     
+    /**
+     * Set the label and compute the appropriate midi label.
+     * @param label the label to be set
+     */
     public void setLabel(String label) {
         this.label = label;
         if(ConvertToMidi.instrToMidi(label) > -1) {
@@ -172,7 +224,7 @@ public class MeiStaff {
      * is a percussion instrument.
      * Used for verification of instrument in MeiSequence.
      * @param label the label to set
-     * @param midiPerc
+     * @param midiPerc the perc midi number to be set
      */
     public void setLabelPerc(String label, int midiPerc) {
         this.label = label;
@@ -183,8 +235,8 @@ public class MeiStaff {
     /**
      * Optimization to set a instrument once you know that it
      * is a instrument.
-     * @param label
-     * @param midiLabel 
+     * @param label the label to be set
+     * @param midiLabel the midi instrument number to be set
      */
     public void setLabelInstr(String label, int midiLabel) {
         this.label = label;
@@ -206,8 +258,8 @@ public class MeiStaff {
     }
 
     /**
+     * Keymode of staff, set to lowercase for consistency
      * @param keymode the keymode to set
-     * Set to lowercase for consistency
      */
     public void setKeymode(String keymode) {
         this.keymode = keymode.toLowerCase();
@@ -259,9 +311,8 @@ public class MeiStaff {
     }
     
     /**
-     * @param keysig
-     * @set the keysig
-     * @set the keysigMap
+     * Set the key signature given an mei keysig attribute
+     * @param keysig key signature to be set
      */
     public void setKeysig(String keysig) {
         this.keysig = keysig;
@@ -271,7 +322,7 @@ public class MeiStaff {
     /**
      * @return the keysigMap
      */
-    public HashMap<String,String> getKeysigMap() {
+    public Map<String,String> getKeysigMap() {
         return keysigMap;
     }
 
@@ -299,7 +350,7 @@ public class MeiStaff {
         this.meterCount = meterCount;
     }
     
-        /**
+    /**
      * @return the meterUnit
      */
     public String getMeterUnit() {
@@ -321,8 +372,8 @@ public class MeiStaff {
     }
 
     /**
+     * Set the temp and will change bpm accordingly
      * @param tempo the tempo to set
-     * Will change bpm accordingly;
      */
     public void setTempo(String tempo) {
         this.tempo = tempo;
@@ -336,18 +387,36 @@ public class MeiStaff {
         return bpm;
     }
     
+    /**
+     * @return the layer child map
+     */
     public HashMap<String,MeiElement> getLayerChildMap() {
         return layerChild;
     }
     
+    /**
+     * Get a specific layerchild element if it is
+     * in the layerchild map
+     * @param element layerchild element to be retrieved
+     * @return specified element in the layerchild map
+     */
     public MeiElement getLayerChild(String element) {
         return layerChild.get(element);
     }
     
+    
+    /**
+     * Add a layerchild mei element to the layerchild map
+     * @param element layerchild mei element to be added
+     */
     public void setLayerChild(MeiElement element) {
         layerChild.put(element.getName(), element);
     }
     
+    /**
+     * Remove a layerchild mei element from the layerchild map
+     * @param elementName name of mei layerchild element to be removed
+     */
     public void removeLayerChild(String elementName) {
         layerChild.remove(elementName);
     }
@@ -370,17 +439,20 @@ public class MeiStaff {
         this.midiLabel = ConvertToMidi.instrToMidi(this.label);
     }
     
+    /**
+     * This will convert a String to an appropriate midi
+     * percussion instrument equivalent.
+     * May return -1 which would cause a Midi exception
+     */
     private void computeMidiPerc() {
         this.midiLabel = ConvertToMidi.instrToPerc(this.label);
     }
     
     /**
-     * Returns a HashMap for the key signature and this should be checked with
+     * Assigns KeysigMap a HashMap for the key signature and this should be checked with
      * each note for any accidental in the given key.
      * HashMap holds key,value pair as the specified accidental in the key
      * signature also dependent on the current key.
-     * @param keysignature the value of the MEI key.sig 
-     * @return 
      */
     private void computeKeysigMap() {
         int numberOfAccidentals = Integer.parseInt(keysig.substring(0,1));
@@ -405,7 +477,10 @@ public class MeiStaff {
     
      /**
      * Compare this element to another object.
-     * @return 
+     * @return true if n, channel, tempo, bpm, tick,
+     * 		   layeroffset, keymode, keysig, label, metercount,
+     * 		   meterunit and keysig map are equal and
+     * 		   true if same object or else return false.
      */
     @Override
     public boolean equals(Object obj) {
@@ -436,8 +511,8 @@ public class MeiStaff {
     }
 
     /**
-     * Overridden hashcode.
-     * @return 
+     * Overriden hashcode.
+     * @return hashcode built by unique n value
      */
     @Override
     public int hashCode() {

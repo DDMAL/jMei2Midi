@@ -90,11 +90,9 @@ public class Main {
         MeiSequence test;
         try {
             test = new MeiSequence(fileNameIn);
-            String[] fileNameArray = fileNameIn.split("/");
-            String fileName = fileNameArray[fileNameArray.length - 1].replaceAll("mei", "midi");
             MidiIO.write(test.getSequence(), fileNameOut);
         }
-        catch(InvalidMidiDataException | MeiXmlReadException ex) {
+        catch(InvalidMidiDataException | MeiXmlReadException | IOException ex) {
             errorLog.add("Error found in file : " + fileNameIn + ". Error Message : " + ex.getMessage());
         }
     }
@@ -130,11 +128,17 @@ public class Main {
             catch(InvalidMidiDataException | MeiXmlReadException ex) {
                 errorLog.add("Error found in file : " + filename 
                            + ". Error Message : " + ex.getMessage());
-                continue;
+                continue; //skip over the midi write file
             }
             
-            MidiIO.write(mei.getSequence(), dirNameOut + File.separator
+            try {
+            	MidiIO.write(mei.getSequence(), dirNameOut + File.separator
                                             + filename.replace("mei", "midi"));
+            }
+            catch(IOException ioe) {
+            	errorLog.add("Problems writing to file : " + filename
+            			+ ". Error Message : " + ioe.getMessage());
+            }
         }    
     }
     

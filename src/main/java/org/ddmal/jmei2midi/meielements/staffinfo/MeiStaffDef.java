@@ -6,27 +6,41 @@
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
+
 import ca.mcgill.music.ddmal.mei.MeiElement;
-import java.util.HashMap;
+
+import java.util.Map;
+
 import javax.sound.midi.Sequence;
+
 import org.ddmal.jmei2midi.MeiStatTracker;
-import org.ddmal.midiUtilities.ConvertToMidi;
-import org.ddmal.midiUtilities.ConvertToMidiWithStats;
 
 /**
  * MeiStaffDef builds an MeiStaff and changes the staffs and works accordingly.
- * @author dinamix
+ * @author Tristano Tenaglia
  */
 public class MeiStaffDef extends MeiStaffBuilder {
     
     private MeiElement staffDef;
     
+    
+    /**
+     * Build an appropriate mei staff from staff def attributes
+     * and then populate the staffs and works map accordingly.
+     * @param sequence the sequence to be updated
+     * @param stats the stats to be updated
+     * @param staffs the staffs map to be updated
+     * @param works the works map to be updated
+     * @param currentMdiv the current movement being processed
+     * @param currentStaff not used
+     * @param staffDef the staffdef mei element being parsed
+     */
     //May need to add instrDef but so far this doesn't seem necessary
     //as instrDef can give random midi data for channels (Mozart Quintet)
     public MeiStaffDef(Sequence sequence, 
                        MeiStatTracker stats, 
-                       HashMap<Integer, MeiStaff> staffs, 
-                       HashMap<Integer, MeiWork> works, 
+                       Map<Integer, MeiStaff> staffs, 
+                       Map<Integer, MeiWork> works, 
                        MeiMdiv currentMdiv, 
                        MeiStaff currentStaff,
                        MeiElement staffDef) {

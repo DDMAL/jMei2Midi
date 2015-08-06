@@ -22,10 +22,10 @@ import org.junit.rules.ExpectedException;
  *
  * @author dinamix
  */
-public class MidiBuildMessageTest {
+public class MidiBuildEventTest {
     @Rule public ExpectedException exception = ExpectedException.none();
     
-    public MidiBuildMessageTest() {
+    public MidiBuildEventTest() {
     }
     
     @BeforeClass
@@ -42,19 +42,19 @@ public class MidiBuildMessageTest {
     @Test
     public void testBpmToByteArray() {
         assertArrayEquals(new byte[]{(byte) 0x07, (byte) 0xA1, (byte) 0x20},
-                          MidiBuildMessage.bpmToByteArray(120));
+                          MidiBuildEvent.bpmToByteArray(120));
         assertArrayEquals(new byte[]{(byte) 0x0C, (byte) 0x0B, (byte) 0xE1},
-                          MidiBuildMessage.bpmToByteArray(76));
+                          MidiBuildEvent.bpmToByteArray(76));
         assertArrayEquals(new byte[]{(byte) 0x65, (byte) 0xB9, (byte) 0xAA},
-                          MidiBuildMessage.bpmToByteArray(9));
+                          MidiBuildEvent.bpmToByteArray(9));
         assertArrayEquals(new byte[]{(byte) 0xEA, (byte) 0x60},
-                          MidiBuildMessage.bpmToByteArray(1000));
+                          MidiBuildEvent.bpmToByteArray(1000));
         assertArrayEquals(new byte[]{(byte) 0x03, (byte) 0x93, (byte) 0x87, (byte) 0x00},
-                          MidiBuildMessage.bpmToByteArray(1));
+                          MidiBuildEvent.bpmToByteArray(1));
         assertArrayEquals(new byte[]{(byte) 0x0A, (byte) 0x2C, (byte) 0x2A},
-                          MidiBuildMessage.bpmToByteArray(0));
+                          MidiBuildEvent.bpmToByteArray(0));
         assertArrayEquals(new byte[]{(byte) 0x01},
-                          MidiBuildMessage.bpmToByteArray(60000000));
+                          MidiBuildEvent.bpmToByteArray(60000000));
     }
     
     /**
@@ -63,15 +63,15 @@ public class MidiBuildMessageTest {
     @Test
     public void testKeysigToByteArray() {
         assertArrayEquals(new byte[]{0x01,0x01},
-                          MidiBuildMessage.keysigToByteArray("1s", "minor"));
+                          MidiBuildEvent.keysigToByteArray("1s", "minor"));
         assertArrayEquals(new byte[]{-0x07,0x00},
-                          MidiBuildMessage.keysigToByteArray("7f", "major"));
+                          MidiBuildEvent.keysigToByteArray("7f", "major"));
         assertArrayEquals(new byte[]{0x07,0x01}, 
-                          MidiBuildMessage.keysigToByteArray("7s", "minor"));
+                          MidiBuildEvent.keysigToByteArray("7s", "minor"));
         assertArrayEquals(new byte[]{0x00,0x00},
-                          MidiBuildMessage.keysigToByteArray("0", "major"));
+                          MidiBuildEvent.keysigToByteArray("0", "major"));
         assertArrayEquals(new byte[]{0x00,0x01},
-                          MidiBuildMessage.keysigToByteArray("0", "MiNoR"));
+                          MidiBuildEvent.keysigToByteArray("0", "MiNoR"));
     }
     
     /**
@@ -82,7 +82,7 @@ public class MidiBuildMessageTest {
         byte[] bytes = new byte[]{0x07,0x01};
         MidiMessage testMes = new MetaMessage(0x59,bytes,2);
         MidiEvent testEventExpect = new MidiEvent(testMes,0);
-        MidiEvent testEventActual = MidiBuildMessage.createKeySignature("7s", "minor", 0);
+        MidiEvent testEventActual = MidiBuildEvent.createKeySignature("7s", "minor", 0);
         
         assertArrayEquals(testEventExpect.getMessage().getMessage(),
                           testEventActual.getMessage().getMessage());
@@ -107,7 +107,7 @@ public class MidiBuildMessageTest {
         byte[] bytes = new byte[]{(byte) 0x07, (byte) 0xA1, (byte) 0x20};
         MidiMessage testMes = new MetaMessage(0x51,bytes,3);
         MidiEvent testEventExpect = new MidiEvent(testMes,0);
-        MidiEvent testEventActual = MidiBuildMessage.createTrackTempo(120, 0);
+        MidiEvent testEventActual = MidiBuildEvent.createTrackTempo(120, 0);
         byte[] expected = testEventExpect.getMessage().getMessage();
         byte[] actual = testEventActual.getMessage().getMessage();
         
@@ -132,9 +132,9 @@ public class MidiBuildMessageTest {
         ShortMessage expMess = new ShortMessage(ShortMessage.PROGRAM_CHANGE, 0, 8, 0);
         MidiEvent expected = new MidiEvent(expMess, 0);
         assertArrayEquals(expected.getMessage().getMessage(),
-                     MidiBuildMessage.createProgramChange(8, 0, 0).getMessage().getMessage());
+                     MidiBuildEvent.createProgramChange(8, 0, 0).getMessage().getMessage());
         assertEquals(expected.getTick(),
-                     MidiBuildMessage.createProgramChange(8, 0, 0).getTick());
+                     MidiBuildEvent.createProgramChange(8, 0, 0).getTick());
         
         //Check for exception here
         exception.expect(InvalidMidiDataException.class);

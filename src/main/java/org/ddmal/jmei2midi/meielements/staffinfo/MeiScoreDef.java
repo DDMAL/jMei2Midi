@@ -6,9 +6,13 @@
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
+
 import ca.mcgill.music.ddmal.mei.MeiElement;
-import java.util.HashMap;
+
+import java.util.Map;
+
 import javax.sound.midi.Sequence;
+
 import org.ddmal.jmei2midi.MeiStatTracker;
 
 /**
@@ -26,18 +30,18 @@ public class MeiScoreDef extends MeiStaffBuilder {
     /**
      * Constructor will set the appropriate elements of an meiWork objects and then
      * update any meiStaff objects accordingly.
-     * @param sequence
-     * @param stats
-     * @param staffs
-     * @param works
-     * @param currentMdiv
-     * @param currentStaff
-     * @param scoreDef 
+     * @param sequence the sequence object to be added to
+     * @param stats the stats object to be modified
+     * @param staffs the staffs hashmap to be modified or added to
+     * @param works the works hashmap to be modified or added to
+     * @param currentMdiv the current movement we are in (mdiv mei element)
+     * @param currentStaff the current staff that we are processing
+     * @param scoreDef this mei scoredef element
      */
     public MeiScoreDef(Sequence sequence,
                        MeiStatTracker stats,
-                       HashMap<Integer, MeiStaff> staffs, 
-                       HashMap<Integer, MeiWork> works, 
+                       Map<Integer, MeiStaff> staffs, 
+                       Map<Integer, MeiWork> works, 
                        MeiMdiv currentMdiv,
                        MeiStaff currentStaff,
                        MeiElement scoreDef) {
@@ -75,7 +79,8 @@ public class MeiScoreDef extends MeiStaffBuilder {
     
     /**
      * New scoreDef found during the piece will update all defined
-     * staffs accordingly.
+     * staffs accordingly
+     * @param work the mei work element to update all the staffs
      */
     private void updateStaffs(MeiWork work) {
         String count = work.getMeterCount();

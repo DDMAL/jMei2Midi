@@ -7,11 +7,13 @@ package org.ddmal.jmei2midi.meielements.layerchild;
 
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This enum contains all mei elements that are children of the mei element
  * layer, which currently subclass the LayerChild class. All elements that
- * subclass the LayerChild class should be added to this enum.
+ * subclass the LayerChild class should be added to this enum. Enum values
+ * are stored within a HashSet at JVM startup.
  *
  * @author Tristano Tenaglia
  */
@@ -46,7 +48,10 @@ public enum LayerChildEnum {
      */
     tuplet;
 
-    private static final HashSet<String> layerChildHashNames = new HashSet<>();
+    /**
+     * Set where all enum elements are stored for easy lookup.
+     */
+    private static final Set<String> layerChildHashNames = new HashSet<>();
 
     static {
         for (LayerChildEnum value : EnumSet.allOf(LayerChildEnum.class)) {
@@ -57,7 +62,7 @@ public enum LayerChildEnum {
     /**
      * Check to see if this enum contains the given name.
      *
-     * @param name Name to be checked
+     * @param name Name of mei element to be checked
      * @return true if the given name is part of this enum
      */
     public static boolean contains(String name) {

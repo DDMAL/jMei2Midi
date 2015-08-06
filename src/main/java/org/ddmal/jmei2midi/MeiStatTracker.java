@@ -8,6 +8,7 @@ package org.ddmal.jmei2midi;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MeiStatTracker stores a List(String) of all files that
@@ -44,17 +45,17 @@ public final class MeiStatTracker {
      * Stores the incorrect filename as key
      * and incorrect file info as value.
      */
-    private final HashMap<String,List<String>> incorrectFiles;
+    private final Map<String,List<String>> incorrectFiles;
     
     /**
      * Stores invalid instruments related to incorrect files.
      */
-    private final HashMap<String,List<String>> invalidInstruments;
+    private final Map<String,List<String>> invalidInstruments;
     
     /**
      * Stores invalid tempos related to incorrect files.
      */
-    private final HashMap<String,List<String>> invalidTempos;
+    private final Map<String,List<String>> invalidTempos;
 
     /**
      * New MeiStatTracker which will keep track of invalid mei2midi inputs
@@ -111,7 +112,7 @@ public final class MeiStatTracker {
      * @return incorrectFiles A HashMap(String,List(String)) with key as filename
      *                        and value as list of all incorrect elements in file.
      */
-    public HashMap<String,List<String>> getIncorrectFiles() {
+    public Map<String,List<String>> getIncorrectFiles() {
         return incorrectFiles;
     }
     
@@ -122,7 +123,7 @@ public final class MeiStatTracker {
      * @return invalidInstruments A HashMap(String,List(String)) with key as filename
      *                        and value as list of all invalid instruments in file.
      */
-    public HashMap<String,List<String>> getInvalidInstruments() {
+    public Map<String,List<String>> getInvalidInstruments() {
         return invalidInstruments;
     }
     
@@ -133,7 +134,7 @@ public final class MeiStatTracker {
      * @return invalidTempos A HashMap(String,List(String)) with key as filename
      *                        and value as list of all invalid tempos in file.
      */
-    public HashMap<String,List<String>> getInvalidTempos() {
+    public Map<String,List<String>> getInvalidTempos() {
         return invalidTempos;
     }
     
@@ -193,7 +194,7 @@ public final class MeiStatTracker {
      * @param type Type of error.
      * @param stat Stat to be added.
      */
-    private HashMap<String,List<String>> getStatHash(String type) {
+    private Map<String,List<String>> getStatHash(String type) {
         switch (type) {
             case "Tempo":
                 return invalidTempos;

@@ -1,6 +1,28 @@
-jMei2Midi Description:
+jMei2Midi Description
+=====================
 
-MeiStatTrack Description:
+A Java Maven project that converts a given MEI file to a
+MIDI sequence/file. This project can be imported into any
+IDE (such as Eclipse, NetBeans, IntelliJ...) and be imported
+as a Maven project. This will fetch all dependencies except for
+the XML parser library jmei. This library can be found on the
+following github URL : https://github.com/dinamix/jmei.
+Further instruction on command line use and software development
+can be found below. A list of all assumptions can be found in
+jMei2Midi-Assumptions.txt.
+
+MeiStatTracker Description
+==========================
+
+An MeiStatTracker objects is one that records implemented stats
+from an MEI document. These can be either valid or invalid stats.
+These stats are stored in java Maps which contain filenames as keys
+and a list of statistics as strings corresponding to each file.
+This stat tracker can be passed through multiple MeiSequences and can
+therefore acquire all the data necessary both for valid and invalid stats.
+Currently, this class can keep track of invalid tempos and instruments that
+do not correspond appropriately to midi tempos and instruments. A list of the 
+valid instruments and tempos can be found in jMei2Midi-Assumptions.txt.
 
 API
 ===
@@ -57,3 +79,4 @@ One will notice that any newly implemented MEI element can be done so in 1 of 3 
    It is very likely that the staffinfo package can be simply updated to deal with minor changes.
 3. If the MEI element is a child of the MEI layer element and/or involved with partial/direct midi information,
    then it should be added to the meielements.layerchild package and the class should extend LayerChild.
+   

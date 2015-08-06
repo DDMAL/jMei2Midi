@@ -13,7 +13,7 @@ import javax.sound.midi.Track;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
-import org.ddmal.midiUtilities.MidiBuildMessage;
+import org.ddmal.midiUtilities.MidiBuildEvent;
 
 /**
  * Converts an MEI note into a MIDI note depending on its
@@ -148,7 +148,7 @@ public class MeiNote extends LayerChild {
                             long startTick,
                             long endTick) {
         try {
-            thisTrack.add(MidiBuildMessage.createNoteOnEvent(nPitch, 
+            thisTrack.add(MidiBuildEvent.createNoteOnEvent(nPitch, 
                                                          startTick, 
                                                          currentStaff.getChannel()));
         }
@@ -170,7 +170,7 @@ public class MeiNote extends LayerChild {
                             long startTick,
                             long endTick) {
         try {
-            thisTrack.add(MidiBuildMessage.createNoteOffEvent(nPitch, 
+            thisTrack.add(MidiBuildEvent.createNoteOffEvent(nPitch, 
                                                           endTick, 
                                                           currentStaff.getChannel()));
         }
@@ -214,7 +214,6 @@ public class MeiNote extends LayerChild {
         String pname = note.getAttribute("pname");
         String oct = note.getAttribute("oct");
         String accid = getAccidental();
-        String dur = note.getAttribute("dur");
         //Get the proper pitch given accidental or key signature
         int nPitch;
         if(attributeExists(accid) && attributeExists(oct)) {

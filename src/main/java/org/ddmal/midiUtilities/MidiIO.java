@@ -11,18 +11,21 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 
 /**
- *
- * @author dinamix
+ * This class is a convenience class to take care of input and
+ * output for general midi data. Currently it has a write method
+ * which will write out a given sequence to a midi file given a file name.
+ * @author Tristano Tenaglia
  */
-public class MidiIO {
-    //Might be good to delete file if rebuilt... or not
-    public static void write(Sequence sequence, String filename) {
-        try {
-            MidiSystem.write(sequence, 1, new File(filename));
-        }
-        catch(IOException ioe) {
-            ioe.printStackTrace();
-            System.exit(1);
-        }
+public final class MidiIO {
+    /**
+     * Writes out a midi file given a midi sequence and file name.
+     * This midi file is of file type 1.
+     * @param sequence sequence that will be written to file
+     * @param filename filename of midi file that will be created
+     * @throws IOException 
+     */
+    public static void write(Sequence sequence, String filename) 
+    		throws IOException {
+    	MidiSystem.write(sequence, 1, new File(filename));
     }
 }

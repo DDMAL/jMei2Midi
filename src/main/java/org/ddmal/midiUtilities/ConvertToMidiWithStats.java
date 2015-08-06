@@ -5,59 +5,18 @@
  */
 package org.ddmal.midiUtilities;
 
-import java.util.HashMap;
 import org.ddmal.jmei2midi.MeiStatTracker;
 
 /**
- *
- * @author dinamix
+ * A class that converts mei data to midi data.
+ * These type of data include instrument names, tempos,
+ * and note names.
+ * <p>Some of the same methods from ConvertToMidi class are used,
+ *  but the stats object can be passed through this class
+ *  to obtain any invalid instruments or tempos from the mei data</p>
+ * @author Tristano Tenaglia
  */
-public class ConvertToMidiWithStats {
-    
-    //Can't use this hash because to many variations on instruments.
-    //Leaving here for the time being.
-    /*public static final HashMap<String, Integer> midiInstr = new HashMap<>();
-    static {
-        midiInstr.put("piano", 0);
-        midiInstr.put("cello", 42);
-        midiInstr.put("violin", 40);
-        midiInstr.put("viola", 41);
-        midiInstr.put("contrabass", 43);
-        midiInstr.put("soprano sax", 64);
-        midiInstr.put("alto sax", 65);
-        midiInstr.put("tenor sax", 66);
-        midiInstr.put("baritone sax", 67);
-        midiInstr.put("harpsichord", 6);
-        midiInstr.put("clavichord", 7);
-        midiInstr.put("glockenspiel", 11);
-        midiInstr.put("tubular bell", 16);
-        midiInstr.put("organ", 19);
-        midiInstr.put("guitar", 24);
-        midiInstr.put("harp", 46);
-        midiInstr.put("timpani", 49);
-        midiInstr.put("trumpet", 56);
-        midiInstr.put("trombone", 57);
-        midiInstr.put("tuba", 58);
-        midiInstr.put("euphonium", 58);
-        midiInstr.put("french horn", 60);
-        midiInstr.put("brass", 61);
-        midiInstr.put("sax", 65);
-        midiInstr.put("oboe", 68);
-        midiInstr.put("english horn", 69);
-        midiInstr.put("horn", 69);
-        midiInstr.put("bassoon", 70);
-        midiInstr.put("clarinet", 71);
-        midiInstr.put("piccolo", 72);
-        midiInstr.put("flute", 73);
-        midiInstr.put("fiddle", 110);
-        midiInstr.put("voice", 54);
-        midiInstr.put("soprano", 54);
-        midiInstr.put("sopran", 54);
-        midiInstr.put("alto", 54);
-        midiInstr.put("tenor", 54);
-        midiInstr.put("baritone", 54);
-        midiInstr.put("bass", 54);
-    }*/
+public final class ConvertToMidiWithStats {
     
     /**
      * Converts a string percussion from mei into an appropriate
@@ -69,9 +28,10 @@ public class ConvertToMidiWithStats {
      * search of the word, an abbreviation makes for a more 
      * thorough check.
      * http://www.midi.org/techspecs/gm1sound.php
-     * @param instr
-     * @param stats
-     * @return 
+     * @param instr instrument name to be converted to midi instrument integer
+     * @param stats stats object to record any invalid instruments
+     * @return the midi instrument value of the instr given and if 
+     * 			it is invalid, then return -1
      */
     public static int instrToPerc(String instr, MeiStatTracker stats) {
         int percInstr = 0;
@@ -93,8 +53,6 @@ public class ConvertToMidiWithStats {
     }
     
     /**
-     * NOTE: COULD USE A HASHMAP HERE BUT IMPROPER SPELLING FROM MEI USERS
-     * MAKES ME SOMEWHAT HESITANT
      * Converts a string instrVoice from mei into an appropriate
      * midi instrument number.
      * -1 is returned for an invalid instrument so that validity
@@ -104,8 +62,8 @@ public class ConvertToMidiWithStats {
      * search of the word, an abbreviation makes for a more 
      * thorough check.
      * http://www.midi.org/techspecs/gm1sound.php
-     * @param instr
-     * @param stats
+     * @param instr instrument name to be converted to midi instrument integer
+     * @param stats stats object to record any invalid instruments
      * @return midi number of string instr
      */
     public static int instrToMidi(String instr, MeiStatTracker stats) {
@@ -232,8 +190,8 @@ public class ConvertToMidiWithStats {
      * Converts tempo string to bpm int based on Wikipedia data of 
      * basic tempo markings.
      * http://en.wikipedia.org/wiki/Tempo
-     * @param tempo
-     * @param stats
+     * @param tempo given name tempo from mei document
+     * @param stats stats object to record invalid tempos
      * @return tempo string converted to bpm int
      */
     public static int tempoToBpm(String tempo, MeiStatTracker stats) {
@@ -312,14 +270,13 @@ public class ConvertToMidiWithStats {
     /**
      * Converts MEI note to appropriate Midi int using note element attributes
      * pname, oct and accid.
-     * This will throw an exception through the java midi sequencer
+     * This will throw a runtime exception through the java midi sequencer
      * if the notes are out of midi bounds.
-     * @param pname
-     * @param oct
+     * @param pname letter name of note to be converted to midi integer
+     * @param oct mei octave of the given note
      * @return midi int given mei note values
      */
     public static int NoteToMidi(String pname, String oct, String accid) {
-        //difference between accid and accid.ges?
         int midiNote = 0; //start with C0
         int octave = 1;
         if(oct != null && !oct.equals("0")) {

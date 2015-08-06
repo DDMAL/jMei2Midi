@@ -10,20 +10,55 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- *
- * @author dinamix
+ * MeiWork will keep track of all the required data from
+ * an mei work element. This will then be used to populate
+ * the MeiStaff object if information there is missing.
+ * These are essentially default values from the mei metadata
+ * in case the music data is not provided.
+ * @author Tristano Tenaglia
  */
 public class MeiWork {
+    /**
+     * An n attribute that uniquely identifies a work
+     */
     private int n;
+    
+    /**
+     * The name of the key for this work 
+     */
     private String keyName;
+    
+    /**
+     * The name of the mode for this work 
+     */
     private String keyMode;
-    private String keysig; //Only used with scoredef, not work
-                           //keysig is specific to MeiStaff, not MeiWork
+    /**
+     * The key signature used by this work
+     */
+    private String keysig;
+    
+    /**
+     * The meter count for this work
+     */
     private String meterCount;
+    /**
+     * The meter unit for this work
+     */
     private String meterUnit;
+    /**
+     * Temp for this work as a string
+     */
     private String tempo;
+    /**
+     * Name of instruments given by instrvoice elements
+     * within the work element as a child of work
+     */
     private HashMap<Integer,String> instrVoice;
     
+    /**
+     * Default constructor in case no information is given.
+     * @param n n attribute to uniquely identify this work
+     */
     public MeiWork(int n) {
         this.n = n;
         this.keyName = "c";
@@ -35,6 +70,15 @@ public class MeiWork {
         instrVoice = new HashMap<>();
     }
     
+    /**
+     * MeiWork constructor based on any required data.
+     * @param n n attribute to uniquely identify work
+     * @param keyName name of the key that this work uses
+     * @param keyMode the key mode that this work uses
+     * @param meterCount the meter count of this work
+     * @param meterUnit the meter unit of this work
+     * @param tempo the tempo of this work
+     */
     public MeiWork(int n,
                    String keyName,
                    String keyMode,
@@ -72,6 +116,7 @@ public class MeiWork {
     }
 
     /**
+     * Set the keyName if the given attribute exists
      * @param keyName the keyName to set
      */
     public void setKeyName(String keyName) {
@@ -88,6 +133,7 @@ public class MeiWork {
     }
 
     /**
+     * Set the keymode if the given attribute exists
      * @param keyMode the keyMode to set
      */
     public void setKeyMode(String keyMode) {
@@ -104,6 +150,7 @@ public class MeiWork {
     }
 
     /**
+     * Set the key signature if the given attribute exists
      * @param keysig the keysig to set
      */
     public void setKeysig(String keysig) {
@@ -120,6 +167,7 @@ public class MeiWork {
     }
 
     /**
+     * Set the meter count if the given attribute exists
      * @param meterCount the meterCount to set
      */
     public void setMeterCount(String meterCount) {
@@ -136,6 +184,7 @@ public class MeiWork {
     }
 
     /**
+     * Set the meter unit if the given attribute exists
      * @param meterUnit the meterUnit to set
      */
     public void setMeterUnit(String meterUnit) {
@@ -165,13 +214,20 @@ public class MeiWork {
         return instrVoice;
     }
     
+    /**
+     * Add an instrument to the instrVoice list.
+     * @param n unique n attribute of instrument to be added
+     * @param instrument name of instrument given in mei
+     */
     public void addInstrVoice(int n, String instrument) {
         instrVoice.put(n, instrument);
     }
     
-         /**
+    /**
      * Compare this element to another object.
-     * @return 
+     * @return true if keyname, keymode, tempo,
+     * 				metercount, meterunit and instrvoice
+     * 				are all equal or else return false
      */
     @Override
     public boolean equals(Object obj) {
@@ -198,7 +254,7 @@ public class MeiWork {
 
     /**
      * Overridden hashcode.
-     * @return 
+     * @return hashcode base on unique n attribute
      */
     @Override
     public int hashCode() {

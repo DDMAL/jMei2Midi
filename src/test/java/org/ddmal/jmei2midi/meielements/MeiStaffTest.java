@@ -6,10 +6,13 @@
 package org.ddmal.jmei2midi.meielements;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -35,18 +38,17 @@ public class MeiStaffTest {
     @Test
     public void testComputeKey() {
         MeiStaff CMajor = new MeiStaff(0, "", "", "0", "","","");
-        HashMap<String,String> expectCMajor = CMajor.getKeysigMap();
-        assertNull(expectCMajor.get("f"));
+        Map<String,String> expectCMajor = CMajor.getKeysigMap();
         
         MeiStaff GMajor = new MeiStaff(0, "", "", "1s", "","","");
-        HashMap<String,String> expectGMajor = GMajor.getKeysigMap();
-        HashMap<String,String> actualGMajor = new HashMap<String,String>();
+        Map<String,String> expectGMajor = GMajor.getKeysigMap();
+        Map<String,String> actualGMajor = new HashMap<String,String>();
         actualGMajor.put("f", "s");
         assertEquals(actualGMajor,expectGMajor);
         
         MeiStaff ASMinor = new MeiStaff(0, "", "", "7s", "","","");
-        HashMap<String,String> expectASMinor = ASMinor.getKeysigMap();
-        HashMap<String,String> actualASMinor = new HashMap<String,String>();
+        Map<String,String> expectASMinor = ASMinor.getKeysigMap();
+        Map<String,String> actualASMinor = new HashMap<String,String>();
         actualASMinor.put("f", "s");
         actualASMinor.put("c", "s");
         actualASMinor.put("g", "s");
@@ -65,8 +67,8 @@ public class MeiStaffTest {
         assertNull(expectASMinor.get("q"));
         
         MeiStaff AFMinor = new MeiStaff(0, "", "", "7f", "","","");
-        HashMap<String,String> expectAFMinor = AFMinor.getKeysigMap();
-        HashMap<String,String> actualAFMinor = new HashMap<String,String>();
+        Map<String,String> expectAFMinor = AFMinor.getKeysigMap();
+        Map<String,String> actualAFMinor = new HashMap<String,String>();
         actualAFMinor.put("b", "f");
         actualAFMinor.put("e", "f");
         actualAFMinor.put("a", "f");

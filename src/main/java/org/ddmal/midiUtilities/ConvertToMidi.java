@@ -6,16 +6,26 @@
 package org.ddmal.midiUtilities;
 
 /**
- *
- * @author dinamix
+ * A class that converts mei data to midi data.
+ * These type of data include instrument names, tempos,
+ * note names, durations and remainders.
+ * @author Tristano Tenaglia
  */
-public class ConvertToMidi {
+public final class ConvertToMidi {
     
-    /**
-     * Converts instr to Percussion specifically for channel 9
-     * in the MeiStaff objects.
-     * @param instr
-     * @return 
+	/**
+     * Converts a string percussion from mei into an appropriate
+     * midi instrument note number in channel 9.
+     * -1 is returned for an invalid instrument so that validity
+     * can be check when comparing mei element labels and metadata.
+     * Note: Some words are cut short because examples were found
+     * with this abbrevation and because it does not impact the actual
+     * search of the word, an abbreviation makes for a more 
+     * thorough check.
+     * http://www.midi.org/techspecs/gm1sound.php
+     * @param instr instrument name to be converted to midi instrument integer
+     * @return the midi instrument value of the instr given and if 
+     * 			it is invalid, then return -1
      */
     public static int instrToPerc(String instr) {
         int percInstr = 0;
@@ -38,8 +48,15 @@ public class ConvertToMidi {
     /**
      * Converts a string instrVoice from mei into an appropriate
      * midi instrument number.
+     * All names are converted to lowercase for consistency.
+     * -1 is returned for an invalid instrument so that validity
+     * can be check when comparing mei element labels and metadata.
+     * Note: Some words are cut short because examples were found
+     * with this abbrevation and because it does not impact the actual
+     * search of the word, an abbreviation makes for a more 
+     * thorough check.
      * http://www.midi.org/techspecs/gm1sound.php
-     * @param instr
+     * @param instr instrument name to be converted to midi instrument integer
      * @return midi number of string instr
      */
     public static int instrToMidi(String instr) {
@@ -166,7 +183,7 @@ public class ConvertToMidi {
      * Converts tempo string to bpm int based on Wikipedia data of 
      * basic tempo markings.
      * http://en.wikipedia.org/wiki/Tempo
-     * @param tempo
+     * @param tempo given name tempo from mei document
      * @return tempo string converted to bpm int
      */
     public static int tempoToBpm(String tempo) {
@@ -238,14 +255,13 @@ public class ConvertToMidi {
     /**
      * Converts MEI note to appropriate Midi int using note element attributes
      * pname, oct and accid.
-     * This will throw an exception through the java midi sequencer
+     * This will throw a runtime exception through the java midi sequencer
      * if the notes are out of midi bounds.
-     * @param pname
-     * @param oct
+     * @param pname letter name of note to be converted to midi integer
+     * @param oct mei octave of the given note
      * @return midi int given mei note values
      */
     public static int NoteToMidi(String pname, String oct, String accid) {
-        //difference between accid and accid.ges?
         int midiNote = 0; //start with C0
         int octave = 1;
         try {
@@ -313,8 +329,8 @@ public class ConvertToMidi {
      * Convert a note duration to an equivalent midi tick.
      * Assumes a PPQ of 256.
      * Truncates fraction so that it can be added later on.
-     * @param dur
-     * @return 
+     * @param dur duration of mei note to be converted to midi long tick
+     * @return duration given as a midi long tick
      */
     public static long durToTick(String dur, int num, int numbase, int dot) {
         if( dur == null || dur.equals("0")) {
@@ -326,6 +342,13 @@ public class ConvertToMidi {
         }
     }
     
+    /**
+     * Tick remainder that needs to be added to end of
+     * measure when something like a tuplet is encountered.
+     * @param num the num attribute of a tuplet or tupletSpan element
+     * @return return 256 modulo num 
+     * 			because this gives the remained based on PPQ = 256
+     */
     public static long tickRemainder(int num) {
         return 256 % num;
         

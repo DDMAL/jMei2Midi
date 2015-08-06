@@ -54,7 +54,6 @@ public class MeiChord extends LayerChild {
         
         //Get duration of a note because they will all be the same
         //Put dur into layerChild hash here
-        String tickString = getDurString();
         this.tick = getDurToTick();
         
         //Process chord children
