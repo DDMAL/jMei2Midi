@@ -1,4 +1,4 @@
-jMei2Midi Description
+jMei2Midi 1.0 Description
 =====================
 
 A Java Maven project that converts a given MEI file to a
@@ -79,4 +79,13 @@ One will notice that any newly implemented MEI element can be done so in 1 of 3 
    It is very likely that the staffinfo package can be simply updated to deal with minor changes.
 3. If the MEI element is a child of the MEI layer element and/or involved with partial/direct midi information,
    then it should be added to the meielements.layerchild package and the class should extend LayerChild.
+
+In Progress
+===========
+- Return to jSymbolic from jMEI2MIDI a NonMidiInformation object that contains information about grace notes (MIDI tick, channel, and pitch of each grace note)
+		- Other non-grace note information can be added to this same object later (e.g. chord labels, diatonic intervals would be useful, etc.)
+		- Code for actually using this object in jSymbolic can be added later
+
+The pipeline is under development and has been implemented in a very limited and general way within jMei2Midi. Further updating and refactoring should
+be done if continuing to expand the pipeline.
    

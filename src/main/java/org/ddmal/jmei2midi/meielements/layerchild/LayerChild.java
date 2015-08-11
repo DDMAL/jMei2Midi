@@ -36,7 +36,7 @@ public abstract class LayerChild {
      * @param sequence The Java MIDI Sequence Object which is being added to.
      * @param element The current MeiEelement that is being processed.
      */
-    public LayerChild(MeiStaff currentStaff, MeiMeasure currentMeasure,
+    protected LayerChild(MeiStaff currentStaff, MeiMeasure currentMeasure,
                          Sequence sequence, MeiElement element) {
         this.currentStaff = currentStaff;
         this.currentMeasure = currentMeasure;

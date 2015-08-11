@@ -44,6 +44,7 @@ MeiStaffBuilder.java
 		
 List of valid instrument names
 ==============================
+Found in ConvertToMidi.java
 Note : any string containing these words are valid
 	   and this is the order in which the name is checked
 Name = Midi number
@@ -94,6 +95,7 @@ bass drum = 35
 
 List of valid tempo names
 =========================
+Found in ConvertToMidi.java
 Note : any string containing these words are valid
 	   and this is the order in which the name is checked
 	   and if name is not value then bpm = 90
