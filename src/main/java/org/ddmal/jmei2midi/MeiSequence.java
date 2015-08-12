@@ -5,279 +5,499 @@
  */
 package org.ddmal.jmei2midi;
 
-import ca.mcgill.music.ddmal.mei.MeiAttribute;
+import org.ddmal.jmei2midi.meielements.staffinfo.MeiWork;
+import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
+import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.general.MeiRepeat;
+
 import ca.mcgill.music.ddmal.mei.MeiDocument;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import ca.mcgill.music.ddmal.mei.MeiXmlReader;
-import java.util.ArrayList;
+import ca.mcgill.music.ddmal.mei.MeiXmlReader.MeiXmlReadException;
+
+import java.io.File;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
-import javax.sound.midi.Track;
+
+import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
+import org.ddmal.jmei2midi.meielements.layerchild.LayerChildEnum;
+import org.ddmal.jmei2midi.meielements.layerchild.LayerChildFactory;
+import org.ddmal.jmei2midi.meielements.staffinfo.StaffBuilderEnum;
+import org.ddmal.jmei2midi.meielements.staffinfo.StaffBuilderFactory;
+import org.ddmal.midiUtilities.ConvertToMidi;
+
 /**
- *
- * @author dinamix
+ * Build an MEISequence containing all MEI information. This is done using a
+ * recursive DFS for the XML MEI document and class hierarchies for the
+ * conversion from MEI to MIDI. The MEI information is added to the MIDI
+ * Sequence sequentially as it is parsed. 
+ * 
+ * <p>For further development, it would be
+ * highly recommended to first read through and understand the MeiSequence
+ * class. One will notice that any newly implemented MEI element can be done so
+ * in 1 of 3 ways.</p>
+ * 
+ * <p>1. If the MEI element is a general element that affects the recursive XML
+ * stack, then it should be added to the meielements.general package and the
+ * class should extend MeiGeneral.</p>
+ * 
+ * <p>2. If the MEI element is involved with the
+ * staff information (i.e. key, instrument, mode...), then it should be added to
+ * the meielement.staffinfo package and the class may or may not extend
+ * MeiStaffBuilder. It is very likely that the staffinfo package can be simply
+ * updated to deal with minor changes.</p>
+ * 
+ * <p>3. If the MEI element is a child of the
+ * MEI layer element and/or involved with partial/direct midi information, then
+ * it should be added to the meielements.layerchild package and the class should
+ * extend LayerChild.</p>
+ * 
+ * @author Tristano Tenaglia
  */
 public class MeiSequence {
-    
-    private MeiDocument document;
-    
-    private Sequence sequence;
-    
-    private List<MeiStaff> staffs;
-    
-    private List<Track> tracks; //keep tracks in sequence for simpler reference
-                                //and for >16 staffs
-                                //Will relate to the n attribute of MeiStaff
-                                //and will go into the list accordingly.
-                                //Account for channel 9 drums and >15 in 15
-    
-    //Might need to use List<String> if each staff needs its own defaults
-    //Right now these are global defaults taken from scoreDef
-    //If no other information is given then defaults will be used
-    private String[] defaults;  //this accounts for changes in <scoreDef>
-                                //that may or may not need to be global
-                                //defaults[0] for tempo
-                                //defaults[1] for meter.count
-                                //defaults[2] for meter.unit
-                                //defaults[3] for key.sig
-                                //defaults[4] for key.mode
-                               
-    private HashMap<String,String> xmlIds; //not necessary with DFS
-    
-    /**
-     * Constructor that creates a MIDI Sequence given an MEI filename.
-     * @param filename 
-     * @throws javax.sound.midi.InvalidMidiDataException 
-     */
-    public MeiSequence(String filename) throws InvalidMidiDataException {
-        
-        //Read in MEI XML file
-        document = MeiXmlReader.loadFile(filename);
-        
-        //Instantiate tracks as ArrayList
-        tracks = new ArrayList<Track>();
-        
-        //Instantiate staffs as ArrayList
-        staffs = new ArrayList<MeiStaff>();
-        
-        //Create new defaults array for default values
-        //So far we need 5 values for:
-        //tempo, meter.count, meter.unit, key.sig and key.mode
-        defaults = new String[5];
-        
-        //Turn the document into a MIDI sequence
-        //It is returned in the class sequence variable
-        documentToSequence();
-    }
-    
-    /**
-     * Returns Java MIDI Sequence created from MeiSequence MEI file input.
-     * @return 
-     */
-    public Sequence getSequence() {
-        return this.sequence;
-    }
-    
-    /**
-     * RETURN STRING[] DEFAULTS FOR TESTING PURPOSES
-     * @return 
-     */
-    public String[] getDefaults() {
-        return this.defaults;
-    }
-    
-    /**
-     * RETURN LIST\<MEISTAFF\> STAFFS FOR TESTING PURPOSES
-     * @return 
-     */
-    public List<MeiStaff> getStaffs() {
-        return this.staffs;
-    }
 
-    /**
-     * Converts given document to MIDI sequence object.
-     * mei is the root element of any mei document.
-     * mei children will be meiHead and music.
-     * meiHead is for tempo and music is for notes and other changes.
-     * @throws javax.sound.midi.InvalidMidiDataException
-     */
-    private void documentToSequence() throws InvalidMidiDataException {
-        try {
-            sequence = new Sequence(Sequence.PPQ, 256);
-        }
-        catch(InvalidMidiDataException imde) {
-            throw new InvalidMidiDataException(
-                    "Problem with instantiating Java Sequence.");
-        }
-        MeiElement mei = document.getRootElement();
-        for(MeiElement element : mei.getChildren()) {
-            recursiveDFS(element);
-        }
-    }
-    
-    /**
-     * Recursive DFS through MEI document.
-     * Sequentially goes through all tags 
-     * then either processParent() or processElement() is called.
-     * @param root 
-     */
-    public void recursiveDFS(MeiElement root) {
-        processElement(root);
-    }
-    
-    
-    /**
-     * Each MEI element processed accordingly.
-     * If element not in switch statement below, then not processed at all.
-     * @param element can be any MEI tag
-     */
-    //COULD TEST WITH SWITCH STATEMENT FOR NEATNESS
-    //would need to check if switch uses .equals() or == (probably .equals())
-    public void processElement(MeiElement element) {
-        //Get children of mdiv which will probably be <body>
-        if(element.getName().equals("music")) {
-            processParent(element);
-        }
-        //Get children of mdiv which will probably be <mdiv>
-        else if(element.getName().equals("body")) {
-            processParent(element);
-        }
-        //Get children of mdiv which will probably be <score>
-        else if(element.getName().equals("mdiv")) {
-            processParent(element);
-        }
-        //Get children of score which will probably be <scoreDef>
-        //or <section>
-        else if(element.getName().equals("score")) {
-            processParent(element);
-        }
-        //Explicitly process scoreDef so that we maintain the
-        //meter count between staffs.
-        else if(element.getName().equals("scoreDef")) {
-            processScoreDef(element);
-        }
-        //Get children of staffGrp which will probably be <staffDeff>
-        else if(element.getName().equals("staffGrp")) {
-            processParent(element);
-        }
-        //PROCESS STAFFDEF WHICH WILL CREATE NEW MIDI CHANNEL
-        //If no instrument is found, then maybe no need to change
-        else if(element.getName().equals("staffDef")) {
-            processStaffDef(element);
-        }
-        else if(element.getName().equals("section")) {
-            //Get children of section which will probably be <measure>
-        }
-        else if(element.getName().equals("measure")) {
-            //Get children of measure which will probably be <staff>
-        }
-        else if(element.getName().equals("staff")) {
-            //Get children of staff which will probably be <layer>
-            //If staff has more than 2 children, need to consider offset
-            //Check staff n attribute and then pass on MeiStaff
-        }
-        else if(element.getName().equals("layer")) {
-            //Get children of layer which will be note, rest or mRest
-            //Layers within a staff will all start at the same tick
-        }
-        else if(element.getName().equals("beam")) {
-            //Get children of layer which will be note, rest or mRest
-        }
-        else if(element.getName().equals("chord")) {
-            //Get children of layer which will be note, rest or mRest
-            //need to keep track of duration for each note
-        }
-        else if(element.getName().equals("note")) {
-            //Process note to MIDI
-            //Consider accidentals and key sig
-            //(n = natural, s = sharp, f = flat) 
-            //accid/accid.ges overrules key sig
-        }
-        else if(element.getName().equals("rest")) {
-            //Process rest to MIDI
-        }
-        else if(element.getName().equals("mRest")) {
-            //Complete measure rest
-            //use meter to calculate full measure rest
-        }
-        else if(element.getName().equals("keySig")) {
-            //change in keySig in MeiStaff
-        }
-    }
-    
-    /**
-     * Process a generic element(parent) and iteratively pass children to
-     * processElement(child).
-     * @param parent 
-     */
-    public void processParent(MeiElement parent) {
-        for(MeiElement child : parent.getChildren()) {
-            processElement(child);
-        }
-    }
-    
-    /**
-     * Stores meter.count, meter.unit and key.sig in String[] defaults.
-     * These will be used for staffDef elements as default values.
-     * @param scoreDef passed scoreDef tag
-     */
-    public void processScoreDef(MeiElement scoreDef) {
-        //Keep default key.sig and then use
-        //staff def key.sig on other staffs
-        String count = scoreDef.getAttribute("meter.count");
-        String unit = scoreDef.getAttribute("meter.unit");
-        String keysig = scoreDef.getAttribute("key.sig");
-        String keymode = scoreDef.getAttribute("key.mode");
-        if(count != null) {
-            defaults[1] = count;
-        }
-        if(unit != null) {
-            defaults[2] = unit;
-        }
-        if(keysig != null) {
-            defaults[3] = keysig;
-        }
-        if(keymode != null) {
-            defaults[4] = keymode;
-        }
-        processParent(scoreDef);
-    }
-    
-    //Need to check n for 10 or greater than 16
-    //Then check if n is in staff or else create new MeiStaff
-    //And create new Track()
-    public void processStaffDef(MeiElement staffDef) {
-        MeiStaff thisStaff;
-        int n = 0;
-        String nString = staffDef.getAttribute("n");
-        if(nString != null) {
-            n = Integer.parseInt(nString);
-        }
-        if(staffs.size() > n-1) {
-            thisStaff = staffs.get(n);
-        }
-        String label = staffDef.getAttribute("label");
-        String keysig = staffDef.getAttribute("key.sig");
-        String keymode = staffDef.getAttribute("key.mode");
-        if(label == null) {
-            label = "Piano";
-        }
-        if(keysig == null) {
-            
-        }
-    }
-    
-    public void processChord(MeiElement parent) {
-        
-    }
-    
-    public void processNote(MeiElement parent) {
-        
-    }
-    
-    public void processRest(MeiElement parent) {
-        
-    }
+	/**
+	 * MEIDocument that will be used to create this MeiSequence.
+	 */
+	private MeiDocument document;
+
+	/**
+	 * The MIDI Sequence of this MEI document.
+	 */
+	private Sequence sequence;
+
+	/**
+	 * The current staff we are editing during parsing.
+	 */
+	private MeiStaff currentStaff;
+
+	/**
+	 * All staffs used throughout this MEI document. Key : n attribute or
+	 * sequential, Value : MeiStaff object
+	 */
+	private Map<Integer, MeiStaff> staffs;
+
+	/**
+	 * This will contain metadata and be related to mdiv and scoreDef tags. If
+	 * no other information is given then defaults will be used. This accounts
+	 * for changes in scoreDef tags as well.
+	 */
+	private Map<Integer, MeiWork> works;
+
+	/**
+	 * Current movement is set in the current mDiv object.
+	 */
+	private MeiMdiv currentMdiv;
+
+	/**
+	 * WARNING: THIS COULD BE CHANGED BECAUSE TUPLETSPANS ARE NOT SPECIFIC TO
+	 * MEASURE. Stores info specific to a certain measure such as accidentals
+	 * and tupletSpans.
+	 */
+	private MeiMeasure currentMeasure;
+
+	/**
+	 * Store all mei repeat starts and ends.
+	 */
+	private MeiRepeat repeats;
+
+	/**
+	 * This allows a sequence to generate some mei stats, such as invalid tempo
+	 * and invalid instruments.
+	 */
+	private MeiStatTracker stats;
+
+	/**
+	 * Constructor that creates a MIDI Sequence given an MEI filename and also
+	 * keeps track of some mei stats using MeiStatTracker reference.
+	 * 
+	 * @param file
+	 *            File object for this.
+	 * @param stats
+	 *            MeiStatTracker object for this.
+	 * @throws javax.sound.midi.InvalidMidiDataException
+	 * @throws MeiXmlReader.MeiXmlReadException
+	 */
+	public MeiSequence(File file, MeiStatTracker stats)
+			throws InvalidMidiDataException, MeiXmlReadException {
+		this.staffs = new HashMap<>();
+		this.currentStaff = new MeiStaff(1); // 1 in case there are no n
+												// attributes for staffs within
+												// measures
+		this.works = new HashMap<>();
+		this.currentMdiv = new MeiMdiv();
+		this.repeats = new MeiRepeat();
+
+		this.document = MeiXmlReader.loadFile(file);
+		this.stats = stats;
+		stats.setFileName(file.getPath());
+		documentToSequence();
+	}
+
+	/**
+	 * Constructor given only a filename. This will generate a unique
+	 * MeiStatTracker object.
+	 * 
+	 * @param filename
+	 *            Name of the file to be given to this.
+	 * @throws InvalidMidiDataException
+	 * @throws MeiXmlReadException
+	 */
+	public MeiSequence(String filename) throws InvalidMidiDataException,
+			MeiXmlReadException {
+		this(new File(filename), new MeiStatTracker(filename));
+	}
+
+	/**
+	 * Constructor given only a file object. This will generate a unique
+	 * MeiStatTracker object.
+	 * 
+	 * @param file
+	 *            File object to be given to this.
+	 * @throws InvalidMidiDataException
+	 * @throws MeiXmlReadException
+	 */
+	public MeiSequence(File file) throws InvalidMidiDataException,
+			MeiXmlReadException {
+		this(file, new MeiStatTracker(file.getPath()));
+	}
+
+	/**
+	 * Constructor given a file name and stats object. This stats object can be
+	 * re-used in other files.
+	 * 
+	 * @param filename
+	 *            Name of the file to be given to this.
+	 * @param stats
+	 *            MeiStatTracker object for this.
+	 * @throws InvalidMidiDataException
+	 * @throws MeiXmlReadException
+	 */
+	public MeiSequence(String filename, MeiStatTracker stats)
+			throws InvalidMidiDataException, MeiXmlReadException {
+		this(new File(filename), stats);
+	}
+
+	/**
+	 * Java MIDI Sequence created from MeiSequence MEI file input.
+	 * @return Java MIDI Sequence created from MeiSequence MEI file input.
+	 */
+	public Sequence getSequence() {
+		return this.sequence;
+	}
+
+	/**
+	 * @return STRING[] DEFAULTS FOR TESTING PURPOSES
+	 */
+	protected Map<Integer, MeiWork> getWorks() {
+		return this.works;
+	}
+
+	/**
+	 * @return HASHMAP\<MEISTAFF\> STAFFS FOR TESTING PURPOSES
+	 */
+	protected Map<Integer, MeiStaff> getStaffs() {
+		return this.staffs;
+	}
+
+	/**
+	 * A stat tracker which currently finds invalid instruments and tempos
+	 * in a given mei document.
+	 * @return MeiStatTracker created from any invalid data needed.
+	 */
+	public MeiStatTracker getStats() {
+		return this.stats;
+	}
+
+	/**
+	 * Converts given MEI document to MIDI sequence object. mei is the root
+	 * element of any mei document. mei direct children will be meiHead and
+	 * music.
+	 * 
+	 * @throws javax.sound.midi.InvalidMidiDataException
+	 */
+	private void documentToSequence() throws InvalidMidiDataException {
+		sequence = new Sequence(Sequence.PPQ, 256);
+		recursiveDFS(document.getRootElement());
+	}
+
+	/**
+	 * Recursive DFS through MEI document.
+	 * This ensures that all tags are seen by the search.
+	 * 
+	 * @param root The root mei XML element (i.e. mei tag).
+	 */
+	private void recursiveDFS(MeiElement root) {
+		processElement(root);
+	}
+
+	/**
+	 * Each MEI element processed as accordingly. Some elements may only be
+	 * processed within other elements such as a note. Also checks for copyOf
+	 * and sameAs attribute.
+	 * 
+	 * Processing :
+	 * 1. LayerChild is created.
+	 * 2. StaffBuilder is created.
+	 * 3. MeiGeneral is created.
+	 * 
+	 * @param element Can be any MEI tag.
+	 */
+	private void processElement(MeiElement element) {
+		// See if this element is a copy and then process accordingly
+		checkForCopyOf(element);
+
+		String name = element.getName();
+		if (LayerChildEnum.contains(name)) {
+			checkLayerStart(element);
+			LayerChildFactory.buildLayerChild(currentStaff, currentMeasure,
+					sequence, element);
+			checkLayerEnd(element);
+		} else if (StaffBuilderEnum.contains(name)) {
+			StaffBuilderFactory.buildStaffBuilder(sequence, stats, staffs,
+					works, currentMdiv, currentStaff, element);
+			processParent(element);
+		} else {
+			processGeneral(element);
+		}
+	}
+
+	/**
+	 * Process a generic element(parent) and iteratively pass children to
+	 * processElement(child).
+	 * 
+	 * @param parent The mei element whose children will be processed.
+	 */
+	private void processParent(MeiElement parent) {
+		for (MeiElement child : parent.getChildren()) {
+			processElement(child);
+		}
+	}
+
+	/**
+	 * Process general mei elements that are sub classes of MeiGeneral or other
+	 * unique processing cases such as repeats and incips. Otherwise, children
+	 * are found and process accordingly.
+	 * Generally, these elements directly impact the recursive function call stack
+	 * and so they cannot be naturally implemented into their own class hierarchy.
+	 * 
+	 * @param element General mei element which will be processed.
+	 */
+	private void processGeneral(MeiElement element) {
+		switch (element.getName()) {
+		case "mdiv":
+			processMdiv(element);
+			break;
+
+		case "ending":
+			processEnding(element);
+			break;
+
+		case "measure":
+			processMeasure(element);
+			break;
+
+		case "staff":
+			processStaff(element);
+			break;
+
+		case "layer":
+			processLayer(element);
+			break;
+
+		case "incip":
+			break; // used to skip over incip music in metadata
+
+		default:
+			processParent(element);
+			break;
+		}
+	}
+
+	/**
+	 * Set the currentMdiv to the appropriate movement.
+	 * 
+	 * @param mdiv mdiv mei element that will be processed.
+	 */
+	private void processMdiv(MeiElement mdiv) {
+		currentMdiv.setCurrentMovement(mdiv);
+		processParent(mdiv);
+	}
+
+	/**
+	 * Ending measure is used for alternative repeats and so a check is made in
+	 * order to not repeat the ending on the second DFS pass. The regular
+	 * repeat pattern of "rptstart" and "rptend" are used for the actual
+	 * repeating mechanism.
+	 * 
+	 * @param ending ending mei element that will be processed.
+	 */
+	private void processEnding(MeiElement ending) {
+		// If we are not on an ending, then go through and repeat
+		if (!repeats.hasEnding()) {
+			repeats.setEnding(ending);
+			processParent(ending);
+			repeats.resetEnding();
+		}
+		// If we are already on a repeat then check if it is the same ending
+		else if (repeats.getEnding().equals(ending.getId())) {
+			repeats.resetEndRepeat();
+		}
+	}
+
+	/**
+	 * MEI measure will be processed so that tick offsets between staffs will be
+	 * the same. It will also fetch measure children such as tupletSpan and tie
+	 * elements to be processed sequentially later.
+	 * 
+	 * @param measure measure mei element that will be processed.
+	 */
+	private void processMeasure(MeiElement measure) {
+		//Check for a repeat within a measure
+		if (repeats.toProcess(measure)) {
+			// Set up a new measure object every time we have a new measure
+			// This will implicitly reset the hashmaps within MeiMeasure
+			// And check for repeats within the measure
+			currentMeasure = new MeiMeasure(measure);
+
+			// Process the measure elements' children
+			processParent(measure);
+			
+			/*
+			 * CAUTION
+			 * The following code has been thoroughly thought through
+			 * and should be changed very carefully.
+			 * It allows odd mei encoding (such as ties not ending or offset rests)
+			 * errors to not propagate past a measure by
+			 * naturally reseting the tick count at the start of every measure.
+			 */
+			
+			// If there is a rest on same staff but different
+			// layer then layers will not match up.
+			// This forces same ending on each measure
+			long longLayer = 0;
+			for (MeiStaff thisStaff : staffs.values()) {
+				if (thisStaff.getTickLayer() > longLayer) {
+					longLayer = thisStaff.getTickLayer();
+				}
+			}
+			// set all staff ticks appropriately
+			for (MeiStaff thisStaff : staffs.values()) {
+				thisStaff.setTick(thisStaff.getTick() + longLayer);
+				thisStaff.setTickLayer(0);
+			}
+			
+			/*
+			 * END OF CAUTION
+			 */
+
+			// Check and perform a typical (non-ending) repeat
+			if (repeats.compareEndID(measure) && !repeats.inRepeat()) {
+				repeats.setInRepeat(); // in repeat
+				processParent(document.getRootElement()); //DFS through repeat
+				repeats.resetInRepeat();// not in repeat
+			}
+		}
+	}
+
+	/**
+	 * Process the mei staff element accordingly. This will process layers of
+	 * staff and will then process any other children normally through
+	 * processElement().
+	 * 
+	 * @param staff staff mei element that will be processed.
+	 */
+	private void processStaff(MeiElement staff) {
+		// Verify n or else assume sequential ordering between staffs
+		// if no information about staffs are given then it will start at 1
+		// which matches with the staffDefs in the staffs hash
+		String nString = staff.getAttribute("n");
+
+		int staffN = (nString != null) ? Integer.parseInt(nString)
+				: currentStaff.getN() + 1;
+
+		// This is a check for if the null n attribute was encoded incorrectly
+		MeiStaff newStaff;
+		if (staffs.containsKey(staffN)) {
+			newStaff = staffs.get(staffN);
+		} else {
+			newStaff = currentStaff;
+		}
+		currentStaff = newStaff;
+
+		processParent(staff);
+	}
+
+	/**
+	 * Process a layer by setting the current tick layer count to 0.
+	 * 
+	 * @param layer layer mei element that will be processed.
+	 */
+	private void processLayer(MeiElement layer) {
+		currentStaff.setTickLayer(0);
+		processParent(layer);
+	}
+
+	/**
+	 * Checks for a copyof or sameas attribute in any mei element and will
+	 * process the element with the corresponding id.
+	 * 
+	 * @param element copyof or sameas mei element that will be processed.
+	 */
+	private void checkForCopyOf(MeiElement element) {
+		String copyof = element.getAttribute("copyof");
+		String sameas = element.getAttribute("sameas");
+		if (copyof != null) {
+			copyof = copyof.replaceAll("#", "");
+			MeiElement copyElement = document.getElementById(copyof);
+			processParent(copyElement);
+		} else if (sameas != null) {
+			sameas = sameas.replaceAll("#", "");
+			MeiElement sameElement = document.getElementById(sameas);
+			processParent(sameElement);
+		}
+	}
+
+	/**
+	 * Checks any non-sequential mei element that contains a start id and sets
+	 * retained information accordingly. Currently used for tupletSpan element.
+	 * 
+	 * @param child child mei element that will be checked for current starting tupletSpans.
+	 */
+	private void checkLayerStart(MeiElement child) {
+		// Check whether a start tuplet or end tuplet is there
+		// One note cannot have more than one tuplet value on it
+		MeiElement tupletSpan = currentMeasure.getStart("tupletSpan",
+				child.getId());
+		if (tupletSpan != null) {
+			int num = Integer.parseInt(tupletSpan.getAttribute("num"));
+			int numbase = Integer.parseInt(tupletSpan.getAttribute("numbase"));
+			currentMeasure.setNum(num);
+			currentMeasure.setNumBase(numbase);
+		}
+	}
+
+	/**
+	 * Checks any non-sequential mei element that contains an end id and resets
+	 * any previous information that needs to be changed. Currently used for
+	 * tupletSpan element.
+	 * 
+	 * @param child child mei element that will be checked for current ending tupletSpans.
+	 */
+	private void checkLayerEnd(MeiElement child) {
+		// Check whether a start tuplet or end tuplet is there
+		// One note cannot have more than one tuplet value on it
+		// ASSUMPTION
+		// This supercedes the tuplet element in importance
+		if (currentMeasure.getEnd("tupletSpan", child.getId()) != null) {
+			// Add tick tick remainder here
+			currentStaff.setTick(currentStaff.getTick()
+					+ ConvertToMidi.tickRemainder(currentMeasure.getNum()));
+			currentMeasure.setNum(1);
+			currentMeasure.setNumBase(1);
+		}
+	}
 }

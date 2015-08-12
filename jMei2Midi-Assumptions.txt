@@ -1,0 +1,124 @@
+jMei2Midi Assumptions
+
+ConvertToMidi.java
+	NoteToMidi()
+		- note with no pname attribute is made into a C
+
+	tempoToBpm()
+		- no given tempo is assumed to be 90 bpm
+
+	durToTick()
+		- PPQ = 256 (like sibelius)
+
+LayerChild.java
+	getDurString()
+		- If no duration is found in dur attribute then note is given a 0 duration.
+
+	- stats could be passed here to get stats on unknown note values
+
+MeiWork.java
+	MeiWork()
+		The following values are assumed if not given in the meta data work
+		- meter unit assumed to be 4
+		- meter count assumed to be 4
+		- key assumed to be c
+		- mode assumed to be major
+		- tempo assumed to be default
+
+MeiStaff.java
+	MeiStaff()
+		The following values are assumed if not given in the scoreDef or staffDef
+		- meter unit assumed to be 4
+		- meter count assumed to be 4
+		- key assumed to be c
+		- mode assumed to be major
+		- tempo assumed to be default
+
+MeiStaffBuilder.java
+	processNewLabel()
+		Precedence for where to fetch instrument information if non is given in label
+		- if no label is found and previous instrument was piano, organ or harpsi then use previous instrument
+		- if the above does not apply, use instrument from work info
+		- if the above does not apply but we previously had an instrument in this staff, then use that
+		- if non of the above apply and we have 2 voices, use piano, or else use voice
+		
+List of valid instrument names
+==============================
+Found in ConvertToMidi.java
+Note : any string containing these words are valid
+	   and this is the order in which the name is checked
+Name = Midi number
+
+piano = 0
+double bass = 34
+cello = 42
+violin = 40
+viol = 41
+contrabass = 42
+soprano sax = 64
+alto sax = 65
+tenor sax = 66
+baritone sax = 67
+harpsi = 6
+clavi = 7
+glocken = 11
+tubular bell = 16
+organ = 19
+guitar = 24
+harp = 46
+timpani = 49
+trumpet = 56
+trombone = 57
+tuba = 58
+euphonium = 58
+french horn = 60
+brass = 61
+sax = 65
+obo = 68
+english = 69
+horn = 69
+bassoon = 70
+clarin = 71
+piccolo = 72
+flute = 73
+flaut = 73
+recorder = 74
+fiddle = 110
+voice = 54
+sopran = 54
+alto = 54
+tenor = 54
+barit = 54
+bass = 54
+snare = 38
+bass drum = 35
+
+List of valid tempo names
+=========================
+Found in ConvertToMidi.java
+Note : any string containing these words are valid
+	   and this is the order in which the name is checked
+	   and if name is not value then bpm = 90
+Name = bpm
+
+larghissimo = 24
+grave = 35
+largo = 50
+lento = 55
+larghetto = 63
+adagio = 71
+adagietto = 74
+andante = 92
+andantino = 94
+marcia moderato = 84
+andante moderato = 102
+moderato = 114
+allegretto = 116
+allegro moderato = 118
+allegro = 144
+vivace = 172
+vivacissimo = 174
+allegrissimo = 174
+allegro vivace = 174
+presto = 184
+prestissimo = 200
