@@ -11,6 +11,8 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiGraceNote;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecific;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
@@ -98,6 +100,15 @@ public class MeiNote extends LayerChild {
             endTick = startTick;
             addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
             addMidiNoteOff(thisTrack, nPitch, startTick, endTick);
+            
+            /**
+             * Add grace notes
+             */
+            MeiSpecific graceSpecificNote = new MeiGraceNote(note);
+            nonMidiStorage.addGraceNote(graceSpecificNote);
+            /**
+             * 
+             */
         }
         else if(chord != null && tieAttribute != null) {
             addMidiTieNote(thisTrack, tieAttribute, nPitch, startTick, endTick);

@@ -143,7 +143,7 @@ public class MeiSequence {
 		this.stats = stats;
                 
                 //MeiSpecificStorage instantiated here
-                this.nonMidiStorage = nonMidiStorage;
+                this.nonMidiStorage = new MeiSpecificStorage();
                 
 		stats.setFileName(file.getPath());
 		documentToSequence();
