@@ -25,6 +25,7 @@ import javax.sound.midi.Sequence;
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 import org.ddmal.jmei2midi.meielements.layerchild.LayerChildEnum;
 import org.ddmal.jmei2midi.meielements.layerchild.LayerChildFactory;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.StaffBuilderEnum;
 import org.ddmal.jmei2midi.meielements.staffinfo.StaffBuilderFactory;
 import org.ddmal.midiUtilities.ConvertToMidi;
@@ -109,6 +110,13 @@ public class MeiSequence {
 	 * and invalid instruments.
 	 */
 	private MeiStatTracker stats;
+        
+        /**
+         * Adding non-midi storage element here
+         * This element is only a demonstration and is
+         * purely for developmental purposes
+         */
+        private MeiSpecificStorage nonMidiStorage;
 
 	/**
 	 * Constructor that creates a MIDI Sequence given an MEI filename and also
@@ -133,6 +141,10 @@ public class MeiSequence {
 
 		this.document = MeiXmlReader.loadFile(file);
 		this.stats = stats;
+                
+                //MeiSpecificStorage instantiated here
+                this.nonMidiStorage = nonMidiStorage;
+                
 		stats.setFileName(file.getPath());
 		documentToSequence();
 	}
@@ -211,6 +223,15 @@ public class MeiSequence {
 	public MeiStatTracker getStats() {
 		return this.stats;
 	}
+        
+        /**
+         * Returns the non midi stored mei information
+         * this implementation is temporary and should be thought through
+         * @return non midi mei info
+         */
+        public MeiSpecificStorage getNonMidiStorage() {
+            return this.nonMidiStorage;
+        }
 
 	/**
 	 * Converts given MEI document to MIDI sequence object. mei is the root
@@ -254,7 +275,7 @@ public class MeiSequence {
 		if (LayerChildEnum.contains(name)) {
 			checkLayerStart(element);
 			LayerChildFactory.buildLayerChild(currentStaff, currentMeasure,
-					sequence, element);
+					sequence, element, nonMidiStorage);
 			checkLayerEnd(element);
 		} else if (StaffBuilderEnum.contains(name)) {
 			StaffBuilderFactory.buildStaffBuilder(sequence, stats, staffs,

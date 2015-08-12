@@ -8,6 +8,7 @@ package org.ddmal.jmei2midi.meielements.layerchild;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import javax.sound.midi.Sequence;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 
 /**
@@ -27,6 +28,7 @@ public abstract class LayerChild {
     protected final MeiStaff currentStaff;
     protected final MeiMeasure currentMeasure;
     protected final MeiElement element;
+    protected final MeiSpecificStorage nonMidiStorage;
     
     /**
      * Constructor for layerChild that sets up the currentStaff
@@ -37,11 +39,13 @@ public abstract class LayerChild {
      * @param element The current MeiEelement that is being processed.
      */
     protected LayerChild(MeiStaff currentStaff, MeiMeasure currentMeasure,
-                         Sequence sequence, MeiElement element) {
+                         Sequence sequence, MeiElement element,
+                         MeiSpecificStorage nonMidiStorage) {
         this.currentStaff = currentStaff;
         this.currentMeasure = currentMeasure;
         this.sequence = sequence;
         this.element = element;
+        this.nonMidiStorage = nonMidiStorage;
     }
     
     /**

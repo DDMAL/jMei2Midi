@@ -8,6 +8,7 @@ package org.ddmal.jmei2midi.meielements.layerchild;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import javax.sound.midi.Sequence;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
 
@@ -34,8 +35,8 @@ public class MeiTuplet extends LayerChild {
      * @param tuplet the mei tuplet element to be processed 
      */
     public MeiTuplet(MeiStaff currentStaff, MeiMeasure currentMeasure, Sequence sequence,
-                     MeiElement tuplet) {
-        super(currentStaff, currentMeasure, sequence, tuplet);
+                     MeiElement tuplet, MeiSpecificStorage nonMidiStorage) {
+        super(currentStaff, currentMeasure, sequence, tuplet, nonMidiStorage);
         this.tuplet = tuplet;
         
         //Give tuplet to MeiStaff
@@ -47,7 +48,7 @@ public class MeiTuplet extends LayerChild {
             
         //Process here with tuplet info
         for(MeiElement child : tuplet.getChildren()) {
-            LayerChildFactory.buildLayerChild(currentStaff, currentMeasure, sequence, child);
+            LayerChildFactory.buildLayerChild(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
         }
             
         //Add mod of odd number to tick once it finishes the tuplet

@@ -11,6 +11,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
 import org.ddmal.midiUtilities.MidiBuildEvent;
@@ -43,8 +44,9 @@ public class MeiNote extends LayerChild {
      * @param note the mei note element to be processed
      */
     public MeiNote(MeiStaff currentStaff, MeiMeasure currentMeasure, 
-                   Sequence sequence, MeiElement note) {
-        super(currentStaff, currentMeasure, sequence, note);
+                   Sequence sequence, MeiElement note,
+                   MeiSpecificStorage nonMidiStorage) {
+        super(currentStaff, currentMeasure, sequence, note, nonMidiStorage);
         this.note = note;
         
         //Used to use note outisde of function for now
