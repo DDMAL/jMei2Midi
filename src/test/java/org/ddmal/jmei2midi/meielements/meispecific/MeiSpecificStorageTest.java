@@ -32,8 +32,7 @@ public class MeiSpecificStorageTest {
      */
     @Test
     public void testGetNumberOfGraceNotes() throws InvalidMidiDataException {
-        String scarlatti = "/Users/dinamix/NetBeansProjects/"
-                + "jMei2Midi/mei-test/CompleteExamples/Scarlatti_Sonata_in_C_major.mei";
+        String scarlatti = "./mei-test/CompleteExamples/Scarlatti_Sonata_in_C_major.mei";
         MeiSequence sequence = new MeiSequence(scarlatti);
         MeiSpecificStorage nonMidiStorage = sequence.getNonMidiStorage();
         
