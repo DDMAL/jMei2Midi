@@ -12,7 +12,6 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiGraceNote;
-import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecific;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
@@ -26,6 +25,7 @@ import org.ddmal.midiUtilities.MidiBuildEvent;
  */
 public class MeiNote extends LayerChild {
     private final MeiElement note;
+    private final String pitchName;
     private final int pitch;
     private final long startTick;
     private final long endTick;
@@ -45,12 +45,13 @@ public class MeiNote extends LayerChild {
      * @param sequence the current sequence to be added to
      * @param note the mei note element to be processed
      */
-    public MeiNote(MeiStaff currentStaff, MeiMeasure currentMeasure, 
+    public MeiNote(MeiStaff currentStaff, MeiMeasure currentMeasure,
                    Sequence sequence, MeiElement note,
                    MeiSpecificStorage nonMidiStorage) {
         super(currentStaff, currentMeasure, sequence, note, nonMidiStorage);
         this.note = note;
-        
+        this.pitchName = note.getAttribute("pname");
+
         //Used to use note outisde of function for now
         currentStaff.setLayerChild(note);
         
@@ -62,10 +63,18 @@ public class MeiNote extends LayerChild {
         this.endTick = startTick + getDurToTick();
         
         //Check parents to see how to process this chord
-        checkNoteParents(pitch,startTick,endTick);
+        checkNoteParents(pitch,startTick,endTick,currentMeasure);
         
         //Remove current note from currentStaff has
         currentStaff.removeLayerChild("note");
+    }
+
+    /**
+     *
+     * @return The pitch name of this note.
+     */
+    public String getPitchName() {
+        return pitchName;
     }
     
     /**
@@ -79,7 +88,8 @@ public class MeiNote extends LayerChild {
      */
     private void checkNoteParents(int nPitch,
                                   long startTick,
-                                  long endTick) {
+                                  long endTick,
+                                  MeiMeasure currentMeasure) {
         Track thisTrack = sequence.getTracks()[currentStaff.getN()-1];
         MeiElement chord = currentStaff.getLayerChild("chord");
         String graceChord = (chord != null) ? chord.getAttribute("grace") : null;
@@ -104,7 +114,8 @@ public class MeiNote extends LayerChild {
             /**
              * Add grace notes
              */
-            MeiSpecific graceSpecificNote = new MeiGraceNote(note);
+            MeiGraceNote graceSpecificNote = new MeiGraceNote(note,currentMeasure,
+                    pitchName,startTick,currentStaff.getChannel());
             nonMidiStorage.addGraceNote(graceSpecificNote);
             /**
              * 
@@ -224,7 +235,7 @@ public class MeiNote extends LayerChild {
      */
     private int getMidiPitch() {
         //Attributes taken here to be processed here
-        String pname = note.getAttribute("pname");
+        String pname = pitchName;
         String oct = note.getAttribute("oct");
         String accid = getAccidental();
         //Get the proper pitch given accidental or key signature

@@ -38,8 +38,7 @@ public class MeiSpecificStorageTest {
         
         //counted in file including grace notes and grace chords each
         int expectedGraceNotes = 44;
-        int actualGraceNotes = nonMidiStorage.getNumberOfGraceNotes();
-        
+        int actualGraceNotes = nonMidiStorage.getGraceNoteList().size();
         assertEquals(expectedGraceNotes, actualGraceNotes);
     }
     

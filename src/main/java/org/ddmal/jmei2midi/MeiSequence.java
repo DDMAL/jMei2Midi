@@ -142,8 +142,8 @@ public class MeiSequence {
 		this.document = MeiXmlReader.loadFile(file);
 		this.stats = stats;
                 
-                //MeiSpecificStorage instantiated here
-                this.nonMidiStorage = new MeiSpecificStorage();
+		//MeiSpecificStorage instantiated here
+        this.nonMidiStorage = new MeiSpecificStorage();
                 
 		stats.setFileName(file.getPath());
 		documentToSequence();

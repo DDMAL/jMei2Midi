@@ -5,6 +5,8 @@
  */
 package org.ddmal.jmei2midi.meielements.meispecific;
 
+import ca.mcgill.music.ddmal.mei.MeiElement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,17 +20,23 @@ import java.util.List;
  */
 public class MeiSpecificStorage {
     
-    private final List<MeiSpecific> graceNoteList;
+    private final List<MeiGraceNote> graceNoteList;
+    private final List<MeiSpecific> generalList;
     
     public MeiSpecificStorage() {
+        generalList = new ArrayList<>();
         graceNoteList = new ArrayList<>();
     }
-    
-    public int getNumberOfGraceNotes() {
-        return graceNoteList.size();
+
+    public void addMeiElement(MeiElement element, String key, String value, String location) {
+        generalList.add(new MeiSpecific(element,key,value,location));
+    }
+
+    public List<MeiGraceNote> getGraceNoteList() {
+        return graceNoteList;
     }
     
-    public void addGraceNote(MeiSpecific graceNote) {
+    public void addGraceNote(MeiGraceNote graceNote) {
         graceNoteList.add(graceNote);
     }
 }

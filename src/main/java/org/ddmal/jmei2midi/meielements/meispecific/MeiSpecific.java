@@ -15,11 +15,47 @@ import ca.mcgill.music.ddmal.mei.MeiElement;
  * 
  * @author Tristano Tenaglia
  */
-public abstract class MeiSpecific {
+public class MeiSpecific {
     
     private final MeiElement element;
-    
-    protected MeiSpecific(MeiElement element) {
+    protected String type;
+    protected String value;
+    protected String locationInScore;
+
+    public MeiSpecific(MeiElement element, String key, String value, String locationInScore) {
         this.element = element;
+        this.type = key;
+        this.value = value;
+        this.locationInScore = locationInScore;
     }
+
+    protected MeiSpecific(MeiElement element) {
+        this(element,null,null,null);
+    }
+
+    public MeiElement getElement() {
+        return element;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getLocationInScore() {
+        return locationInScore;
+    }
+
+    /**
+     * Helper method to standardize if an attribute exists within an element.
+     * @param attribute Given attribute from some MEI element.
+     * @return true if attribute exists
+     */
+    protected boolean attributeExists(String attribute) {
+        return attribute != null;
+    }
+
 }

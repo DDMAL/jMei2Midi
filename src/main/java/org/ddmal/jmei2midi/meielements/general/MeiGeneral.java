@@ -40,4 +40,12 @@ public abstract class MeiGeneral {
     protected boolean attributeExists(String attribute) {
         return attribute != null;
     }
+
+    /**
+     * Getter for the stored MEI element.
+     * @return the specified MEI element
+     */
+    public MeiElement getElement() {
+        return element;
+    }
 }
