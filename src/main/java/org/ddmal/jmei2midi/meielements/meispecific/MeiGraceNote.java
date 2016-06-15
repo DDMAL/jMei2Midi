@@ -11,6 +11,8 @@ import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
 /**
  * An example of a non-midi information class that can contain mei data.
  * This for example is analogous to the grace attribute from an mei note element.
+ * It can also keep track of the position of the particular grace note with respect
+ * to the channel, tick and measure.
  * 
  * @author Tristano Tenaglia
  */

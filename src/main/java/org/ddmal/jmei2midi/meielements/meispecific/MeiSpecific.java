@@ -9,9 +9,8 @@ import ca.mcgill.music.ddmal.mei.MeiElement;
 
 /**
  * This abstract class represents the idea for a higher-order hierarchy
- * of all non-midi mei data. IT IS HIGHLY RECOMMENDED THAT THIS INFORMATION
- * BE ABSTRACTED SOMEHOW EITHER OUTSIDE OF JMEI2MIDI OR FROM ITS OWN SEPARATE
- * PARSER. CURRENTLY THIS IS FOR DEVELOPMENT PURPOSES ONLY.
+ * of all non-midi mei data. This class is required to be sub-classed if some new
+ * particular MEI data would like to be abstracted from the MEI file.
  * 
  * @author Tristano Tenaglia
  */
