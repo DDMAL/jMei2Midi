@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.sound.midi.Sequence;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
 
@@ -44,8 +45,8 @@ public class MeiChord extends LayerChild {
      * @param chord the mei chord element that is being processed
      */
     public MeiChord(MeiStaff currentStaff, MeiMeasure currentMeasure, Sequence sequence,
-                    MeiElement chord) {
-        super(currentStaff, currentMeasure, sequence, chord);
+                    MeiElement chord, MeiSpecificStorage nonMidiStorage) {
+        super(currentStaff, currentMeasure, sequence, chord, nonMidiStorage);
         this.chord = chord;
         noteList = new ArrayList<>();
         
@@ -60,7 +61,7 @@ public class MeiChord extends LayerChild {
         //Children are obtained by name because sometimes
         //chord has null children which should not be passed down
         for(MeiElement note : chord.getChildrenByName("note")) {
-            noteList.add(new MeiNote(currentStaff, currentMeasure, sequence, note));
+            noteList.add(new MeiNote(currentStaff, currentMeasure, sequence, note, nonMidiStorage));
         }
         
         //Set layer tick appropriately

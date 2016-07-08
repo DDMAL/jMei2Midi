@@ -8,6 +8,7 @@ package org.ddmal.jmei2midi.meielements.layerchild;
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import javax.sound.midi.Sequence;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 
 /**
@@ -47,35 +48,36 @@ public final class LayerChildFactory {
     public static LayerChild buildLayerChild(MeiStaff currentStaff,
                                              MeiMeasure currentMeasure,
                                              Sequence sequence,
-                                             MeiElement child) {
+                                             MeiElement child,
+                                             MeiSpecificStorage nonMidiStorage) {
         LayerChild layerChild;
         switch (child.getName()) {
             case "note":
-                layerChild = new MeiNote(currentStaff, currentMeasure, sequence, child);
+                layerChild = new MeiNote(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
                 break;
 
             case "rest":
-                layerChild = new MeiRest(currentStaff, currentMeasure, sequence, child);
+                layerChild = new MeiRest(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
                 break;
 
             case "space":
-                layerChild = new MeiRest(currentStaff, currentMeasure, sequence, child);
+                layerChild = new MeiRest(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
                 break;
 
             case "mRest":
-                layerChild = new MeiMrest(currentStaff, currentMeasure, sequence, child);
+                layerChild = new MeiMrest(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
                 break;
 
             case "mSpace":
-                layerChild = new MeiMrest(currentStaff, currentMeasure, sequence, child);
+                layerChild = new MeiMrest(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
                 break;
 
             case "chord":
-                layerChild = new MeiChord(currentStaff, currentMeasure, sequence, child);
+                layerChild = new MeiChord(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
                 break;
 
             case "tuplet":
-                layerChild = new MeiTuplet(currentStaff, currentMeasure, sequence, child);
+                layerChild = new MeiTuplet(currentStaff, currentMeasure, sequence, child, nonMidiStorage);
                 break;
 
             default:

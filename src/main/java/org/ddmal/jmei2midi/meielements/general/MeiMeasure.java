@@ -17,6 +17,12 @@ import java.util.List;
  * @author Tristano Tenaglia
  */
 public class MeiMeasure extends MeiGeneral {
+
+    /**
+     * This measures number from the n attribute in MEI
+     */
+    private String measureNumber;
+
     /**
      * Will be used to keep track of tupletSpans
      */
@@ -32,7 +38,7 @@ public class MeiMeasure extends MeiGeneral {
     private HashMap<String,MeiElement> tieEnd;
     
     /**
-//     * Keeps track of accidentals in a measure.
+     * Keeps track of accidentals in a measure.
      */
     private HashMap<String,String> accidentals;
     private String oct;
@@ -42,6 +48,7 @@ public class MeiMeasure extends MeiGeneral {
      * @param measure MEI measure element to be passed.
      */
     public MeiMeasure(MeiElement measure) {
+        measureNumber = measure.getAttribute("n");
         tupletSpansStart = new HashMap<>();
         tupletSpansEnd = new HashMap<>();
         tieStart = new HashMap<>();
@@ -51,6 +58,10 @@ public class MeiMeasure extends MeiGeneral {
         numbase = 1;
         oct = ""; //initialize to avoid null pointer exception
         getEndElements(measure);
+    }
+
+    public String getMeasureNumber() {
+        return measureNumber;
     }
     
     /**
