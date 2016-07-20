@@ -5,6 +5,7 @@
  */
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
@@ -61,6 +62,8 @@ public abstract class MeiStaffBuilder {
      * The current mei element that is being processed
      */
     protected MeiElement element;
+
+    protected MeiData meiData;
     
     /**
      * The abstract method that needs to be called by all
@@ -80,7 +83,8 @@ public abstract class MeiStaffBuilder {
                            Map<Integer,MeiWork> works,
                            MeiMdiv currentMdiv,
                            MeiStaff currentStaff,
-                           MeiElement element) {
+                           MeiElement element,
+                              MeiData meiData) {
         this.sequence = sequence;
         this.stats = stats;
         this.staffs = staffs;
@@ -88,6 +92,7 @@ public abstract class MeiStaffBuilder {
         this.currentMdiv = currentMdiv;
         this.currentStaff = currentStaff;
         this.element = element;
+        this.meiData = meiData;
     }
     
     /**

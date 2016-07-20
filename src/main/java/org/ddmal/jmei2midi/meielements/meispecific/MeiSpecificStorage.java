@@ -21,10 +21,12 @@ import java.util.List;
 public class MeiSpecificStorage {
     
     private final List<MeiGraceNote> graceNoteList;
+    private final List<MeiSlurNote> slurNoteList;
     private final List<MeiSpecific> generalList;
     
     public MeiSpecificStorage() {
         generalList = new ArrayList<>();
+        slurNoteList = new ArrayList<>();
         graceNoteList = new ArrayList<>();
     }
 
@@ -38,5 +40,13 @@ public class MeiSpecificStorage {
     
     public void addGraceNote(MeiGraceNote graceNote) {
         graceNoteList.add(graceNote);
+    }
+
+    public List<MeiSlurNote> getSlurNoteList() {
+        return slurNoteList;
+    }
+
+    public void addSlurNote(MeiSlurNote slurNote) {
+        slurNoteList.add(slurNote);
     }
 }

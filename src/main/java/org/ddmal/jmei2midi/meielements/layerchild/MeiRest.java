@@ -7,6 +7,8 @@ package org.ddmal.jmei2midi.meielements.layerchild;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
 import javax.sound.midi.Sequence;
+
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
@@ -32,8 +34,8 @@ public class MeiRest extends LayerChild {
      * @param rest the mei rest element to be processed
      */
     public MeiRest(MeiStaff currentStaff, MeiMeasure currentMeasure, Sequence sequence,
-                   MeiElement rest, MeiSpecificStorage nonMidiStorage) {
-        super(currentStaff, currentMeasure, sequence, rest, nonMidiStorage);
+                   MeiElement rest, MeiSpecificStorage nonMidiStorage, MeiData meiData) {
+        super(currentStaff, currentMeasure, sequence, rest, nonMidiStorage, meiData);
         this.rest = rest;
         
         //Get the proper start and end Ticks for this rest

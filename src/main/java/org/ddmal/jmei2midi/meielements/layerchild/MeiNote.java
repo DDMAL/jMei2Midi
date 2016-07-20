@@ -10,9 +10,13 @@ import java.util.List;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
+
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiGraceNote;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSlurNote;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
+import org.ddmal.jmei2midi.meielements.staffinfo.MeiSlur;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
 import org.ddmal.midiUtilities.MidiBuildEvent;
@@ -47,8 +51,8 @@ public class MeiNote extends LayerChild {
      */
     public MeiNote(MeiStaff currentStaff, MeiMeasure currentMeasure,
                    Sequence sequence, MeiElement note,
-                   MeiSpecificStorage nonMidiStorage) {
-        super(currentStaff, currentMeasure, sequence, note, nonMidiStorage);
+                   MeiSpecificStorage nonMidiStorage, MeiData meiData) {
+        super(currentStaff, currentMeasure, sequence, note, nonMidiStorage, meiData);
         this.note = note;
         this.pitchName = note.getAttribute("pname");
 
@@ -64,6 +68,9 @@ public class MeiNote extends LayerChild {
         
         //Check parents to see how to process this chord
         checkNoteParents(pitch,startTick,endTick,currentMeasure);
+
+        //Check to see if this note is a slur
+        checkSlur();
         
         //Remove current note from currentStaff has
         currentStaff.removeLayerChild("note");
@@ -76,7 +83,22 @@ public class MeiNote extends LayerChild {
     public String getPitchName() {
         return pitchName;
     }
-    
+
+    /**
+     * Add a slur to our non-midi storage if we find a slur attribute
+     * corresponding to either a note itself or some slur elements within
+     * a measure that has already been stored.
+     */
+    private void checkSlur() {
+        MeiSlur allSlurs = meiData.getSlurs();
+        String slurAttribute = note.getAttribute("slur");
+        if(allSlurs.checkNoteSlur(note)) {
+            nonMidiStorage.addSlurNote(new MeiSlurNote(note, currentMeasure));
+        } else if(slurAttribute != null) {
+            nonMidiStorage.addSlurNote(new MeiSlurNote(note, currentMeasure));
+        }
+    }
+
     /**
      * Note check to see how the midi note should be processed depending on if
      * the note is within a chord or held by a tie.

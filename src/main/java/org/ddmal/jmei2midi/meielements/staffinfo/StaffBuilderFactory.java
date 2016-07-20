@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.sound.midi.Sequence;
 
 import org.ddmal.jmei2midi.MeiStatTracker;
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 
 /**
@@ -55,19 +56,20 @@ public final class StaffBuilderFactory {
                                                     Map<Integer,MeiWork> works,
                                                     MeiMdiv currentMdiv,
                                                     MeiStaff currentStaff,
-                                                    MeiElement element) {
+                                                    MeiElement element,
+                                                    MeiData meiData) {
         MeiStaffBuilder staffBuilder;
         switch(element.getName()) {
             case "staffDef":
-                staffBuilder = new MeiStaffDef(sequence, stats, staffs, works, currentMdiv, currentStaff, element);
+                staffBuilder = new MeiStaffDef(sequence, stats, staffs, works, currentMdiv, currentStaff, element, meiData);
                 break;
                 
             case "scoreDef":
-                staffBuilder = new MeiScoreDef(sequence, stats, staffs, works, currentMdiv, currentStaff, element);
+                staffBuilder = new MeiScoreDef(sequence, stats, staffs, works, currentMdiv, currentStaff, element, meiData);
                 break;
                 
             case "work":
-                staffBuilder = new MeiWorkInfo(sequence, stats, staffs, works, currentMdiv, currentStaff, element);
+                staffBuilder = new MeiWorkInfo(sequence, stats, staffs, works, currentMdiv, currentStaff, element, meiData);
                 break;
                 
             default:
