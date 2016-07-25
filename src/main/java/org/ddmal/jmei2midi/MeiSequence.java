@@ -5,8 +5,8 @@
  */
 package org.ddmal.jmei2midi;
 
-import org.ddmal.jmei2midi.meielements.staffinfo.MeiWork;
-import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
+import org.ddmal.jmei2midi.meielements.general.MeiData;
+import org.ddmal.jmei2midi.meielements.staffinfo.*;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
 import org.ddmal.jmei2midi.meielements.general.MeiRepeat;
 
@@ -17,6 +17,7 @@ import ca.mcgill.music.ddmal.mei.MeiXmlReader.MeiXmlReadException;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -26,8 +27,6 @@ import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 import org.ddmal.jmei2midi.meielements.layerchild.LayerChildEnum;
 import org.ddmal.jmei2midi.meielements.layerchild.LayerChildFactory;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
-import org.ddmal.jmei2midi.meielements.staffinfo.StaffBuilderEnum;
-import org.ddmal.jmei2midi.meielements.staffinfo.StaffBuilderFactory;
 import org.ddmal.midiUtilities.ConvertToMidi;
 
 /**
@@ -105,6 +104,8 @@ public class MeiSequence {
 	 */
 	private MeiRepeat repeats;
 
+	private MeiData meiData;
+
 	/**
 	 * This allows a sequence to generate some mei stats, such as invalid tempo
 	 * and invalid instruments.
@@ -138,6 +139,7 @@ public class MeiSequence {
 		this.works = new HashMap<>();
 		this.currentMdiv = new MeiMdiv();
 		this.repeats = new MeiRepeat();
+		this.meiData = new MeiData();
 
 		this.document = MeiXmlReader.loadFile(file);
 		this.stats = stats;
@@ -275,11 +277,11 @@ public class MeiSequence {
 		if (LayerChildEnum.contains(name)) {
 			checkLayerStart(element);
 			LayerChildFactory.buildLayerChild(currentStaff, currentMeasure,
-					sequence, element, nonMidiStorage);
+					sequence, element, nonMidiStorage, meiData);
 			checkLayerEnd(element);
 		} else if (StaffBuilderEnum.contains(name)) {
 			StaffBuilderFactory.buildStaffBuilder(sequence, stats, staffs,
-					works, currentMdiv, currentStaff, element);
+					works, currentMdiv, currentStaff, element, meiData);
 			processParent(element);
 		} else {
 			processGeneral(element);
@@ -384,6 +386,10 @@ public class MeiSequence {
 			// And check for repeats within the measure
 			currentMeasure = new MeiMeasure(measure);
 
+			// Process the slurs found in this measure before the measure starts
+			List<MeiElement> slurList = measure.getDescendantsByName("slur");
+			processSlurs(slurList);
+
 			// Process the measure elements' children
 			processParent(measure);
 			
@@ -421,6 +427,17 @@ public class MeiSequence {
 				processParent(document.getRootElement()); //DFS through repeat
 				repeats.resetInRepeat();// not in repeat
 			}
+		}
+	}
+
+	/**
+	 * Setup all the slur data for future use. In particular being able to know
+	 * which notes are slurred and not.
+	 * @param slurs A list of MEI slur elements found.
+     */
+	private void processSlurs(List<MeiElement> slurs) {
+		for(MeiElement slur: slurs) {
+			meiData.getSlurs().addSlur(slur);
 		}
 	}
 

@@ -5,6 +5,7 @@
  */
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
@@ -40,12 +41,13 @@ public class MeiScoreDef extends MeiStaffBuilder {
      */
     public MeiScoreDef(Sequence sequence,
                        MeiStatTracker stats,
-                       Map<Integer, MeiStaff> staffs, 
-                       Map<Integer, MeiWork> works, 
+                       Map<Integer, MeiStaff> staffs,
+                       Map<Integer, MeiWork> works,
                        MeiMdiv currentMdiv,
                        MeiStaff currentStaff,
-                       MeiElement scoreDef) {
-        super(sequence, stats, staffs, works, currentMdiv, currentStaff, scoreDef);
+                       MeiElement scoreDef,
+                       MeiData meiData) {
+        super(sequence, stats, staffs, works, currentMdiv, currentStaff, scoreDef, meiData);
         this.scoreDef = scoreDef;
         //Keep default key.sig and then use
         //staff def key.sig on other staffs

@@ -5,6 +5,7 @@
  */
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
@@ -37,14 +38,15 @@ public class MeiStaffDef extends MeiStaffBuilder {
      */
     //May need to add instrDef but so far this doesn't seem necessary
     //as instrDef can give random midi data for channels (Mozart Quintet)
-    public MeiStaffDef(Sequence sequence, 
-                       MeiStatTracker stats, 
-                       Map<Integer, MeiStaff> staffs, 
-                       Map<Integer, MeiWork> works, 
-                       MeiMdiv currentMdiv, 
+    public MeiStaffDef(Sequence sequence,
+                       MeiStatTracker stats,
+                       Map<Integer, MeiStaff> staffs,
+                       Map<Integer, MeiWork> works,
+                       MeiMdiv currentMdiv,
                        MeiStaff currentStaff,
-                       MeiElement staffDef) {
-        super(sequence, stats, staffs, works, currentMdiv, currentStaff, staffDef);
+                       MeiElement staffDef,
+                       MeiData meiData) {
+        super(sequence, stats, staffs, works, currentMdiv, currentStaff, staffDef, meiData);
         this.staffDef = staffDef;
         
         //Start building an mei staff

@@ -5,6 +5,7 @@
  */
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMdiv;
 
 import ca.mcgill.music.ddmal.mei.MeiElement;
@@ -41,12 +42,13 @@ public class MeiWorkInfo extends MeiStaffBuilder{
      */
     public MeiWorkInfo(Sequence sequence,
                        MeiStatTracker stats,
-                       Map<Integer, MeiStaff> staffs, 
-                       Map<Integer, MeiWork> works, 
-                       MeiMdiv currentMdiv, 
+                       Map<Integer, MeiStaff> staffs,
+                       Map<Integer, MeiWork> works,
+                       MeiMdiv currentMdiv,
                        MeiStaff currentStaff,
-                       MeiElement work) {
-        super(sequence, stats, staffs, works, currentMdiv, currentStaff, work);
+                       MeiElement work,
+                       MeiData meiData) {
+        super(sequence, stats, staffs, works, currentMdiv, currentStaff, work, meiData);
         this.work = work;
         MeiWork thisWork;
         int n = 1;

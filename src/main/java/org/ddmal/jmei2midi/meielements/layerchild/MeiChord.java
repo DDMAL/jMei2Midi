@@ -9,7 +9,10 @@ import ca.mcgill.music.ddmal.mei.MeiElement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sound.midi.Sequence;
+
+import org.ddmal.jmei2midi.meielements.general.MeiData;
 import org.ddmal.jmei2midi.meielements.general.MeiMeasure;
+import org.ddmal.jmei2midi.meielements.meispecific.MeiSlurNote;
 import org.ddmal.jmei2midi.meielements.meispecific.MeiSpecificStorage;
 import org.ddmal.jmei2midi.meielements.staffinfo.MeiStaff;
 import org.ddmal.midiUtilities.ConvertToMidi;
@@ -45,8 +48,8 @@ public class MeiChord extends LayerChild {
      * @param chord the mei chord element that is being processed
      */
     public MeiChord(MeiStaff currentStaff, MeiMeasure currentMeasure, Sequence sequence,
-                    MeiElement chord, MeiSpecificStorage nonMidiStorage) {
-        super(currentStaff, currentMeasure, sequence, chord, nonMidiStorage);
+                    MeiElement chord, MeiSpecificStorage nonMidiStorage, MeiData meiData) {
+        super(currentStaff, currentMeasure, sequence, chord, nonMidiStorage, meiData);
         this.chord = chord;
         noteList = new ArrayList<>();
         
@@ -56,19 +59,31 @@ public class MeiChord extends LayerChild {
         //Get duration of a note because they will all be the same
         //Put dur into layerChild hash here
         this.tick = getDurToTick();
-        
+
         //Process chord children
         //Children are obtained by name because sometimes
         //chord has null children which should not be passed down
         for(MeiElement note : chord.getChildrenByName("note")) {
-            noteList.add(new MeiNote(currentStaff, currentMeasure, sequence, note, nonMidiStorage));
+            addChordSlur(note);
+            noteList.add(new MeiNote(currentStaff, currentMeasure, sequence, note, nonMidiStorage, meiData));
         }
         
         //Set layer tick appropriately
         currentStaff.setTickLayer(currentStaff.getTickLayer() + tick);
         currentStaff.removeLayerChild("chord");
     }
-    
+
+    /**
+     * Adds a chord slur if the note is part of a chord which is a slur.
+     * @param note
+     */
+    private void addChordSlur(MeiElement note) {
+        String chordSlur = chord.getAttribute("slur");
+        if(chordSlur != null) {
+            nonMidiStorage.addSlurNote(new MeiSlurNote(note, currentMeasure));
+        }
+    }
+
     @Override
     /**
      * Converts given duration string to a long tick value for midi.
