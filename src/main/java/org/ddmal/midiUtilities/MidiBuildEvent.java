@@ -153,6 +153,21 @@ public class MidiBuildEvent {
 	}
 
 	/**
+	 * Creates a NOTE_ON MidiEvent given a pitch, tick and channel.
+	 * Right now default velocity is 64.
+	 *
+	 * @param nPitch pitch of midi note
+	 * @param lTick tick at which midi note occurs
+	 * @param nChannel channel on which midi note occurs
+	 * @param vel velocity of the note on event to be created
+	 * @return appropriate note on midi event
+	 */
+	public static MidiEvent createNoteOnEventVel(int nPitch, long lTick,
+												 int nChannel, int vel) throws InvalidMidiDataException {
+		return createNoteEvent(ShortMessage.NOTE_ON, nPitch, vel, lTick, nChannel);
+	}
+
+	/**
 	 * Creates a NOTE_OFF MidiEvent given a pitch, tick and channel.
 	 * 
 	 * @param nPitch pitch of midi note
