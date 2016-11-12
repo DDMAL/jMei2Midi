@@ -5,7 +5,6 @@
  */
 package org.ddmal.midiUtilities;
 
-import java.util.Arrays;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -34,6 +33,27 @@ public class MidiBuildEventTest {
     
     @AfterClass
     public static void tearDownClass() {
+    }
+
+    @Test
+    public void testTimeSignatureToByteArray() {
+        assertArrayEquals(new byte[]{0x04,0x02,(byte)0xFF,0x08},
+                          MidiBuildEvent.timeSignatureToByteArray("4","4"));
+    }
+
+    @Test
+    public void testCreateTimeSignature() throws InvalidMidiDataException {
+        byte[] bytes = new byte[]{0x04,0x02,(byte)0xFF,0x08};
+        MidiMessage testMes = new MetaMessage(0x58,bytes,4);
+        MidiEvent testEventExpect = new MidiEvent(testMes,0);
+        MidiEvent testEventActual = MidiBuildEvent.createTimeSignature("4", "4", 0);
+
+        assertArrayEquals(testEventExpect.getMessage().getMessage(),
+                testEventActual.getMessage().getMessage());
+        assertEquals(testEventExpect.getTick(),
+                testEventActual.getTick());
+        assertEquals(testEventExpect.getMessage().getLength(),
+                testEventActual.getMessage().getLength());
     }
 
     /**

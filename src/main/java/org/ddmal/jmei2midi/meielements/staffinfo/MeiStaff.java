@@ -119,8 +119,8 @@ public class MeiStaff {
         this.keysig = "0";
         this.keymode = "major";
         this.computeKeysigMap();
-        this.meterCount = "4";
-        this.meterUnit = "4";
+        this.meterCount = "4"; //same default as MIDI time signature count
+        this.meterUnit = "4"; //same default as MIDI time signature unit
         layerChild = new HashMap<>();
     }
     
