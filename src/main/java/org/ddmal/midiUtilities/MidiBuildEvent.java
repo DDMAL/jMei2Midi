@@ -26,6 +26,55 @@ public class MidiBuildEvent {
 	private static final int VEL = 64;
 
 	/**
+	 * Creates a MIDI meta message for time signature and key mode given the MEI
+	 * attributes meter.count = meterCount and meter.unit = meterUnit.
+	 *
+	 * @param meterCount
+	 *            metercount attribute from mei
+	 * @param meterUnit
+	 *            meterunit attribute from mei
+	 * @param lTick
+	 *            tick placement of this key signature
+	 * @return the appropriate time signature midi meta message
+	 * @throws InvalidMidiDataException
+	 */
+	public static MidiEvent createTimeSignature(String meterCount, String meterUnit,
+												long lTick) throws InvalidMidiDataException {
+		byte[] bytearray = timeSignatureToByteArray(meterCount, meterUnit);
+		MetaMessage setTimesig = new MetaMessage();
+		setTimesig.setMessage(0x58, bytearray, bytearray.length);
+		return new MidiEvent(setTimesig, lTick);
+	}
+
+	/**
+	 * Converts MEI meter.count and meter.unit to a byte array for MIDI time signature
+	 * meta message.
+	 * Implemented as per the specification of:
+	 * http://www.recordingblogs.com/sa/Wiki/topic/MIDI-Time-Signature-meta-message
+	 * @param meterCount The number of unit notes per measure.
+	 * @param meterUnit The value of the unit note (e.g. 4 = quarter note...)
+	 * @return An appropriate byte array represenation of the given time signature.
+	 */
+	public static byte[] timeSignatureToByteArray(String meterCount, String meterUnit) {
+		int count = Integer.parseInt(meterCount);
+		byte countByte = (byte) count;
+
+		// Unit is taken as 2^unit and therefore 0 counts as a whole note,
+		// while 1 counts as a half note... i.e. take logarithm of unit base 2
+		int unit = Integer.parseInt(meterUnit);
+		int adjustedUnit = (int) (Math.log(unit)/Math.log(2.0));
+		byte unitByte = (byte) adjustedUnit;
+
+		//Metronome value taken as once per 256 ticks since that is our PPQ resolution
+		byte metronome = (byte) 0XFF;
+
+		int thirtySecondNotesPerBeat = 32 / unit;
+		byte thirtySecondNotesPerBeatByte = (byte) thirtySecondNotesPerBeat;
+
+		return new byte[]{countByte, unitByte, metronome, thirtySecondNotesPerBeatByte};
+	}
+
+	/**
 	 * Creates a MIDI meta message for key signature and key mode given the MEI
 	 * attributes key.sig = keysig and key.mode = quality.
 	 * 

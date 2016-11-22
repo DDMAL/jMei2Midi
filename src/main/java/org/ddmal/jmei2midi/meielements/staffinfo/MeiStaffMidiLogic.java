@@ -6,6 +6,7 @@
 package org.ddmal.jmei2midi.meielements.staffinfo;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiEvent;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 import org.ddmal.midiUtilities.MidiBuildEvent;
@@ -73,6 +74,8 @@ public final class MeiStaffMidiLogic {
         String thisQuality = staff.getKeymode();
         int thisBpm = staff.getBpm();
         int thisProgram = staff.getMidiLabel();
+        String meterCount = staff.getMeterCount();
+        String meterUnit = staff.getMeterUnit();
         
         //If tracks does not have this n track
         //Then create a new track for the sequence
@@ -88,7 +91,9 @@ public final class MeiStaffMidiLogic {
                          thisKey, 
                          thisQuality, 
                          thisProgram, 
-                         thisBpm);
+                         thisBpm,
+                         meterCount,
+                         meterUnit);
     }
      
      /**
@@ -109,11 +114,14 @@ public final class MeiStaffMidiLogic {
                                   String key,
                                   String quality,
                                   int midiLabel,
-                                  int bpm) {
+                                  int bpm,
+                                   String meterCount,
+                                   String meterUnit) {
         try {
             track.add(MidiBuildEvent.createKeySignature(key, quality, tick));
             track.add(MidiBuildEvent.createProgramChange(midiLabel, tick, channel));
             track.add(MidiBuildEvent.createTrackTempo(bpm, tick));
+            track.add(MidiBuildEvent.createTimeSignature(meterCount, meterUnit, tick));
         }
         catch(InvalidMidiDataException imde) {
             imde.printStackTrace();
