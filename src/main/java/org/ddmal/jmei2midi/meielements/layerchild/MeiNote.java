@@ -129,6 +129,9 @@ public class MeiNote extends LayerChild {
         if(graceNote != null || graceChord != null) {
             //If grace note then move backwards and start next note on beat
             startTick = startTick - (endTick - startTick)/4;
+            if(startTick < 0) {
+                startTick = 0;
+            }
             endTick = startTick;
             addMidiNoteOn(thisTrack, nPitch, startTick, endTick);
             addMidiNoteOff(thisTrack, nPitch, startTick, endTick);

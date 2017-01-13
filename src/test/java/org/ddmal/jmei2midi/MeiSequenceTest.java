@@ -58,6 +58,7 @@ public class MeiSequenceTest {
         expectedtco[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedtco[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedtco[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedtco[0].add(MidiBuildEvent.createTimeSignature("4", "4", 0));
         
         int note = ConvertToMidi.NoteToMidi("g", "4", null);
         expectedtco[0].add(MidiBuildEvent.createNoteOnEvent(note, 0, 0));
@@ -1161,6 +1162,7 @@ public class MeiSequenceTest {
         expectedbeamP[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedbeamP[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedbeamP[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedbeamP[0].add(MidiBuildEvent.createTimeSignature("6", "4", 0));
         
         int beam1note1 = ConvertToMidi.NoteToMidi("e", "6", null);
         expectedbeamP[0].add(MidiBuildEvent.createNoteOnEvent(beam1note1, 0, 0));
@@ -1236,6 +1238,7 @@ public class MeiSequenceTest {
         expectedDotted4[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedDotted4[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedDotted4[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedDotted4[0].add(MidiBuildEvent.createTimeSignature("3", "4", 0));
         
         int dotted4m1n1 = ConvertToMidi.NoteToMidi("d", "5", null);
         expectedDotted4[0].add(MidiBuildEvent.createNoteOnEvent(dotted4m1n1, 0, 0));
@@ -1287,6 +1290,7 @@ public class MeiSequenceTest {
         expectedSlurwRest[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedSlurwRest[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedSlurwRest[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedSlurwRest[0].add(MidiBuildEvent.createTimeSignature("4", "4", 0));
         
         int slurwrestm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
         expectedSlurwRest[0].add(MidiBuildEvent.createNoteOnEvent(slurwrestm1n1, 0, 0));
@@ -1334,6 +1338,7 @@ public class MeiSequenceTest {
         expectedTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedTuplets2[0].add(MidiBuildEvent.createTimeSignature("12", "8", 0));
         
         int tuplets2m1n1 = ConvertToMidi.NoteToMidi("f", "4", null);
         expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m1n1, 768, 0));
@@ -1358,6 +1363,7 @@ public class MeiSequenceTest {
         expectedTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 1536));
         expectedTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
         expectedTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
+        expectedTuplets2[0].add(MidiBuildEvent.createTimeSignature("6", "8", 1536));
         
         int tuplets2m2n1 = ConvertToMidi.NoteToMidi("c", "5", null);
         expectedTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(tuplets2m2n1, 1536, 0));
@@ -1440,6 +1446,7 @@ public class MeiSequenceTest {
         expectedMyTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedMyTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedMyTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createTimeSignature("12", "8", 0));
         
         int mytuplets2m1n1 = ConvertToMidi.NoteToMidi("f", "4", null);
         expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m1n1, 768, 0));
@@ -1464,6 +1471,7 @@ public class MeiSequenceTest {
         expectedMyTuplets2[0].add(MidiBuildEvent.createKeySignature("0", "major", 1536));
         expectedMyTuplets2[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
         expectedMyTuplets2[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
+        expectedMyTuplets2[0].add(MidiBuildEvent.createTimeSignature("6", "8", 1536));
         
         int mytuplets2m2n1 = ConvertToMidi.NoteToMidi("c", "5", null);
         expectedMyTuplets2[0].add(MidiBuildEvent.createNoteOnEvent(mytuplets2m2n1, 1536, 0));
@@ -1546,6 +1554,7 @@ public class MeiSequenceTest {
         expectedTiesStems[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedTiesStems[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedTiesStems[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedTiesStems[0].add(MidiBuildEvent.createTimeSignature("4", "4", 0));
         
         int TiesStemsm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
         expectedTiesStems[0].add(MidiBuildEvent.createNoteOnEvent(TiesStemsm1n1, 0, 0));
@@ -1588,6 +1597,7 @@ public class MeiSequenceTest {
         expectedTiesUnison[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedTiesUnison[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedTiesUnison[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedTiesUnison[0].add(MidiBuildEvent.createTimeSignature("4", "4", 0));
         
         int TiesUnisonm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
         expectedTiesUnison[0].add(MidiBuildEvent.createNoteOnEvent(TiesUnisonm1n1, 0, 0));
@@ -1622,6 +1632,7 @@ public class MeiSequenceTest {
         expectedMyTiesUnison[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedMyTiesUnison[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedMyTiesUnison[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedMyTiesUnison[0].add(MidiBuildEvent.createTimeSignature("4", "4", 0));
         
         int MyTiesUnisonm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
         expectedMyTiesUnison[0].add(MidiBuildEvent.createNoteOnEvent(MyTiesUnisonm1n1, 0, 0));
@@ -1656,6 +1667,7 @@ public class MeiSequenceTest {
         expectedThreeRepeats[0].add(MidiBuildEvent.createKeySignature("0", "major", 0));
         expectedThreeRepeats[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedThreeRepeats[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedThreeRepeats[0].add(MidiBuildEvent.createTimeSignature("3", "4", 0));
         
         int ThreeRepeatsm1n1 = ConvertToMidi.NoteToMidi("g", "4", null);
         expectedThreeRepeats[0].add(MidiBuildEvent.createNoteOnEvent(ThreeRepeatsm1n1, 0, 0));
@@ -1710,6 +1722,7 @@ public class MeiSequenceTest {
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2s", "major", 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 0, 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 0));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTimeSignature("3", "4", 0));
         
         int RepeatsPositioningm1n1 = ConvertToMidi.NoteToMidi("b", "4", null);
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm1n1, 0, 0));
@@ -1722,10 +1735,12 @@ public class MeiSequenceTest {
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("0", "major", 1536));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTimeSignature("3", "4", 1536));
         
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2s", "major", 1536));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 1536, 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 1536));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTimeSignature("3", "4", 1536));
         
         int RepeatsPositioningm1n2 = ConvertToMidi.NoteToMidi("b", "4", null);
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm1n2, 1536, 0));
@@ -1738,6 +1753,7 @@ public class MeiSequenceTest {
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2f", "major", 3072));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 3072, 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 3072));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTimeSignature("3", "8", 3072));
         
         int RepeatsPositioningm3n1 = ConvertToMidi.NoteToMidi("f", "3", null);
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm3n1, 3072, 0));
@@ -1750,14 +1766,17 @@ public class MeiSequenceTest {
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("0", "major", 4608));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 4608, 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTimeSignature("3", "4", 4608));
         
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2s", "major", 4608));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 4608, 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTimeSignature("3", "4", 4608));
         
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createKeySignature("2f", "major", 4608));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createProgramChange(54, 4608, 0));
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createTrackTempo(90, 4608));
+        expectedRepeatsPositioning[0].add(MidiBuildEvent.createTimeSignature("3", "8", 4608));
         
         int RepeatsPositioningm3n2 = ConvertToMidi.NoteToMidi("f", "3", null);
         expectedRepeatsPositioning[0].add(MidiBuildEvent.createNoteOnEvent(RepeatsPositioningm3n2, 4608, 0));
