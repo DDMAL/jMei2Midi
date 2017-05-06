@@ -1,5 +1,6 @@
-jMei2Midi 1.0 Description
-=====================
+jMei2Midi 1.0 pre-release
+=========================
+by Tristano Tenaglia and Cory McKay
 
 A Java Maven project that converts a given MEI file to a
 MIDI sequence/file. This project can be imported into any
